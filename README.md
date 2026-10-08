@@ -54,11 +54,19 @@ The first `ninja` downloads dtk, splits `spider.exe` into expected COFF objects,
 ninja all_source          # compile every module's sources with Wine cl
 ninja spider              # link build/XPSP1/spider/spider.exe
 ninja cards               # link build/XPSP1/cards/cards.dll
-ninja build/XPSP1/report.json
+ninja report              # build/XPSP1/{spider,cards}/report.json
 python3 configure.py progress
 ```
 
-`ninja check` SHA-1s the rebuilt spider exe against [config/XPSP1/spider/build.sha1](config/XPSP1/spider/build.sha1). It will fail until the image matches. cards.dll has no SHA-1 check: gold's IAT is pre-bound.
+Each module is measured and checked on its own:
+
+| Target | What it does |
+|--------|--------------|
+| `ninja report_spider` / `ninja report_cards` | objdiff report for that module only, from `build/XPSP1/<module>/objdiff.json` |
+| `ninja check_spider` / `ninja check_cards` | Byte-compares the rebuilt image with `orig/XPSP1/<binary>` (`tools/cmp_image.py`) |
+| `ninja report` / `ninja check` | Both modules |
+
+Both gold images were processed by `bind.exe`, so a whole-file SHA-1 can never match. `cmp_image.py` normalizes both sides first (IAT restored from the import name table, bind timestamps and the bound-import directory zeroed, checksum and link/debug timestamps zeroed) and then requires every other byte to match. On failure it names the differing header fields and the first differing addresses per section. The root `objdiff.json` still lists every module for the GUI.
 
 ## objdiff
 
@@ -111,7 +119,7 @@ python3 tools/cmp_rsrc.py orig/XPSP1/cards.dll build/XPSP1/cards/cards.dll
 
 ## cards.dll
 
-Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12 /DEF:src/cards/cards.def`. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. The IAT is pre-bound, so a full-image SHA-1 is not a target.
+Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12 /DEF:src/cards/cards.def`. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. Like spider, its image check is `ninja check_cards`.
 
 CRT is not decompiled: once the toolchain is installed, pull matching objects from that `libcmt.lib` and list them in `configure.py` / `splits.txt`.
 

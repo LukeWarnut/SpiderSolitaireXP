@@ -247,11 +247,19 @@ def generate_build(config: ProjectConfig) -> None:
     )
     n.newline()
 
-    n.comment("SHA-1 of a matching rebuild (fails until the image matches)")
+    n.comment("Byte-compare a rebuilt image with gold, ignoring bind and link time (fails until it matches)")
     n.rule(
-        name="sha1check",
-        command="shasum -a 1 -c $in",
-        description="SHA1 $in",
+        name="imagecheck",
+        command="$python tools/cmp_image.py $gold $in",
+        description="CHECK $in",
+    )
+    n.newline()
+
+    n.comment("objdiff progress report, one per module")
+    n.rule(
+        name="report",
+        command=f"{objdiff} report generate -p $project -o $out",
+        description="REPORT $out",
     )
     n.newline()
 
@@ -267,6 +275,8 @@ def generate_build(config: ProjectConfig) -> None:
         Path("tools/pe_rsrc.py"),
     ]
     check_inputs: List[Path] = []
+    report_inputs: List[Path] = []
+    module_sources: Dict[str, List[Path]] = {}
 
     for module in config.modules:
         objects = config.module_objects.get(module.name, {})
@@ -316,6 +326,7 @@ def generate_build(config: ProjectConfig) -> None:
             if units.get(obj.name, {}).get("link", True):
                 source_objs.append(obj.src_obj_path)
             all_source.append(obj.src_obj_path)
+            module_sources.setdefault(module.name, []).append(obj.src_obj_path)
             n.newline()
 
         extra_objs: List[Path] = []
@@ -362,37 +373,31 @@ def generate_build(config: ProjectConfig) -> None:
             n.build(outputs=f"{module.name}_run", rule="phony", inputs=[run_exe])
             n.newline()
 
-        if module.sha1.is_file():
-            n.build(
-                outputs=f"check_{module.name}",
-                rule="sha1check",
-                inputs=module.sha1,
-                implicit=module.output,
-            )
-            check_inputs.append(Path(f"check_{module.name}"))
-            n.newline()
+        n.build(
+            outputs=f"check_{module.name}",
+            rule="imagecheck",
+            inputs=module.output,
+            implicit=[Path("tools") / "cmp_image.py", module.orig],
+            variables={"gold": module.orig},
+        )
+        check_inputs.append(Path(f"check_{module.name}"))
+        n.build(
+            outputs=module.report,
+            rule="report",
+            implicit=[objdiff, module.objdiff_json, *module_sources.get(module.name, [])],
+            variables={"project": module.build_dir},
+        )
+        n.build(outputs=f"report_{module.name}", rule="phony", inputs=[module.report])
+        report_inputs.append(module.report)
+        n.newline()
 
     if missing_source and config.warn_missing_source:
         for path in missing_source:
             print(f"warning: missing source {path}")
 
     n.build(outputs="all_source", rule="phony", inputs=all_source)
-    if check_inputs:
-        n.build(outputs="check", rule="phony", inputs=check_inputs)
-    n.newline()
-
-    report_path = config.out_path() / "report.json"
-    n.comment("objdiff progress report")
-    n.rule(
-        name="report",
-        command=f"{objdiff} report generate -o $out",
-        description="REPORT $out",
-    )
-    n.build(
-        outputs=report_path,
-        rule="report",
-        implicit=[objdiff, "objdiff.json", "all_source"],
-    )
+    n.build(outputs="check", rule="phony", inputs=check_inputs)
+    n.build(outputs="report", rule="phony", inputs=report_inputs)
     n.newline()
 
     n.comment("Reconfigure when the split config or generator changes")
@@ -403,7 +408,7 @@ def generate_build(config: ProjectConfig) -> None:
         description="RUN configure.py",
     )
     n.build(
-        outputs=["build.ninja", "objdiff.json"],
+        outputs=["build.ninja", "objdiff.json", *(m.objdiff_json for m in config.modules)],
         rule="configure",
         implicit=configure_implicit,
     )
@@ -440,8 +445,10 @@ def expected_obj_path(build_path: Path, unit_name: str) -> Path:
 def generate_objdiff_config(config: ProjectConfig, has_compiler: bool = False) -> None:
     ninja = str(config.ninja_path) if config.ninja_path else "ninja"
     units: List[Dict[str, Any]] = []
+    module_units: Dict[str, List[Dict[str, Any]]] = {}
 
     for module in config.modules:
+        first_unit = len(units)
         objects = config.module_objects.get(module.name, {})
         info = config.module_units.get(module.name, {})
         build_config = load_build_config(module.build_config)
@@ -495,6 +502,7 @@ def generate_objdiff_config(config: ProjectConfig, has_compiler: bool = False) -
                 if obj.src_obj_path and (has_compiler or obj.src_obj_path.is_file()):
                     entry["base_path"] = str(obj.src_obj_path)
                 units.append(entry)
+        module_units[module.name] = units[first_unit:]
 
     objdiff_config: Dict[str, Any] = {
         "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
@@ -521,13 +529,54 @@ def generate_objdiff_config(config: ProjectConfig, has_compiler: bool = False) -
         json.dump(objdiff_config, fh, indent=2)
         fh.write("\n")
 
+    # Report-only projects: objdiff resolves unit paths against the project
+    # directory, so each module's copy is rebased onto its build directory.
+    for module in config.modules:
+        base = module.build_dir
+
+        def rebase(path: str) -> str:
+            return os.path.relpath(path, base)
+
+        mod_units = []
+        used_categories = set()
+        for unit in module_units.get(module.name, []):
+            entry = dict(unit)
+            for key in ("target_path", "base_path"):
+                if key in entry:
+                    entry[key] = rebase(entry[key])
+            meta = dict(entry.get("metadata", {}))
+            if "source_path" in meta:
+                meta["source_path"] = rebase(meta["source_path"])
+            used_categories.update(meta.get("progress_categories", []))
+            entry["metadata"] = meta
+            mod_units.append(entry)
+        module_config = {
+            "$schema": objdiff_config["$schema"],
+            "min_version": objdiff_config["min_version"],
+            "build_target": False,
+            "build_base": False,
+            "progress_categories": [
+                {"id": cat.id, "name": cat.name}
+                for cat in config.progress_categories
+                if cat.id in used_categories
+            ],
+            "units": mod_units,
+        }
+        base.mkdir(parents=True, exist_ok=True)
+        with open(module.objdiff_json, "w", encoding="utf-8") as fh:
+            json.dump(module_config, fh, indent=2)
+            fh.write("\n")
+
 
 def calculate_progress(config: ProjectConfig) -> None:
-    report = config.out_path() / "report.json"
-    if not report.is_file():
-        print(f"No report.json yet. Run: ninja && ninja {report}")
-        return
-    with open(report, encoding="utf-8") as fh:
-        data = json.load(fh)
-    measures = data.get("measures") or data
-    print(json.dumps(measures, indent=2) if isinstance(measures, dict) else data)
+    for module in config.modules:
+        report = module.report
+        print(f"{module.name} ({module.orig}):")
+        if not report.is_file():
+            print(f"  no report yet. Run: ninja report_{module.name}")
+            continue
+        with open(report, encoding="utf-8") as fh:
+            data = json.load(fh)
+        measures = data.get("measures") or data
+        text = json.dumps(measures, indent=2) if isinstance(measures, dict) else str(data)
+        print("\n".join("  " + line for line in text.splitlines()))

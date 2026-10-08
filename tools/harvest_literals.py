@@ -99,7 +99,7 @@ def main() -> int:
     mod = get_module("spider")
     if "--module" in sys.argv:
         mod = get_module(sys.argv[sys.argv.index("--module") + 1])
-    report = json.loads((ROOT / "build" / "XPSP1" / "report.json").read_text())
+    report = json.loads((ROOT / mod.report).read_text())
     found = defaultdict(set)
     for u in report["units"]:
         for f in u.get("functions", []):

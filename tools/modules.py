@@ -58,8 +58,12 @@ class Module:
         return self.config_dir / "units.json"
 
     @property
-    def sha1(self) -> Path:
-        return self.config_dir / "build.sha1"
+    def objdiff_json(self) -> Path:
+        return self.build_dir / "objdiff.json"
+
+    @property
+    def report(self) -> Path:
+        return self.build_dir / "report.json"
 
     @property
     def assets_dir(self) -> Path:
