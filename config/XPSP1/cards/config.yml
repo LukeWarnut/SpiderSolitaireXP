@@ -1,0 +1,6 @@
+object_base: orig/XPSP1
+name: cards
+object: cards.dll
+hash: 0a19ac47361a87029a3df157d23204a4461f4874
+symbols: config/XPSP1/cards/symbols.txt
+splits: config/XPSP1/cards/splits.txt

@@ -1,0 +1,14 @@
+Sections:
+	.text       type:code align:4096
+	.data       type:data align:4096
+	.rsrc       type:rodata align:4096
+
+iat:
+	.text       start:0x6FC11000 end:0x6FC11044 align:1
+
+text_rdata:
+	.text       start:0x6FC11044 end:0x6FC11086 align:1
+
+cards.c:
+	.text       start:0x6FC11086 end:0x6FC11840 align:1
+	.data       start:0x6FC12000 end:0x6FC12100 align:4 rename:.bss

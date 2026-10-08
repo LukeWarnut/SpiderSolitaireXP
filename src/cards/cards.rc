@@ -1,0 +1,113 @@
+// Decompiled from orig/XPSP1/cards.dll by tools/extract_assets.py --rc.
+// rc writes resource data in statement order (STRINGTABLE always last), and
+// the linker keeps that order in .rsrc, so the order below is part of the match.
+// Media files are extracted from the original at configure time and found
+// through /i build/XPSP1/cards/assets.
+
+#include <winresrc.h>
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+54 BITMAP "bitmaps/54.bmp"
+55 BITMAP "bitmaps/55.bmp"
+56 BITMAP "bitmaps/56.bmp"
+57 BITMAP "bitmaps/57.bmp"
+58 BITMAP "bitmaps/58.bmp"
+59 BITMAP "bitmaps/59.bmp"
+60 BITMAP "bitmaps/60.bmp"
+61 BITMAP "bitmaps/61.bmp"
+62 BITMAP "bitmaps/62.bmp"
+63 BITMAP "bitmaps/63.bmp"
+64 BITMAP "bitmaps/64.bmp"
+65 BITMAP "bitmaps/65.bmp"
+53 BITMAP "bitmaps/53.bmp"
+678 BITMAP "bitmaps/678.bmp"
+679 BITMAP "bitmaps/679.bmp"
+680 BITMAP "bitmaps/680.bmp"
+681 BITMAP "bitmaps/681.bmp"
+682 BITMAP "bitmaps/682.bmp"
+683 BITMAP "bitmaps/683.bmp"
+684 BITMAP "bitmaps/684.bmp"
+1 BITMAP "bitmaps/1.bmp"
+2 BITMAP "bitmaps/2.bmp"
+3 BITMAP "bitmaps/3.bmp"
+4 BITMAP "bitmaps/4.bmp"
+5 BITMAP "bitmaps/5.bmp"
+6 BITMAP "bitmaps/6.bmp"
+7 BITMAP "bitmaps/7.bmp"
+8 BITMAP "bitmaps/8.bmp"
+9 BITMAP "bitmaps/9.bmp"
+10 BITMAP "bitmaps/10.bmp"
+11 BITMAP "bitmaps/11.bmp"
+12 BITMAP "bitmaps/12.bmp"
+13 BITMAP "bitmaps/13.bmp"
+14 BITMAP "bitmaps/14.bmp"
+15 BITMAP "bitmaps/15.bmp"
+16 BITMAP "bitmaps/16.bmp"
+17 BITMAP "bitmaps/17.bmp"
+18 BITMAP "bitmaps/18.bmp"
+19 BITMAP "bitmaps/19.bmp"
+20 BITMAP "bitmaps/20.bmp"
+21 BITMAP "bitmaps/21.bmp"
+22 BITMAP "bitmaps/22.bmp"
+23 BITMAP "bitmaps/23.bmp"
+24 BITMAP "bitmaps/24.bmp"
+25 BITMAP "bitmaps/25.bmp"
+26 BITMAP "bitmaps/26.bmp"
+27 BITMAP "bitmaps/27.bmp"
+28 BITMAP "bitmaps/28.bmp"
+29 BITMAP "bitmaps/29.bmp"
+30 BITMAP "bitmaps/30.bmp"
+31 BITMAP "bitmaps/31.bmp"
+32 BITMAP "bitmaps/32.bmp"
+33 BITMAP "bitmaps/33.bmp"
+34 BITMAP "bitmaps/34.bmp"
+35 BITMAP "bitmaps/35.bmp"
+36 BITMAP "bitmaps/36.bmp"
+37 BITMAP "bitmaps/37.bmp"
+38 BITMAP "bitmaps/38.bmp"
+39 BITMAP "bitmaps/39.bmp"
+40 BITMAP "bitmaps/40.bmp"
+41 BITMAP "bitmaps/41.bmp"
+42 BITMAP "bitmaps/42.bmp"
+43 BITMAP "bitmaps/43.bmp"
+44 BITMAP "bitmaps/44.bmp"
+45 BITMAP "bitmaps/45.bmp"
+46 BITMAP "bitmaps/46.bmp"
+47 BITMAP "bitmaps/47.bmp"
+48 BITMAP "bitmaps/48.bmp"
+49 BITMAP "bitmaps/49.bmp"
+50 BITMAP "bitmaps/50.bmp"
+51 BITMAP "bitmaps/51.bmp"
+52 BITMAP "bitmaps/52.bmp"
+68 BITMAP "bitmaps/68.bmp"
+67 BITMAP "bitmaps/67.bmp"
+
+1 VERSIONINFO
+ FILEVERSION 5,1,2600,0
+ PRODUCTVERSION 5,1,2600,0
+ FILEFLAGSMASK 0x3F
+ FILEFLAGS 0x0
+ FILEOS 0x40004
+ FILETYPE 0x2
+ FILESUBTYPE 0x0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Microsoft Corporation"
+            VALUE "FileDescription", "Entertainment Pack Cardplaying Helper DLL"
+            VALUE "FileVersion", "5.1.2600.0 (xpclient.010817-1148)"
+            VALUE "InternalName", "cards"
+            VALUE "LegalCopyright", "\251 Microsoft Corporation. All rights reserved."
+            VALUE "OriginalFilename", "cards"
+            VALUE "ProductName", "Microsoft\256 Windows\256 Operating System"
+            VALUE "ProductVersion", "5.1.2600.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 0x4B0
+    END
+END

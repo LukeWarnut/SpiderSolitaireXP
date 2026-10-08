@@ -1,0 +1,9 @@
+LIBRARY CARDS
+
+EXPORTS
+    WEP @1
+    cdtAnimate @2
+    cdtDraw @3
+    cdtDrawExt @4
+    cdtInit @5
+    cdtTerm @6

@@ -17,7 +17,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GOLD = ROOT / "orig/XPSP1/spider.exe"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.modules import get_module, gold_bytes
+
 DEFAULT_LIB = ROOT / "orig/toolchain/lib/wxp/i386/libc.lib"
 
 
@@ -103,10 +107,16 @@ def score(gold: bytes, body: bytes, mask: set[int]) -> float:
 
 
 def main() -> None:
-    lib = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_LIB
-    pat = re.compile(sys.argv[2] if len(sys.argv) > 2 else r"^crt_fn_")
-    exe = GOLD.read_bytes()
-    units = json.loads((ROOT / "config/XPSP1/units.json").read_text())
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("lib", nargs="?", type=Path, default=DEFAULT_LIB)
+    ap.add_argument("unit_regex", nargs="?", default=r"^crt_fn_")
+    ap.add_argument("--module", default="spider")
+    args = ap.parse_args()
+    lib = args.lib
+    pat = re.compile(args.unit_regex)
+    mod = get_module(args.module)
+    units = json.loads(mod.units_json.read_text())
     funcs = []
     for member, obj in ar_members(lib.read_bytes()):
         for sname, body, mask in coff_functions(obj):
@@ -115,8 +125,7 @@ def main() -> None:
     for u in units:
         if not pat.search(u["name"]) or "addr" not in u:
             continue
-        off = 0x400 + u["addr"] - 0x01001000
-        gold = exe[off : off + u["size"]]
+        gold = gold_bytes(mod, u["addr"], u["size"])
         best = max(funcs, key=lambda f: (score(gold, f[2], f[3]), len(f[2])))
         s = score(gold, best[2], best[3])
         blen = len(best[2].rstrip(b"\xcc"))

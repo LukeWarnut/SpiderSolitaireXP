@@ -8,26 +8,16 @@ differences are link-time addresses.
 
 usage: cmp_reloc.py <obj> <gold_addr> <size> [symbol]
 """
+import argparse
 import struct
 import sys
 from pathlib import Path
 
-GOLD = Path("orig/XPSP1/spider.exe")
-IMAGE_BASE = 0x01000000
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-
-def gold_bytes(addr: int, size: int) -> bytes:
-    d = GOLD.read_bytes()
-    pe = struct.unpack_from("<I", d, 0x3C)[0]
-    nsec = struct.unpack_from("<H", d, pe + 6)[0]
-    optsz = struct.unpack_from("<H", d, pe + 20)[0]
-    rva = addr - IMAGE_BASE
-    for i in range(nsec):
-        o = pe + 24 + optsz + 40 * i
-        vs, va, rs, rp = struct.unpack_from("<IIII", d, o + 8)
-        if va <= rva < va + vs:
-            return d[rp + rva - va : rp + rva - va + size]
-    raise SystemExit(f"{addr:#x} not in gold image")
+from tools.modules import gold_bytes, infer_module
 
 
 def text_sections(obj: bytes):
@@ -67,11 +57,23 @@ def text_sections(obj: bytes):
 
 
 def main() -> int:
-    obj = Path(sys.argv[1]).read_bytes()
-    addr = int(sys.argv[2], 0)
-    size = int(sys.argv[3], 0)
-    want = sys.argv[4] if len(sys.argv) > 4 else None
-    gold = gold_bytes(addr, size)
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("obj", type=Path)
+    ap.add_argument("gold_addr")
+    ap.add_argument("size")
+    ap.add_argument("symbol", nargs="?")
+    ap.add_argument("--module", help="spider or cards (inferred from obj path)")
+    args = ap.parse_args()
+    obj = args.obj.read_bytes()
+    addr = int(args.gold_addr, 0)
+    size = int(args.size, 0)
+    want = args.symbol
+    if args.module:
+        from tools.modules import get_module
+        mod = get_module(args.module)
+    else:
+        mod = infer_module(args.obj)
+    gold = gold_bytes(mod, addr, size)
     secs = list(text_sections(obj))
     if want:
         secs = [s for s in secs if s[0] == want]

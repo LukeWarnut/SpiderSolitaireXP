@@ -727,11 +727,11 @@ MANGLED = {
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exe", type=Path, default=ROOT / "orig/XPSP1/spider.exe")
-    parser.add_argument("--symbols", type=Path, default=ROOT / "config/XPSP1/symbols.txt")
-    parser.add_argument("--splits", type=Path, default=ROOT / "config/XPSP1/splits.txt")
-    parser.add_argument("--units", type=Path, default=ROOT / "config/XPSP1/units.json")
+    parser.add_argument("--symbols", type=Path, default=ROOT / "config/XPSP1/spider/symbols.txt")
+    parser.add_argument("--splits", type=Path, default=ROOT / "config/XPSP1/spider/splits.txt")
+    parser.add_argument("--units", type=Path, default=ROOT / "config/XPSP1/spider/units.json")
     parser.add_argument("--sigs", type=Path, default=Path("/tmp/xpddk_libcmt_sigs"))
-    parser.add_argument("--src-game", type=Path, default=ROOT / "src/game")
+    parser.add_argument("--src-game", type=Path, default=ROOT / "src/spider/game")
     args = parser.parse_args()
 
     text, data, text_va = load_pe_text(args.exe)
@@ -802,8 +802,8 @@ def main() -> int:
     for addr, size, name in sorted(imps):
         lines.append(f"{name} = .text:{addr:#010x}; // type:object size:{size:#x}")
     lines.append(f"text_rdata = .text:{IAT_END:#010x}; // type:object size:{GAME_START - IAT_END:#x}")
-    labels = load_names(ROOT / "config/XPSP1/names.txt")
-    obj_dir = ROOT / "build" / "XPSP1" / "src"
+    labels = load_names(ROOT / "config/XPSP1/spider/names.txt")
+    obj_dir = ROOT / "build" / "XPSP1" / "spider" / "src"
     game_symbols: dict[str, str] = {}
     used_names: set[str] = set()
     for addr, size in game_funcs:

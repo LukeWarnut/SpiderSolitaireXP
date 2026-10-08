@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""Compile a unit with Wine MSVC /O1 and compare masked .text to gold spider.exe."""
+"""Compile a unit with Wine MSVC /O1 and compare masked .text to gold."""
 from __future__ import annotations
 
+import argparse
 import struct
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXE = ROOT / "orig/XPSP1/spider.exe"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.modules import gold_bytes, infer_module
 
 
 def coff_text(data: bytes) -> bytes:
@@ -86,36 +90,28 @@ def first_diff(a: bytes, b: bytes) -> int | None:
 
 
 def main() -> int:
-    if len(sys.argv) < 4:
-        print("usage: cmp_fn.py src dest_obj va [gold_size]")
-        return 2
-    src = Path(sys.argv[1])
-    obj = Path(sys.argv[2])
-    va = int(sys.argv[3], 16)
-    gold_size = int(sys.argv[4], 0) if len(sys.argv) > 4 else None
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("src", type=Path)
+    ap.add_argument("dest_obj", type=Path)
+    ap.add_argument("va")
+    ap.add_argument("gold_size", nargs="?")
+    ap.add_argument("--module", help="spider or cards (inferred from src path)")
+    args = ap.parse_args()
+    src = args.src
+    obj = args.dest_obj
+    va = int(args.va, 16)
+    gold_size = int(args.gold_size, 0) if args.gold_size else None
+    if args.module:
+        from tools.modules import get_module
+        mod = get_module(args.module)
+    else:
+        mod = infer_module(src)
     obj.parent.mkdir(parents=True, exist_ok=True)
     cflags = [
         str(ROOT / "tools/wine_msvc.sh"),
         "cl",
         "/nologo",
-        "/W3",
-        "/wd4234",
-        "/MT",
-        "/GR-",
-        "/DUNICODE",
-        "/D_UNICODE",
-        "/DWIN32",
-        "/D_WINDOWS",
-        "/DNDEBUG",
-        "/O1",
-        "/I",
-        "include",
-        "/I",
-        "orig/toolchain/inc",
-        "/I",
-        "orig/toolchain/inc/wxp",
-        "/I",
-        "orig/toolchain/inc/crt",
+        *mod.cflags,
         "/c",
         str(src),
         f"/Fo{obj}",
@@ -126,9 +122,7 @@ def main() -> int:
     if r.returncode != 0:
         return r.returncode
     text = coff_text(obj.read_bytes())
-    exe = EXE.read_bytes()
-    off = 0x400 + (va - 0x01001000)
-    gold = exe[off : off + (gold_size if gold_size else len(text))]
+    gold = gold_bytes(mod, va, gold_size if gold_size else len(text))
     mt, mg = mask_bytes(text), mask_bytes(gold)
     d = first_diff(mt, mg)
     same = sum(1 for i in range(min(len(mt), len(mg))) if mt[i] == mg[i])

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "iat",
+    "category": null,
+    "complete": true,
+    "kind": "thunks"
+  },
+  {
+    "name": "text_rdata",
+    "category": null,
+    "complete": true,
+    "kind": "rdata"
+  },
+  {
+    "name": "cards.c",
+    "category": "cards",
+    "complete": false,
+    "kind": "cards",
+    "source": "cards.c",
+    "symbol": "_DllMain@12",
+    "addr": 1870655622,
+    "size": 1978
+  }
+]

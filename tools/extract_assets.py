@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Extract the media resources of the original spider.exe as standalone files.
+"""Extract the media resources of a PE as standalone files.
 
     extract_assets.py <exe> <out_dir>               bitmaps, icons, sounds, manifest
     extract_assets.py <exe> <out_dir> --rc <file>   also decompile a resource script
 
-configure.py runs the first form; the build compiles src/spider.rc with rc.exe,
-which picks the extracted files up through /i <out_dir>. The second form
-regenerates src/spider.rc from the original (menus, dialogs, strings,
-accelerators, version info as text; media as references to the files above).
+configure.py runs the first form per module; the build compiles that module's
+.rc with rc.exe, which picks the extracted files up through /i <out_dir>. The
+second form regenerates the resource script from the original (menus, dialogs,
+strings, accelerators, version info as text; media as references to the files
+above).
 
 Files that already hold the right bytes are not rewritten, so their mtimes do
 not trigger a rebuild.
@@ -416,16 +417,18 @@ def version_rc(r: Resource) -> list[str]:
     return lines
 
 
-def resource_script(rs: ResourceSection) -> str:
+def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path | None = None) -> str:
     """Resource script whose rc output lays the data out in the original order."""
     if any(r.lang != LANG_EN_US for r in rs.resources):
         raise ValueError("only en-US resources are handled")
+    src = orig or Path("orig/XPSP1/spider.exe")
+    include = assets or Path("build/XPSP1/spider/assets")
     out = [
-        "// Decompiled from orig/XPSP1/spider.exe by tools/extract_assets.py --rc.",
+        f"// Decompiled from {src} by tools/extract_assets.py --rc.",
         "// rc writes resource data in statement order (STRINGTABLE always last), and",
         "// the linker keeps that order in .rsrc, so the order below is part of the match.",
         "// Media files are extracted from the original at configure time and found",
-        "// through /i build/XPSP1/assets.",
+        f"// through /i {include}.",
         "",
         "#include <winresrc.h>",
         "",
@@ -456,8 +459,9 @@ def resource_script(rs: ResourceSection) -> str:
             out.append("")
         out += block
         prev_type = r.type
-    out.append("")
-    out += string_rc(strings)
+    if strings:
+        out.append("")
+        out += string_rc(strings)
     return "\n".join(out) + "\n"
 
 
@@ -470,7 +474,7 @@ def main() -> int:
     paths = extract_assets(args.exe, args.out_dir)
     print(f"{len(paths)} asset file(s) in {args.out_dir}")
     if args.rc:
-        script = resource_script(ResourceSection(args.exe))
+        script = resource_script(ResourceSection(args.exe), orig=args.exe, assets=args.out_dir)
         args.rc.parent.mkdir(parents=True, exist_ok=True)
         args.rc.write_bytes(script.encode("ascii"))
         print(f"wrote {args.rc}")

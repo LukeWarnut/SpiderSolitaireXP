@@ -12,21 +12,26 @@ import json
 import sys
 from pathlib import Path
 
-from tools.coffsym import defined_function_symbols
-from tools.names import load_names
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.coffsym import defined_function_symbols
+from tools.modules import Module, get_module
+from tools.names import load_names
 
 
 def sync_symbols(
+    module: Module | None = None,
     root: Path = ROOT,
     symbols_path: Path | None = None,
     names_path: Path | None = None,
     obj_dir: Path | None = None,
 ) -> int:
-    symbols_path = symbols_path or (root / "config/XPSP1/symbols.txt")
-    names_path = names_path or (root / "config/XPSP1/names.txt")
-    obj_dir = obj_dir or (root / "build/XPSP1/src")
+    module = module or get_module("spider")
+    symbols_path = symbols_path or module.symbols
+    names_path = names_path or module.names
+    obj_dir = obj_dir or module.src_obj_dir
     if not symbols_path.is_file():
         return 0
     named = set(load_names(names_path))
@@ -83,7 +88,10 @@ def sync_symbols(
 
 
 def main() -> int:
-    n = sync_symbols()
+    name = "spider"
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        name = sys.argv[1]
+    n = sync_symbols(get_module(name))
     print(f"updated {n} symbol(s)")
     return 0
 

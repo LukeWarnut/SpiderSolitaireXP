@@ -9,7 +9,7 @@
  *
  * Game globals (g_board, g_hinst, ...) are defined by the matched units and
  * live in this image's .data. Only the SPIDER_SHOT comparison runs gold
- * code: the runnable link (build/XPSP1/run/spider.exe, /BASE:0x00400000)
+ * code: the runnable link (build/XPSP1/spider/run/spider.exe, /BASE:0x00400000)
  * leaves 0x01000000 free, so spider_boot maps the original image there and
  * resolves its import table, and shot_thread copies our board into gold's
  * before calling gold paint_hdc. The matching link (/BASE:0x01000000) cannot

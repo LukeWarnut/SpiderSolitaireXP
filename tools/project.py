@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict
 
 from . import ninja_syntax
+from .modules import Module
 from .names import load_names
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,7 @@ class Object:
     def __init__(self, completed: bool, name: str, **options: Any) -> None:
         self.name = name
         self.completed = completed
+        self.module: Optional[Module] = None
         self.options: Dict[str, Any] = {
             "cflags": None,
             "extra_cflags": [],
@@ -33,17 +35,13 @@ class Object:
         self.src_path: Optional[Path] = None
         self.src_obj_path: Optional[Path] = None
 
-    def resolve(self, config: "ProjectConfig", lib: Dict[str, Any]) -> "Object":
-        obj = Object(self.completed, self.name, **lib)
-        for key, value in self.options.items():
-            if value is not None or key not in obj.options:
-                obj.options[key] = value
-        if obj.options["src_dir"] is None:
-            obj.options["src_dir"] = config.src_dir
+    def resolve(self, module: Module) -> "Object":
+        obj = Object(self.completed, self.name, **self.options)
+        obj.module = module
         if obj.options["cflags"] is None:
-            obj.options["cflags"] = []
-        obj.src_path = Path(obj.options["src_dir"]) / obj.options["source"]
-        obj.src_obj_path = config.out_path() / "src" / Path(self.name).with_suffix(".obj")
+            obj.options["cflags"] = list(module.cflags)
+        obj.src_path = module.src_dir / obj.options["source"]
+        obj.src_obj_path = module.src_obj_dir / Path(self.name).with_suffix(".obj")
         return obj
 
 
@@ -56,50 +54,30 @@ class ProgressCategory:
 class ProjectConfig:
     def __init__(self) -> None:
         self.build_dir = Path("build")
-        self.src_dir = Path("src")
         self.tools_dir = Path("tools")
         self.version = "XPSP1"
         self.platform = "pe"
-        self.config_path: Optional[Path] = None
-        self.check_sha_path: Optional[Path] = None
         self.dtk_tag = "v0.0.29"
         self.objdiff_tag = "v3.8.2"
         self.dtk_path: Optional[Path] = None
         self.objdiff_path: Optional[Path] = None
         self.ninja_path: Optional[Path] = None
         self.wrapper: Optional[Path] = None
-        self.cflags: List[str] = []
-        self.ldflags: List[str] = []
-        self.libs: List[Dict[str, Any]] = []
         self.progress = True
         self.progress_categories: List[ProgressCategory] = []
         self.warn_missing_source = True
-        self.cards_dll = Path("orig/cards.dll")
-        self.orig_exe = Path("orig/XPSP1/spider.exe")
         self.toolchain_dir = Path("orig/toolchain")
-        self.units_path: Optional[Path] = None
-        self.unit_info: Dict[str, Dict[str, Any]] = {}
-        self.res_script = Path("src/spider.rc")
-        self.assets_dir = Path("build/XPSP1/assets")
-        self.asset_files: List[Path] = []
+        self.modules: List[Module] = []
+        self.module_objects: Dict[str, Dict[str, Object]] = {}
+        self.module_units: Dict[str, Dict[str, Dict[str, Any]]] = {}
+        self.module_assets: Dict[str, List[Path]] = {}
 
     def out_path(self) -> Path:
         return self.build_dir / self.version
 
-    def objects(self) -> Dict[str, Object]:
-        out: Dict[str, Object] = {}
-        for lib in self.libs:
-            for obj in lib["objects"]:
-                if obj.name in out:
-                    sys.exit(f"Duplicate object name {obj.name}")
-                resolved = obj.resolve(self, lib)
-                out[obj.name] = resolved
-        return out
-
     def validate(self) -> None:
-        for attr in ("config_path", "check_sha_path", "version", "libs"):
-            if getattr(self, attr) is None:
-                sys.exit(f"ProjectConfig.{attr} missing")
+        if not self.modules:
+            sys.exit("ProjectConfig.modules missing")
 
 
 class BuildConfigUnit(TypedDict):
@@ -156,17 +134,39 @@ def load_build_config(path: Path) -> Optional[BuildConfig]:
     return data  # type: ignore[return-value]
 
 
+def objects_for_module(module: Module, units: Dict[str, Dict[str, Any]]) -> Dict[str, Object]:
+    out: Dict[str, Object] = {}
+    kind = module.progress_category
+    for unit in units.values():
+        if unit.get("kind") != kind or not unit.get("source"):
+            continue
+        obj = Object(
+            bool(unit.get("complete")),
+            unit["name"],
+            source=unit["source"],
+            progress_category=kind,
+            cflags=list(module.cflags),
+        ).resolve(module)
+        out[obj.name] = obj
+    for name, source, category in module.extra_sources:
+        obj = Object(
+            False,
+            name,
+            source=source,
+            progress_category=category,
+            cflags=list(module.cflags),
+        ).resolve(module)
+        out[obj.name] = obj
+    return out
+
+
 def generate_build(config: ProjectConfig) -> None:
     config.validate()
-    objects = config.objects()
-    if config.units_path is not None and not config.unit_info:
-        config.unit_info = load_unit_info(config.units_path)
-    build_path = config.out_path()
-    build_path.mkdir(parents=True, exist_ok=True)
     tools_path = config.build_dir / "tools"
     tools_path.mkdir(parents=True, exist_ok=True)
-    build_config_path = build_path / "config.json"
-    build_config = load_build_config(build_config_path)
+    for module in config.modules:
+        module.build_dir.mkdir(parents=True, exist_ok=True)
+        module.src_obj_dir.mkdir(parents=True, exist_ok=True)
 
     python = sys.executable
     download_tool = config.tools_dir / "download_tool.py"
@@ -192,10 +192,8 @@ def generate_build(config: ProjectConfig) -> None:
 
     if config.dtk_path is not None and config.dtk_path.is_file():
         dtk = config.dtk_path
-        dtk_implicit: Optional[Path] = None
     else:
         dtk = tools_path / "dtk"
-        dtk_implicit = dtk
         n.build(
             outputs=dtk,
             rule="download_tool",
@@ -204,10 +202,8 @@ def generate_build(config: ProjectConfig) -> None:
         )
     if config.objdiff_path is not None and config.objdiff_path.is_file():
         objdiff = config.objdiff_path
-        objdiff_implicit: Optional[Path] = None
     else:
         objdiff = tools_path / "objdiff-cli"
-        objdiff_implicit = objdiff
         n.build(
             outputs=objdiff,
             rule="download_tool",
@@ -220,24 +216,11 @@ def generate_build(config: ProjectConfig) -> None:
     n.rule(
         name="split",
         command=f"{dtk} coff split --no-update $in $out_dir"
-        f" && $python tools/fix_bss.py $out_dir {Path('config') / config.version / 'splits.txt'}",
+        f" && $python tools/fix_bss.py $out_dir $splits",
         description="SPLIT $in",
         depfile="$out_dir/dep",
         deps="gcc",
         restat=True,
-    )
-    n.build(
-        outputs=build_config_path,
-        rule="split",
-        inputs=config.config_path,
-        implicit=[
-            dtk,
-            config.config_path,
-            Path("config") / config.version / "splits.txt",
-            Path("config") / config.version / "symbols.txt",
-            Path("tools") / "fix_bss.py",
-        ],
-        variables={"out_dir": build_path},
     )
     n.newline()
 
@@ -253,53 +236,6 @@ def generate_build(config: ProjectConfig) -> None:
         description="LINK $out",
     )
     n.rule(
-        name="copy",
-        command="$python -c 'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])' $in $out",
-        description="COPY $out",
-    )
-    n.newline()
-
-    source_objs: List[Path] = []
-    all_source: List[Path] = []
-    missing_source: List[str] = []
-    for obj in objects.values():
-        assert obj.src_path is not None and obj.src_obj_path is not None
-        if not obj.src_path.is_file():
-            missing_source.append(str(obj.src_path))
-            continue
-        obj.src_obj_path.parent.mkdir(parents=True, exist_ok=True)
-        cflags = list(obj.options["cflags"] or []) + list(obj.options["extra_cflags"] or [])
-        implicit_inputs: List[Path] = [wrapper]
-        # Quoted .cpp includes are same-TU bodies (ecx preservation). cl has no
-        # depfile, so list them or ninja will not rebuild the caller.
-        src_text = obj.src_path.read_text(encoding="utf-8", errors="replace")
-        for inc in re.findall(r'#include\s+"([^"]+\.cpp)"', src_text):
-            sibling = obj.src_path.parent / inc
-            if sibling.is_file():
-                implicit_inputs.append(sibling)
-        n.build(
-            outputs=obj.src_obj_path,
-            rule="cl",
-            inputs=obj.src_path,
-            implicit=implicit_inputs,
-            variables={"cflags": make_flags_str(cflags)},
-        )
-        # link:false keeps a second copy for objdiff without LNK2005.
-        # The caller's TU provides the symbol that is actually linked.
-        if config.unit_info.get(obj.name, {}).get("link", True):
-            source_objs.append(obj.src_obj_path)
-        all_source.append(obj.src_obj_path)
-        n.newline()
-
-    if missing_source and config.warn_missing_source:
-        for path in missing_source:
-            print(f"warning: missing source {path}")
-
-    n.build(outputs="all_source", rule="phony", inputs=all_source)
-    n.newline()
-
-    n.comment("Resources: the script in src/, media extracted from the original by configure.py")
-    n.rule(
         name="rc",
         command=f"{wrapper} rc /i $assets /fo $out $in",
         description="RC $out",
@@ -309,76 +245,143 @@ def generate_build(config: ProjectConfig) -> None:
         command=f"{wrapper} cvtres /nologo /MACHINE:IX86 /OUT:$out $in",
         description="CVTRES $out",
     )
-    res_path = build_path / "spider.res"
-    res_obj = build_path / "spider_res.obj"
-    n.build(
-        outputs=res_path,
-        rule="rc",
-        inputs=config.res_script,
-        implicit=[wrapper, *config.asset_files],
-        variables={"assets": config.assets_dir},
-    )
-    n.build(outputs=res_obj, rule="cvtres", inputs=res_path, implicit=wrapper)
     n.newline()
 
-    extra_objs = [res_obj]
-
-    exe_path = build_path / "spider.exe"
-    n.build(
-        outputs=exe_path,
-        rule="link",
-        inputs=source_objs + extra_objs,
-        implicit=wrapper,
-        variables={"ldflags": make_flags_str(config.ldflags)},
-    )
-    cards_out = build_path / "cards.dll"
-    if config.cards_dll.is_file():
-        n.build(
-            outputs=cards_out,
-            rule="copy",
-            inputs=config.cards_dll,
-        )
-    n.build(
-        outputs="spider",
-        rule="phony",
-        inputs=[exe_path, cards_out] if config.cards_dll.is_file() else [exe_path],
-    )
-    n.newline()
-
-    # Runnable variant: same objects, linked away from 0x01000000 so the
-    # harness in winmain.cpp can map the original image at its own base.
-    n.comment("Runnable build (not the matching target)")
-    run_exe = build_path / "run" / "spider.exe"
-    run_ldflags = [
-        "/BASE:0x00400000" if f.startswith("/BASE:") else f
-        for f in config.ldflags
-        if not f.startswith("/MAP:")
-    ]
-    n.build(
-        outputs=run_exe,
-        rule="link",
-        inputs=source_objs + extra_objs,
-        implicit=wrapper,
-        variables={"ldflags": make_flags_str(run_ldflags)},
-    )
-    n.build(outputs="spider_run", rule="phony", inputs=[run_exe])
-    n.newline()
-
-    n.comment("SHA-1 of a matching rebuild (fails until the exe matches)")
+    n.comment("SHA-1 of a matching rebuild (fails until the image matches)")
     n.rule(
         name="sha1check",
-        command=f"shasum -a 1 -c {config.check_sha_path}",
+        command="shasum -a 1 -c $in",
         description="SHA1 $in",
-    )
-    n.build(
-        outputs="check",
-        rule="sha1check",
-        inputs=exe_path,
-        implicit=config.check_sha_path,
     )
     n.newline()
 
-    report_path = build_path / "report.json"
+    all_source: List[Path] = []
+    missing_source: List[str] = []
+    default_outputs: List[Path] = []
+    configure_implicit: List[Path] = [
+        Path("configure.py"),
+        Path("tools/project.py"),
+        Path("tools/modules.py"),
+        Path("tools/ninja_syntax.py"),
+        Path("tools/extract_assets.py"),
+        Path("tools/pe_rsrc.py"),
+    ]
+    check_inputs: List[Path] = []
+
+    for module in config.modules:
+        objects = config.module_objects.get(module.name, {})
+        units = config.module_units.get(module.name, {})
+        assets = config.module_assets.get(module.name, [])
+        source_objs: List[Path] = []
+
+        n.comment(f"{module.name} ({module.orig})")
+        n.build(
+            outputs=module.build_config,
+            rule="split",
+            inputs=module.config_yml,
+            implicit=[
+                dtk,
+                module.config_yml,
+                module.splits,
+                module.symbols,
+                Path("tools") / "fix_bss.py",
+            ],
+            variables={"out_dir": module.build_dir, "splits": module.splits},
+        )
+        configure_implicit.append(module.build_config)
+        configure_implicit.append(module.config_yml)
+        configure_implicit.append(module.units_json)
+        configure_implicit.append(module.orig)
+        n.newline()
+
+        for obj in objects.values():
+            assert obj.src_path is not None and obj.src_obj_path is not None
+            if not obj.src_path.is_file():
+                missing_source.append(str(obj.src_path))
+                continue
+            cflags = list(obj.options["cflags"] or []) + list(obj.options["extra_cflags"] or [])
+            implicit_inputs: List[Path] = [wrapper]
+            src_text = obj.src_path.read_text(encoding="utf-8", errors="replace")
+            for inc in re.findall(r'#include\s+"([^"]+\.cpp)"', src_text):
+                sibling = obj.src_path.parent / inc
+                if sibling.is_file():
+                    implicit_inputs.append(sibling)
+            n.build(
+                outputs=obj.src_obj_path,
+                rule="cl",
+                inputs=obj.src_path,
+                implicit=implicit_inputs,
+                variables={"cflags": make_flags_str(cflags)},
+            )
+            if units.get(obj.name, {}).get("link", True):
+                source_objs.append(obj.src_obj_path)
+            all_source.append(obj.src_obj_path)
+            n.newline()
+
+        extra_objs: List[Path] = []
+        if module.res_script.is_file():
+            n.build(
+                outputs=module.res_path,
+                rule="rc",
+                inputs=module.res_script,
+                implicit=[wrapper, *assets],
+                variables={"assets": module.assets_dir},
+            )
+            n.build(outputs=module.res_obj, rule="cvtres", inputs=module.res_path, implicit=wrapper)
+            extra_objs.append(module.res_obj)
+            n.newline()
+
+        link_implicit: List[Path] = [wrapper]
+        if module.def_file is not None:
+            link_implicit.append(module.def_file)
+        n.build(
+            outputs=module.output,
+            rule="link",
+            inputs=source_objs + extra_objs,
+            implicit=link_implicit,
+            variables={"ldflags": make_flags_str(module.ldflags)},
+        )
+        n.build(outputs=module.name, rule="phony", inputs=[module.output])
+        default_outputs.append(module.output)
+        n.newline()
+
+        if module.runnable_base is not None:
+            run_exe = module.build_dir / "run" / module.output_name
+            run_ldflags = [
+                f"/BASE:0x{module.runnable_base:08X}" if f.startswith("/BASE:") else f
+                for f in module.ldflags
+                if not f.startswith("/MAP:")
+            ]
+            n.build(
+                outputs=run_exe,
+                rule="link",
+                inputs=source_objs + extra_objs,
+                implicit=wrapper,
+                variables={"ldflags": make_flags_str(run_ldflags)},
+            )
+            n.build(outputs=f"{module.name}_run", rule="phony", inputs=[run_exe])
+            n.newline()
+
+        if module.sha1.is_file():
+            n.build(
+                outputs=f"check_{module.name}",
+                rule="sha1check",
+                inputs=module.sha1,
+                implicit=module.output,
+            )
+            check_inputs.append(Path(f"check_{module.name}"))
+            n.newline()
+
+    if missing_source and config.warn_missing_source:
+        for path in missing_source:
+            print(f"warning: missing source {path}")
+
+    n.build(outputs="all_source", rule="phony", inputs=all_source)
+    if check_inputs:
+        n.build(outputs="check", rule="phony", inputs=check_inputs)
+    n.newline()
+
+    report_path = config.out_path() / "report.json"
     n.comment("objdiff progress report")
     n.rule(
         name="report",
@@ -402,25 +405,11 @@ def generate_build(config: ProjectConfig) -> None:
     n.build(
         outputs=["build.ninja", "objdiff.json"],
         rule="configure",
-        implicit=[
-            build_config_path,
-            Path("configure.py"),
-            Path("tools/project.py"),
-            Path("tools/ninja_syntax.py"),
-            Path("tools/extract_assets.py"),
-            Path("tools/pe_rsrc.py"),
-            config.orig_exe,
-            config.config_path,
-            *([config.units_path] if config.units_path else []),
-        ],
+        implicit=configure_implicit,
     )
     n.newline()
 
-    n.build(
-        outputs="tools",
-        rule="phony",
-        inputs=[dtk, objdiff],
-    )
+    n.build(outputs="tools", rule="phony", inputs=[dtk, objdiff])
     n.newline()
 
     cl_path = toolchain_cl(config)
@@ -431,17 +420,15 @@ def generate_build(config: ProjectConfig) -> None:
             "you install VC7.0 13.00.9178 (see orig/README.md). "
             "Use: ninja tools && ninja  # split only"
         )
-        n.default([build_config_path, "tools"])
+        n.default([mod.build_config for mod in config.modules] + ["tools"])
     else:
         print(f"Using compiler at {cl_path}")
-        n.default(["all_source", exe_path])
+        n.default(["all_source", *default_outputs])
 
     with open("build.ninja", "w", encoding="utf-8") as fh:
         fh.write(out.getvalue())
 
-    generate_objdiff_config(
-        config, objects, build_config, build_path, has_compiler=cl_path is not None
-    )
+    generate_objdiff_config(config, has_compiler=cl_path is not None)
     print("Wrote build.ninja and objdiff.json")
 
 
@@ -450,69 +437,64 @@ def expected_obj_path(build_path: Path, unit_name: str) -> Path:
     return build_path / p.with_suffix(".o")
 
 
-def generate_objdiff_config(
-    config: ProjectConfig,
-    objects: Dict[str, Object],
-    build_config: Optional[BuildConfig],
-    build_path: Path,
-    has_compiler: bool = False,
-) -> None:
+def generate_objdiff_config(config: ProjectConfig, has_compiler: bool = False) -> None:
     ninja = str(config.ninja_path) if config.ninja_path else "ninja"
     units: List[Dict[str, Any]] = []
-    by_name = objects
-    info = config.unit_info
 
-    def metadata_for(name: str, obj: Optional[Object], autogenerated: bool) -> Dict[str, Any]:
-        meta = info.get(name, {})
-        kind = meta.get("kind")
-        complete = bool(meta.get("complete"))
-        if obj is not None:
-            complete = bool(obj.completed)
-        elif autogenerated or kind in ("thunks", "rdata", "crt"):
-            # rsrc/data leftovers and identified CRT are not decompiled.
-            complete = True if autogenerated or kind in ("thunks", "rdata") else complete
-        category = meta.get("category")
-        if obj and obj.options.get("progress_category"):
-            category = obj.options["progress_category"]
-        metadata: Dict[str, Any] = {
-            "complete": complete,
-            "auto_generated": autogenerated,
-        }
-        if obj and obj.src_path:
-            metadata["source_path"] = str(obj.src_path)
-        elif meta.get("source"):
-            metadata["source_path"] = str(Path(config.src_dir) / meta["source"])
-        if category:
-            metadata["progress_categories"] = [category] if isinstance(category, str) else category
-        return metadata
+    for module in config.modules:
+        objects = config.module_objects.get(module.name, {})
+        info = config.module_units.get(module.name, {})
+        build_config = load_build_config(module.build_config)
+        labels = load_names(module.names)
 
-    labels = load_names(Path("config") / config.version / "names.txt")
-
-    if build_config and build_config.get("units"):
-        for unit in build_config["units"]:
-            name = unit["name"]
-            obj = by_name.get(name)
-            label = labels.get(Path(name).stem)
-            entry: Dict[str, Any] = {"name": label or name}
-            target = unit.get("object")
-            if target:
-                entry["target_path"] = target
-            else:
-                entry["target_path"] = str(expected_obj_path(build_path, name))
-            if obj and obj.src_obj_path and (has_compiler or obj.src_obj_path.is_file()):
-                entry["base_path"] = str(obj.src_obj_path)
-            entry["metadata"] = metadata_for(name, obj, bool(unit.get("autogenerated")))
-            units.append(entry)
-    else:
-        for obj in objects.values():
-            entry = {
-                "name": obj.name,
-                "target_path": str(expected_obj_path(build_path, obj.name)),
-                "metadata": metadata_for(obj.name, obj, False),
+        def metadata_for(name: str, obj: Optional[Object], autogenerated: bool) -> Dict[str, Any]:
+            meta = info.get(name, {})
+            kind = meta.get("kind")
+            complete = bool(meta.get("complete"))
+            if obj is not None:
+                complete = bool(obj.completed)
+            elif autogenerated or kind in ("thunks", "rdata", "crt"):
+                complete = True if autogenerated or kind in ("thunks", "rdata") else complete
+            category = meta.get("category")
+            if obj and obj.options.get("progress_category"):
+                category = obj.options["progress_category"]
+            metadata: Dict[str, Any] = {
+                "complete": complete,
+                "auto_generated": autogenerated,
             }
-            if obj.src_obj_path and (has_compiler or obj.src_obj_path.is_file()):
-                entry["base_path"] = str(obj.src_obj_path)
-            units.append(entry)
+            if obj and obj.src_path:
+                metadata["source_path"] = str(obj.src_path)
+            elif meta.get("source"):
+                metadata["source_path"] = str(module.src_dir / meta["source"])
+            if category:
+                metadata["progress_categories"] = [category] if isinstance(category, str) else category
+            return metadata
+
+        if build_config and build_config.get("units"):
+            for unit in build_config["units"]:
+                name = unit["name"]
+                obj = objects.get(name)
+                label = labels.get(Path(name).stem)
+                entry: Dict[str, Any] = {"name": f"{module.name}/{label or name}"}
+                target = unit.get("object")
+                if target:
+                    entry["target_path"] = target
+                else:
+                    entry["target_path"] = str(expected_obj_path(module.build_dir, name))
+                if obj and obj.src_obj_path and (has_compiler or obj.src_obj_path.is_file()):
+                    entry["base_path"] = str(obj.src_obj_path)
+                entry["metadata"] = metadata_for(name, obj, bool(unit.get("autogenerated")))
+                units.append(entry)
+        else:
+            for obj in objects.values():
+                entry = {
+                    "name": f"{module.name}/{obj.name}",
+                    "target_path": str(expected_obj_path(module.build_dir, obj.name)),
+                    "metadata": metadata_for(obj.name, obj, False),
+                }
+                if obj.src_obj_path and (has_compiler or obj.src_obj_path.is_file()):
+                    entry["base_path"] = str(obj.src_obj_path)
+                units.append(entry)
 
     objdiff_config: Dict[str, Any] = {
         "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
@@ -543,7 +525,7 @@ def generate_objdiff_config(
 def calculate_progress(config: ProjectConfig) -> None:
     report = config.out_path() / "report.json"
     if not report.is_file():
-        print("No report.json yet. Run: ninja && ninja build/XPSP1/report.json")
+        print(f"No report.json yet. Run: ninja && ninja {report}")
         return
     with open(report, encoding="utf-8") as fh:
         data = json.load(fh)

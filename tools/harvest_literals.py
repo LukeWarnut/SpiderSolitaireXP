@@ -19,10 +19,14 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.modules import get_module
+
 RDATA_BASE = 0x01001280
 RDATA_END = 0x01002660
 OBJDIFF = ROOT / "build/tools/objdiff-cli"
-SYMBOLS = ROOT / "config/XPSP1/symbols.txt"
 LITERAL_PREFIXES = ("??_C@", "__real@", "__xmm@")
 
 
@@ -66,22 +70,22 @@ def unit_pairs(unit: str, fn: str):
                     yield v - rt[1], rt[0], unit
 
 
-def gold_text() -> tuple[bytes, int]:
-    d = (ROOT / "orig/XPSP1/spider.exe").read_bytes()
+def gold_text(mod) -> tuple[bytes, int]:
+    d = mod.orig.read_bytes()
     pe = int.from_bytes(d[0x3C:0x40], "little")
     sec = pe + 24 + int.from_bytes(d[pe + 20 : pe + 22], "little")
     va = int.from_bytes(d[sec + 12 : sec + 16], "little")
     raw = int.from_bytes(d[sec + 20 : sec + 24], "little")
-    return d, raw - va - 0x01000000
+    return d, raw - va - mod.image_base
 
 
-def literal_size(name: str, addr: int) -> int:
+def literal_size(mod, name: str, addr: int) -> int:
     """dtk drops the relocation when the target symbol has no size."""
     if name.startswith("__real@"):
         return (len(name) - len("__real@")) // 2
     if name.startswith("__xmm@"):
         return 16
-    d, delta = gold_text()
+    d, delta = gold_text(mod)
     off = addr + delta
     wide = name.startswith("??_C@_1")
     step = 2 if wide else 1
@@ -92,14 +96,17 @@ def literal_size(name: str, addr: int) -> int:
 
 
 def main() -> int:
-    report = json.loads((ROOT / "build/XPSP1/report.json").read_text())
+    mod = get_module("spider")
+    if "--module" in sys.argv:
+        mod = get_module(sys.argv[sys.argv.index("--module") + 1])
+    report = json.loads((ROOT / "build" / "XPSP1" / "report.json").read_text())
     found = defaultdict(set)
     for u in report["units"]:
         for f in u.get("functions", []):
             if True:
                 for addr, name, unit in unit_pairs(u["name"], f["name"]):
                     found[(addr, name)].add(unit)
-    existing = SYMBOLS.read_text().splitlines()
+    existing = mod.symbols.read_text().splitlines()
     have = {l.split(" = ", 1)[0] for l in existing}
     by_name = defaultdict(set)
     for addr, name in found:
@@ -111,13 +118,13 @@ def main() -> int:
             continue
         if name in have:
             continue
-        line = f"{name} = .text:0x{addr:08x}; // type:object size:{literal_size(name, addr):#x}"
+        line = f"{name} = .text:0x{addr:08x}; // type:object size:{literal_size(mod, name, addr):#x}"
         print(line, "#", ",".join(sorted(units)))
         new.append(line)
     if "--write" in sys.argv and new:
         idx = next(i for i, l in enumerate(existing) if l.startswith("text_rdata ="))
         existing[idx + 1 : idx + 1] = new
-        SYMBOLS.write_text("\n".join(existing) + "\n")
+        mod.symbols.write_text("\n".join(existing) + "\n")
     return 0
 
 

@@ -2,7 +2,7 @@
 // rc writes resource data in statement order (STRINGTABLE always last), and
 // the linker keeps that order in .rsrc, so the order below is part of the match.
 // Media files are extracted from the original at configure time and found
-// through /i build/XPSP1/assets.
+// through /i build/XPSP1/spider/assets.
 
 #include <winresrc.h>
 
