@@ -4,6 +4,59 @@ Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe`
 
 This is a scaffold: split the original PE, compile C++ with the original MSVC 7.0 toolchain under Wine, and diff COFF objects in [objdiff](https://github.com/encounter/objdiff).
 
+## Status
+
+As of October 2026. Regenerate the numbers with `ninja report && python3 configure.py progress`. "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
+
+| | `spider.exe` | `cards.dll` |
+|---|---|---|
+| Functions exact | 533 / 543 (98.2%) | 10 / 12 in `cards.c` |
+| Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,530 / 1,975 in `cards.c` (77.5%) |
+| Units complete | 283 / 293 | 0 / 1 (`cards.c` is the only source unit) |
+| `.rsrc` (`cmp_rsrc`) | match (90 resources) | match (75 resources) |
+| Whole image (`ninja check_<module>`) | fails: linker layout | fails: linker layout |
+
+### spider.exe
+
+Game code is 122 of 131 functions exact (81.4% of 24,782 bytes). The C runtime is 178 of 179 (99.5%). The nine game functions left are all between 96% and 99.9%. Each was checked by hand and computes the same values, makes the same calls, and takes the same branches as gold. What's left is register choice, stack-slot choice, or instruction order:
+
+| Function | Match | What still differs |
+|---|---|---|
+| `GameBoard::draw_felt` | 99.7% | Six stack slots renamed consistently; `eax`/`edx` swapped in one block |
+| `WinMain` | 99.9% | Window x/y loads use swapped registers |
+| `AnimState::burst_fx` | 98.9% | `mov esi, eax` and `lea edi, [ebx+0xc]` swapped around an x87 load |
+| `GameWin::paint_hdc` | 98.6% | `ExcludeClipRect` rectangle built by a shorter sequence (11 bytes); gold has one dead stack store |
+| `GameWin::save_game` | 98.2% | Gold keeps 0 in `edi` for compares, ours uses immediates; one address has base and index swapped |
+| `GameWin::move_run` | 97.1% | The constant zero lives in `edx` instead of `eax` |
+| `DealView::full_suit` | 96.7% | `add esi, -2` and `lea edi, [eax+1]` in the opposite order |
+| `AnimState::run_fx` | 96.1% | Frame is 20 bytes smaller, and the x87 block is scheduled differently (same rounding) |
+| `GameBoard::slide_drag` | 96.1% | `(a+b) - b + c` vs `c - b + (a+b)`; 2 bytes longer |
+
+The remaining CRT unit, `crt_free.c` (`0x0100988D`, 144 bytes), is two functions in one range: `_free` (56 bytes) and `_forcdecpt` (88 bytes). Each matches `libc.lib` exactly once relocations are masked. The unit needs splitting in two, not decompiling.
+
+### cards.dll
+
+| Function | Match | What still differs |
+|---|---|---|
+| `load_face` | 74.7% | Gold keeps the card in `esi` and the zero in `ebx`. Ours swaps them, and that also stops `DeleteObject` being held in `ebp`. Reordering the setup statements, a separate index copy, and a function-pointer local didn't move them. |
+| `cdtInit` | 98.0% | In the early-out, gold loads `pdx` before `g_width`; ours loads the global first (four bytes) |
+
+All other functions are exact, including `cdtDrawExt` (800 bytes, jump table) and both corner save/restore helpers.
+
+### Whole-image check
+
+`ninja check_spider` and `ninja check_cards` fail before they reach the code differences above, because the rebuilt images are laid out differently from gold. In both binaries:
+
+- gold folds `.rdata` into `.text`, and we emit a separate `.rdata`;
+- gold's `FileAlignment` is 0x200, and ours is 0x1000;
+- gold has a debug directory (CodeView record), and ours has none;
+- `AddressOfEntryPoint` and `SizeOfStackReserve` differ.
+
+Every address after the first layout difference shifts, so the per-section byte counts from `cmp_image.py` aren't meaningful yet. The next step is linker options (`/MERGE:.rdata=.text`, 0x200 alignment, a debug record), not source changes. Spider has two more image-level gaps:
+
+- Gold links the single-threaded `libc.lib`, and we link `libcmt.lib`. Our `free`, `srand` and `rand` are therefore the multithreaded versions, with a heap lock and per-thread state.
+- The nine near-miss functions change some function sizes (net −7 bytes), so later code addresses move even once the layout matches.
+
 ## Why SP1
 
 Four dumps were compared. English SP1 is the easiest matching target:
