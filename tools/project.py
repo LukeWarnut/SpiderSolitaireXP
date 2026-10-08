@@ -79,6 +79,9 @@ class ProjectConfig:
         self.toolchain_dir = Path("orig/toolchain")
         self.units_path: Optional[Path] = None
         self.unit_info: Dict[str, Dict[str, Any]] = {}
+        self.res_script = Path("src/spider.rc")
+        self.assets_dir = Path("build/XPSP1/assets")
+        self.asset_files: List[Path] = []
 
     def out_path(self) -> Path:
         return self.build_dir / self.version
@@ -295,11 +298,11 @@ def generate_build(config: ProjectConfig) -> None:
     n.build(outputs="all_source", rule="phony", inputs=all_source)
     n.newline()
 
-    n.comment("Original resources, so LoadString/LoadBitmap work on the rebuilt module")
+    n.comment("Resources: the script in src/, media extracted from the original by configure.py")
     n.rule(
-        name="extract_res",
-        command="$python tools/extract_res.py $in $out",
-        description="RES $out",
+        name="rc",
+        command=f"{wrapper} rc /i $assets /fo $out $in",
+        description="RC $out",
     )
     n.rule(
         name="cvtres",
@@ -308,8 +311,13 @@ def generate_build(config: ProjectConfig) -> None:
     )
     res_path = build_path / "spider.res"
     res_obj = build_path / "spider_res.obj"
-    n.build(outputs=res_path, rule="extract_res", inputs=config.orig_exe,
-            implicit=Path("tools") / "extract_res.py")
+    n.build(
+        outputs=res_path,
+        rule="rc",
+        inputs=config.res_script,
+        implicit=[wrapper, *config.asset_files],
+        variables={"assets": config.assets_dir},
+    )
     n.build(outputs=res_obj, rule="cvtres", inputs=res_path, implicit=wrapper)
     n.newline()
 
@@ -399,6 +407,9 @@ def generate_build(config: ProjectConfig) -> None:
             Path("configure.py"),
             Path("tools/project.py"),
             Path("tools/ninja_syntax.py"),
+            Path("tools/extract_assets.py"),
+            Path("tools/pe_rsrc.py"),
+            config.orig_exe,
             config.config_path,
             *([config.units_path] if config.units_path else []),
         ],

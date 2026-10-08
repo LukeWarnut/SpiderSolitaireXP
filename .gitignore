@@ -5,11 +5,12 @@
 /objdiff.json
 /compile_commands.json
 /tools/wineprefix/
-/__pycache__/
 /orig/**
 !/orig/README.md
 !/orig/toolchain/
 !/orig/toolchain/.gitkeep
+__pycache__/
+*.pyc
 .DS_Store
 *.pdb
 *.ilk

@@ -8,6 +8,7 @@ import json
 import sys
 from pathlib import Path
 
+from tools.extract_assets import extract_assets
 from tools.sync_symbols import sync_symbols
 from tools.project import (
     Object,
@@ -58,6 +59,8 @@ config.check_sha_path = Path("config") / config.version / "build.sha1"
 config.orig_exe = Path("orig") / config.version / "spider.exe"
 config.units_path = Path("config") / config.version / "units.json"
 config.unit_info = load_unit_info(config.units_path)
+config.res_script = Path("src") / "spider.rc"
+config.assets_dir = config.out_path() / "assets"
 config.dtk_tag = "v0.0.29"
 config.objdiff_tag = "v3.8.2"
 
@@ -153,6 +156,11 @@ if args.mode == "configure":
     updated = sync_symbols()
     if updated:
         print(f"Synced {updated} COFF symbol(s) into config/{config.version}/symbols.txt")
+    if config.orig_exe.is_file():
+        config.asset_files = extract_assets(config.orig_exe, config.assets_dir)
+        print(f"Extracted {len(config.asset_files)} asset file(s) into {config.assets_dir}")
+    else:
+        print(f"warning: {config.orig_exe} missing; resources will not build")
     generate_build(config)
 elif args.mode == "progress":
     calculate_progress(config)

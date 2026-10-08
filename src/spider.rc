@@ -1,0 +1,286 @@
+// Decompiled from orig/XPSP1/spider.exe by tools/extract_assets.py --rc.
+// rc writes resource data in statement order (STRINGTABLE always last), and
+// the linker keeps that order in .rsrc, so the order below is part of the match.
+// Media files are extracted from the original at configure time and found
+// through /i build/XPSP1/assets.
+
+#include <winresrc.h>
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+1 24 "manifest/1.manifest"
+
+1 VERSIONINFO
+ FILEVERSION 5,1,2600,1106
+ PRODUCTVERSION 5,1,2600,1106
+ FILEFLAGSMASK 0x3F
+ FILEFLAGS 0x0
+ FILEOS 0x40004
+ FILETYPE 0x1
+ FILESUBTYPE 0x0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Microsoft Corporation"
+            VALUE "FileDescription", "Spider"
+            VALUE "FileVersion", "5.1.2600.1106 (xpsp1.020828-1920)"
+            VALUE "InternalName", "Spider"
+            VALUE "LegalCopyright", "\251 Microsoft Corporation. All rights reserved."
+            VALUE "OriginalFilename", "Spider"
+            VALUE "ProductName", "Microsoft\256 Windows\256 Operating System"
+            VALUE "ProductVersion", "5.1.2600.1106"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 0x4B0
+    END
+END
+
+101 MENU
+BEGIN
+    POPUP "&Game"
+    BEGIN
+        MENUITEM "&New Game\tF2", 40005
+        MENUITEM "&Restart This Game", 40006, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Undo\tCtrl+Z", 40010, GRAYED
+        MENUITEM "&Deal Next Row\tD", 40007, GRAYED
+        MENUITEM "Show An Available &Move\tM", 40013, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "D&ifficulty...\tF3", 40017
+        MENUITEM "S&tatistics...\tF4", 40014
+        MENUITEM "O&ptions...\tF5", 40015
+        MENUITEM SEPARATOR
+        MENUITEM "&Save This Game\tCtrl+S", 40011, GRAYED
+        MENUITEM "&Open Last Saved Game\tCtrl+O", 40012
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit", 40004
+    END
+    MENUITEM "&Deal!", 40016, GRAYED
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents\tF1", 40003
+        MENUITEM SEPARATOR
+        MENUITEM "&About Spider...", 40002
+    END
+END
+
+102 ACCELERATORS
+BEGIN
+    "D",    40007, VIRTKEY, NOINVERT
+    "M",    40013, VIRTKEY, NOINVERT
+    "N",    40005, VIRTKEY, NOINVERT, CONTROL
+    "O",    40012, VIRTKEY, NOINVERT, CONTROL
+    "S",    40011, VIRTKEY, NOINVERT, CONTROL
+    VK_F1,  40003, VIRTKEY, NOINVERT
+    VK_F2,  40005, VIRTKEY, NOINVERT
+    VK_F3,  40017, VIRTKEY, NOINVERT
+    VK_F4,  40014, VIRTKEY, NOINVERT
+    VK_F4,  40004, VIRTKEY, NOINVERT, ALT
+    VK_F5,  40015, VIRTKEY, NOINVERT
+    "Z",    40010, VIRTKEY, NOINVERT, CONTROL
+END
+
+103 ICON "icons/103.ico"
+120 ICON "icons/120.ico"
+121 ICON "icons/121.ico"
+122 ICON "icons/122.ico"
+123 ICON "icons/123.ico"
+
+CARD1 BITMAP "bitmaps/CARD1.bmp"
+CARD10 BITMAP "bitmaps/CARD10.bmp"
+CARD11 BITMAP "bitmaps/CARD11.bmp"
+CARD12 BITMAP "bitmaps/CARD12.bmp"
+CARD13 BITMAP "bitmaps/CARD13.bmp"
+CARD14 BITMAP "bitmaps/CARD14.bmp"
+CARD15 BITMAP "bitmaps/CARD15.bmp"
+CARD16 BITMAP "bitmaps/CARD16.bmp"
+CARD17 BITMAP "bitmaps/CARD17.bmp"
+CARD18 BITMAP "bitmaps/CARD18.bmp"
+CARD19 BITMAP "bitmaps/CARD19.bmp"
+CARD2 BITMAP "bitmaps/CARD2.bmp"
+CARD20 BITMAP "bitmaps/CARD20.bmp"
+CARD21 BITMAP "bitmaps/CARD21.bmp"
+CARD22 BITMAP "bitmaps/CARD22.bmp"
+CARD23 BITMAP "bitmaps/CARD23.bmp"
+CARD24 BITMAP "bitmaps/CARD24.bmp"
+CARD25 BITMAP "bitmaps/CARD25.bmp"
+CARD26 BITMAP "bitmaps/CARD26.bmp"
+CARD27 BITMAP "bitmaps/CARD27.bmp"
+CARD28 BITMAP "bitmaps/CARD28.bmp"
+CARD29 BITMAP "bitmaps/CARD29.bmp"
+CARD3 BITMAP "bitmaps/CARD3.bmp"
+CARD30 BITMAP "bitmaps/CARD30.bmp"
+CARD31 BITMAP "bitmaps/CARD31.bmp"
+CARD32 BITMAP "bitmaps/CARD32.bmp"
+CARD33 BITMAP "bitmaps/CARD33.bmp"
+CARD34 BITMAP "bitmaps/CARD34.bmp"
+CARD35 BITMAP "bitmaps/CARD35.bmp"
+CARD36 BITMAP "bitmaps/CARD36.bmp"
+CARD37 BITMAP "bitmaps/CARD37.bmp"
+CARD38 BITMAP "bitmaps/CARD38.bmp"
+CARD39 BITMAP "bitmaps/CARD39.bmp"
+CARD4 BITMAP "bitmaps/CARD4.bmp"
+CARD40 BITMAP "bitmaps/CARD40.bmp"
+CARD41 BITMAP "bitmaps/CARD41.bmp"
+CARD42 BITMAP "bitmaps/CARD42.bmp"
+CARD43 BITMAP "bitmaps/CARD43.bmp"
+CARD44 BITMAP "bitmaps/CARD44.bmp"
+CARD45 BITMAP "bitmaps/CARD45.bmp"
+CARD46 BITMAP "bitmaps/CARD46.bmp"
+CARD47 BITMAP "bitmaps/CARD47.bmp"
+CARD48 BITMAP "bitmaps/CARD48.bmp"
+CARD49 BITMAP "bitmaps/CARD49.bmp"
+CARD5 BITMAP "bitmaps/CARD5.bmp"
+CARD50 BITMAP "bitmaps/CARD50.bmp"
+CARD51 BITMAP "bitmaps/CARD51.bmp"
+CARD52 BITMAP "bitmaps/CARD52.bmp"
+CARD6 BITMAP "bitmaps/CARD6.bmp"
+CARD7 BITMAP "bitmaps/CARD7.bmp"
+CARD8 BITMAP "bitmaps/CARD8.bmp"
+CARD9 BITMAP "bitmaps/CARD9.bmp"
+CARDBACK BITMAP "bitmaps/CARDBACK.bmp"
+FELT BITMAP "bitmaps/FELT.bmp"
+106 BITMAP "bitmaps/106.bmp"
+108 BITMAP "bitmaps/108.bmp"
+
+107 DIALOG 0, 0, 253, 183
+STYLE DS_CENTER | DS_SETFOREGROUND | DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About Spider"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK", 1, 102, 162, 50, 14
+END
+
+117 DIALOG 0, 0, 199, 140
+STYLE DS_CONTEXTHELP | DS_CENTER | DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Spider Options"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK", 1, 41, 119, 50, 14
+    PUSHBUTTON      "Cancel", 2, 107, 119, 50, 14
+    AUTOCHECKBOX    "&Animate when dealing cards", 1001, 9, 9, 174, 14
+    AUTOCHECKBOX    "Automatically &save game on exit", 1002, 9, 26, 174, 14
+    AUTOCHECKBOX    "Automatically &open previous game at startup", 1003, 9, 43, 174, 14
+    AUTOCHECKBOX    "&Prompt before saving a game", 1004, 9, 60, 174, 14
+    AUTOCHECKBOX    "Prompt &before opening a saved game", 1005, 9, 77, 174, 14
+    AUTOCHECKBOX    "Use sound &effects", 1006, 9, 94, 174, 14
+END
+
+118 DIALOG 0, 0, 167, 198
+STYLE DS_CENTER | DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Spider Statistics"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK", 1, 22, 177, 50, 14
+    PUSHBUTTON      "&Reset", 1002, 88, 177, 50, 14
+    CONTROL         "Tab1", 1011, "SysTabControl32", WS_TABSTOP | 0x200, 7, 7, 153, 163
+    LTEXT           "Easy", 1012, 7, 11, 16, 8, NOT WS_VISIBLE | NOT WS_GROUP
+    LTEXT           "Medium", 1013, 67, 11, 26, 8, NOT WS_VISIBLE | NOT WS_GROUP
+    LTEXT           "Difficult", 1014, 136, 11, 24, 8, NOT WS_VISIBLE | NOT WS_GROUP
+    GROUPBOX        "High Score", -1, 15, 25, 137, 24
+    LTEXT           "", 1006, 26, 35, 107, 11
+    GROUPBOX        "Percentage", -1, 15, 52, 137, 55
+    LTEXT           "Wins:", 1003, 26, 65, 107, 11
+    LTEXT           "Losses:", 1004, 26, 78, 107, 11
+    LTEXT           "Win Rate:", 1005, 26, 91, 107, 11
+    GROUPBOX        "Streaks", -1, 15, 110, 137, 55
+    LTEXT           "Most Wins:", 1007, 26, 122, 107, 11
+    LTEXT           "Most Losses:", 1008, 26, 136, 107, 11
+    LTEXT           "Current:", 1009, 26, 150, 107, 11
+END
+
+119 DIALOG 0, 0, 197, 109
+STYLE DS_CENTER | DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Difficulty"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Select the game difficulty level that you want:", -1, 7, 7, 183, 19
+    ICON            121, -1, 17, 62, 20, 20
+    ICON            120, -1, 26, 62, 20, 20
+    ICON            122, -1, 35, 46, 20, 20
+    ICON            122, -1, 35, 62, 20, 20
+    ICON            123, -1, 44, 30, 20, 20
+    ICON            123, -1, 44, 46, 20, 20
+    ICON            123, -1, 44, 62, 20, 20
+    AUTORADIOBUTTON "&Easy: One Suit", 1008, 52, 29, 138, 10
+    AUTORADIOBUTTON "&Medium: Two Suits", 1009, 52, 45, 138, 10
+    AUTORADIOBUTTON "&Difficult: Four Suits", 1010, 52, 61, 138, 10
+    DEFPUSHBUTTON   "OK", 1, 40, 88, 50, 14
+    PUSHBUTTON      "Cancel", 2, 106, 88, 50, 14
+END
+
+130 DIALOG 0, 0, 166, 69
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Game Over"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Yes", 1, 25, 48, 50, 14
+    PUSHBUTTON      "&No", 2, 91, 48, 50, 14
+    LTEXT           "Congratulations, you won!", -1, 7, 7, 152, 8
+    LTEXT           "Do you want to start another game?", -1, 7, 23, 152, 8
+END
+
+124 WAVE "sounds/124.wav"
+125 WAVE "sounds/125.wav"
+126 WAVE "sounds/126.wav"
+127 WAVE "sounds/127.wav"
+128 WAVE "sounds/128.wav"
+129 WAVE "sounds/129.wav"
+
+STRINGTABLE
+BEGIN
+    1     "Spider"
+    2     "Spider"
+    3     "Are you sure you want to start a new game?"
+    4     "Are you sure you want to restart this game from the beginning?"
+    5     "You are not allowed to deal a new row while there are any empty slots."
+    9     "Software\\Microsoft\\Spider"
+    10    "WndState"
+    11    "WndX"
+    12    "WndY"
+    13    "WndWidth"
+    14    "WndHeight"
+    15    "\251 1998-2000 Microsoft Corporation.  \nAll rights reserved."
+    16    "A saved game already exists.  Are you sure you want to replace your previously saved game with your current game?"
+    17    "Are you sure you want to discard the game you are currently playing, and load your previously saved game?"
+    18    "Unable to save game."
+    19    "Unable to load game."
+    20    "spider.sav"
+    21    "AnimDeal"
+    22    "SaveOnExit"
+    23    "LoadAtStart"
+    24    "PromptSave"
+    25    "PromptLoad"
+    26    "HighScore"
+    27    "Wins"
+    28    "Losses"
+    29    "StreakWins"
+    30    "StreakLosses"
+    31    "StreakCurrent"
+    32    "FWinStreak"
+    33    "\t\t%d"
+    34    "Wins:\t\t%d"
+    35    "Losses:\t\t%d"
+    36    "Most Wins:\t%d"
+    37    "Most Losses:\t%d"
+    38    "Current:\t\t%d Wins"
+    39    "Current:\t\t%d Losses"
+    41    "Win Rate:\t%d %%"
+    43    "spider.chm"
+    44    "spider.hlp"
+    45    "You Won!"
+    48    "Arial"
+    49    "NumSuits"
+    50    "Do you want to save this game before closing it?"
+    51    "Sound"
+    52    "Are you sure you want to reset all game statistics?"
+    53    "Score:"
+    54    "Moves:"
+    55    "This version of Spider Solitaire is not compatible with Windows 95, Windows 98, or Windows Me."
+    56    "Spider Solitaire"
+    57    "Begins the Spider Solitaire card game."
+END

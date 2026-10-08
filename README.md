@@ -1,8 +1,8 @@
 # Spider Solitaire (Windows XP SP1) matching decompilation
 
-Byte-matching recompilation of English **Windows XP SP1** `spider.exe` (`5.1.2600.1106`, `xpsp1.020828-1920`). `cards.dll` is the original English binary and is not decompiled.
+Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe` (`5.1.2600.1106`, `xpsp1.020828-1920`). `cards.dll` is the original English binary and is not decompiled.
 
-This is a scaffold: split the original PE, compile C with the original MSVC 7.0 toolchain under Wine, and diff COFF objects in [objdiff](https://github.com/encounter/objdiff).
+This is a scaffold: split the original PE, compile C++ with the original MSVC 7.0 toolchain under Wine, and diff COFF objects in [objdiff](https://github.com/encounter/objdiff).
 
 ## Why SP1
 
@@ -20,7 +20,7 @@ SP3 is a different compile. Matching SP1 will not produce an SP3-identical exe.
 
 - Python 3
 - [ninja](https://ninja-build.org/) (`brew install ninja`)
-- [Wine](https://wiki.winehq.org/MacOS) 9+ (`brew install wine-stable`) — already used here as Wine 11.x
+- [Wine](https://wiki.winehq.org/MacOS) 9+ — already used here as Wine 11.x
 - A **VC7.0 `cl.exe` 13.00.9178** tree (XP DDK / XP build-lab compiler). Not committed. See [orig/README.md](orig/README.md).
 - Original `orig/XPSP1/spider.exe` and `orig/cards.dll`
 
@@ -91,8 +91,20 @@ ninja                     # re-split so the expected object uses the same name
 | `orig/XPSP3`, `TABLET`, `TR_RTM` | Reference binaries only |
 | `config/XPSP1/` | `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `build.sha1` |
 | `src/`, `include/` | Decompiled C / C++ (`game_api.h` holds shared declarations) |
+| `src/spider.rc` | Resource script: menu, dialogs, strings, accelerators, version info |
+| `build/XPSP1/assets/` | Bitmaps, icons, sounds, and manifest extracted from the original by `configure.py` |
 | `tools/wine_msvc.sh` | Wine wrapper (project `WINEPREFIX`, `z:` path rewrite) |
 | `configure.py` | Writes `build.ninja` + `objdiff.json` |
+
+## Resources
+
+`python3 configure.py` writes every media resource of `orig/XPSP1/spider.exe` to `build/XPSP1/assets/` as a normal file (`bitmaps/*.bmp`, `icons/*.ico`, `sounds/*.wav`, `manifest/1.manifest`). They are copyrighted, so they stay out of the repository. `ninja` compiles `src/spider.rc` with the toolchain's `rc.exe` (`/i build/XPSP1/assets`), converts it with `cvtres`, and links it. The rebuilt `.rsrc` section is byte-identical to the original's once data addresses are taken relative to the section:
+
+```sh
+python3 tools/cmp_rsrc.py orig/XPSP1/spider.exe build/XPSP1/spider.exe   # RSRC MATCH
+```
+
+`rc` writes resource data in statement order (string tables always last), so the order of statements in `spider.rc` is part of the match. `python3 tools/extract_assets.py orig/XPSP1/spider.exe build/XPSP1/assets --rc src/spider.rc` regenerates the script from the original.
 
 CRT is not decompiled: once the toolchain is installed, pull matching objects from that `libcmt.lib` and list them in `configure.py` / `splits.txt`.
 
