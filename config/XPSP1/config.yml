@@ -1,0 +1,6 @@
+object_base: orig/XPSP1
+name: spider
+object: spider.exe
+hash: b8d3fadc484da44c6b1014c92347cba6ad2189ef
+symbols: config/XPSP1/symbols.txt
+splits: config/XPSP1/splits.txt

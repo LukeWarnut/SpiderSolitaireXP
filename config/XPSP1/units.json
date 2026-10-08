@@ -1,0 +1,2751 @@
+[
+  {
+    "name": "iat",
+    "category": null,
+    "complete": true,
+    "kind": "thunks"
+  },
+  {
+    "name": "text_rdata",
+    "category": null,
+    "complete": true,
+    "kind": "rdata"
+  },
+  {
+    "name": "fn_01002660.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/release.cpp",
+    "symbol": "?release@AnimState@@QAEPAXE@Z",
+    "addr": 16787040,
+    "size": 28
+  },
+  {
+    "name": "fn_0100267C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AttrTable/release.cpp",
+    "symbol": "?release@AttrTable@@QAEPAXE@Z",
+    "addr": 16787068,
+    "size": 28
+  },
+  {
+    "name": "fn_01002698.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TenListBoard/release.cpp",
+    "symbol": "?release@TenListBoard@@QAEPAXE@Z",
+    "addr": 16787096,
+    "size": 28
+  },
+  {
+    "name": "fn_010026B4.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/GameBoard/draw_felt.cpp",
+    "symbol": "?draw_felt@GameBoard@@QAEXPAUHDC__@@HHPAUtagRECT@@1@Z",
+    "addr": 16787124,
+    "size": 353
+  },
+  {
+    "name": "fn_01002815.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/draw_card.cpp",
+    "symbol": "?draw_card@GameBoard@@QAEXPAXHHHHH@Z",
+    "addr": 16787477,
+    "size": 498
+  },
+  {
+    "name": "fn_01002A07.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/Layout/score.cpp",
+    "symbol": "?score@Layout@@QAEHHH@Z",
+    "addr": 16787975,
+    "size": 60
+  },
+  {
+    "name": "fn_01002A43.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/LayoutBox/card_x.cpp",
+    "symbol": "?card_x@LayoutBox@@QAEHH@Z",
+    "addr": 16788035,
+    "size": 27,
+    "link": false
+  },
+  {
+    "name": "fn_01002A5E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/LayoutWin/deal_top.cpp",
+    "symbol": "?deal_top@LayoutWin@@QAEHXZ",
+    "addr": 16788062,
+    "size": 26
+  },
+  {
+    "name": "fn_01002A78.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/LayoutBox/fill_rect.cpp",
+    "symbol": "?fill_rect@LayoutBox@@QAEXPAUtagRECT@@@Z",
+    "addr": 16788088,
+    "size": 88
+  },
+  {
+    "name": "fn_01002AD0.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/LayoutBox/pile_at.cpp",
+    "symbol": "?pile_at@LayoutBox@@QAEHH@Z",
+    "addr": 16788176,
+    "size": 38
+  },
+  {
+    "name": "fn_01002AF6.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/ColumnOp/hit_card.cpp",
+    "symbol": "?hit_card@ColumnOp@@QAEHHH@Z",
+    "addr": 16788214,
+    "size": 134
+  },
+  {
+    "name": "fn_01002B7C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/ColumnOp/place.cpp",
+    "symbol": "?place@ColumnOp@@QAEXHHHH@Z",
+    "addr": 16788348,
+    "size": 155
+  },
+  {
+    "name": "fn_01002C17.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/ColumnOp/place_on_top.cpp",
+    "symbol": "?place_on_top@ColumnOp@@QAEXHHH@Z",
+    "addr": 16788503,
+    "size": 30
+  },
+  {
+    "name": "fn_01002C35.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/card_code.cpp",
+    "symbol": "?card_code@DealView@@QAEHHH@Z",
+    "addr": 16788533,
+    "size": 87
+  },
+  {
+    "name": "fn_01002C8C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/reset_suit_slots.cpp",
+    "symbol": "?reset_suit_slots@GameWin@@QAEXXZ",
+    "addr": 16788620,
+    "size": 95
+  },
+  {
+    "name": "fn_01002CEB.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/suit_of.cpp",
+    "symbol": "?suit_of@DealView@@QAEHHH@Z",
+    "addr": 16788715,
+    "size": 55
+  },
+  {
+    "name": "fn_01002D22.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/rank_of.cpp",
+    "symbol": "?rank_of@DealView@@QAEHHH@Z",
+    "addr": 16788770,
+    "size": 55
+  },
+  {
+    "name": "fn_01002D59.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/face_of.cpp",
+    "symbol": "?face_of@DealView@@QAEHHH@Z",
+    "addr": 16788825,
+    "size": 55
+  },
+  {
+    "name": "fn_01002D90.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/ColumnOp/fit_piles.cpp",
+    "symbol": "?fit_piles@ColumnOp@@QAEHXZ",
+    "addr": 16788880,
+    "size": 216
+  },
+  {
+    "name": "fn_01002E68.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/dialogs/dlg_timer.cpp",
+    "symbol": "_fn_01002E68@16",
+    "addr": 16789096,
+    "size": 186
+  },
+  {
+    "name": "fn_01002F22.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/DealView/full_suit.cpp",
+    "symbol": "?full_suit@DealView@@QAEHH@Z",
+    "addr": 16789282,
+    "size": 139
+  },
+  {
+    "name": "fn_01002FAD.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/RecBank/push.cpp",
+    "symbol": "?push@RecBank@@QAEHPAURec24@@@Z",
+    "addr": 16789421,
+    "size": 104
+  },
+  {
+    "name": "fn_01003015.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/UndoRing/next.cpp",
+    "symbol": "?next@UndoRing@@QAEPAUUndoRec@@XZ",
+    "addr": 16789525,
+    "size": 26,
+    "link": false
+  },
+  {
+    "name": "fn_0100302F.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/rank_kind.cpp",
+    "symbol": "?rank_kind@DealView@@QAEHHHHH@Z",
+    "addr": 16789551,
+    "size": 73
+  },
+  {
+    "name": "fn_01003078.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/RecBank/sort_desc.cpp",
+    "symbol": "?sort_desc@RecBank@@QAEXXZ",
+    "addr": 16789624,
+    "size": 113
+  },
+  {
+    "name": "fn_010030E9.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/UndoBuf/pop_row.cpp",
+    "symbol": "?pop_row@UndoBuf@@QAEXXZ",
+    "addr": 16789737,
+    "size": 49
+  },
+  {
+    "name": "fn_0100311A.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/disable_undo_menu.cpp",
+    "symbol": "?disable_undo_menu@GameWin@@QAEXXZ",
+    "addr": 16789786,
+    "size": 30
+  },
+  {
+    "name": "fn_01003138.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/show_dialog_107.cpp",
+    "symbol": "?show_dialog_107@GameWin@@QAEXXZ",
+    "addr": 16789816,
+    "size": 23
+  },
+  {
+    "name": "fn_0100314F.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/show_dialog_118.cpp",
+    "symbol": "?show_dialog_118@GameWin@@QAEXXZ",
+    "addr": 16789839,
+    "size": 23
+  },
+  {
+    "name": "fn_01003166.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/show_dialog_117.cpp",
+    "symbol": "?show_dialog_117@GameWin@@QAEXXZ",
+    "addr": 16789862,
+    "size": 23
+  },
+  {
+    "name": "fn_0100317D.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/refresh_drag.cpp",
+    "symbol": "?refresh_drag@GameBoard@@QAEXHHHHPAUtagRECT@@0@Z",
+    "addr": 16789885,
+    "size": 695
+  },
+  {
+    "name": "fn_01003434.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/add_score.cpp",
+    "symbol": "?add_score@GameWin@@QAEXH@Z",
+    "addr": 16790580,
+    "size": 68
+  },
+  {
+    "name": "fn_01003478.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/ClearedSets/total.cpp",
+    "symbol": "?total@ClearedSets@@QAEHXZ",
+    "addr": 16790648,
+    "size": 20
+  },
+  {
+    "name": "fn_0100348C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/app/load_string.cpp",
+    "symbol": "_load_string@4",
+    "addr": 16790668,
+    "size": 34
+  },
+  {
+    "name": "fn_010034AE.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/app/alert_box.cpp",
+    "symbol": "_alert_box@16",
+    "addr": 16790702,
+    "size": 63
+  },
+  {
+    "name": "fn_010034ED.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/on_mouse_move.cpp",
+    "symbol": "?on_mouse_move@GameBoard@@QAEHPAUHWND__@@IIJ@Z",
+    "addr": 16790765,
+    "size": 139
+  },
+  {
+    "name": "fn_01003578.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/on_right_down.cpp",
+    "symbol": "?on_right_down@GameBoard@@QAEHPAUHWND__@@IIJ@Z",
+    "addr": 16790904,
+    "size": 188
+  },
+  {
+    "name": "fn_01003634.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/drop_attrs.cpp",
+    "symbol": "?drop_attrs@GameBoard@@QAEXXZ",
+    "addr": 16791092,
+    "size": 23
+  },
+  {
+    "name": "fn_0100364B.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/drop_board.cpp",
+    "symbol": "?drop_board@GameBoard@@QAEXXZ",
+    "addr": 16791115,
+    "size": 23
+  },
+  {
+    "name": "fn_01003662.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/LayoutWin/center_rect.cpp",
+    "symbol": "?center_rect@LayoutWin@@QAEXPAUtagRECT@@@Z",
+    "addr": 16791138,
+    "size": 68
+  },
+  {
+    "name": "fn_010036A6.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/LayoutBox/draw_stock.cpp",
+    "symbol": "?draw_stock@LayoutBox@@QAEXPAXHH@Z",
+    "addr": 16791206,
+    "size": 93,
+    "link": false
+  },
+  {
+    "name": "fn_01003703.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/draw_cleared.cpp",
+    "symbol": "?draw_cleared@GameWin@@QAEXPAXHH@Z",
+    "addr": 16791299,
+    "size": 103
+  },
+  {
+    "name": "fn_0100376A.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealBox/fill.cpp",
+    "symbol": "?fill@DealBox@@QAEXPAUtagRECT@@@Z",
+    "addr": 16791402,
+    "size": 51
+  },
+  {
+    "name": "fn_0100379D.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/run_ok.cpp",
+    "symbol": "?run_ok@DealView@@QAEHHH@Z",
+    "addr": 16791453,
+    "size": 145
+  },
+  {
+    "name": "fn_0100382E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/DealView/can_drop.cpp",
+    "symbol": "?can_drop@DealView@@QAEHHHH@Z",
+    "addr": 16791598,
+    "size": 131
+  },
+  {
+    "name": "fn_010038B1.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/collect_moves.cpp",
+    "symbol": "fn_010038B1",
+    "addr": 16791729,
+    "size": 336
+  },
+  {
+    "name": "fn_01003A01.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/push_undo.cpp",
+    "symbol": "?push_undo@GameWin@@QAEHPAH@Z",
+    "addr": 16792065,
+    "size": 125
+  },
+  {
+    "name": "fn_01003A7E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/load_settings.cpp",
+    "symbol": "?load_settings@GameWin@@QAEXXZ",
+    "addr": 16792190,
+    "size": 1166
+  },
+  {
+    "name": "fn_01003F0C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/save_settings.cpp",
+    "symbol": "?save_settings@GameWin@@QAEXXZ",
+    "addr": 16793356,
+    "size": 938
+  },
+  {
+    "name": "fn_010042B6.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/open_saved.cpp",
+    "symbol": "?open_saved@GameWin@@QAEPAXKK@Z",
+    "addr": 16794294,
+    "size": 100
+  },
+  {
+    "name": "fn_0100431A.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/load_game.cpp",
+    "symbol": "?load_game@GameWin@@QAEXXZ",
+    "addr": 16794394,
+    "size": 617
+  },
+  {
+    "name": "fn_01004583.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/GameBoard/slide_drag.cpp",
+    "symbol": "?slide_drag@GameBoard@@QAEXPAUHDC__@@000PAUtagRECT@@1H@Z",
+    "addr": 16795011,
+    "size": 251
+  },
+  {
+    "name": "fn_0100467E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/tally.cpp",
+    "symbol": "?tally@GameWin@@QAEXH@Z",
+    "addr": 16795262,
+    "size": 180
+  },
+  {
+    "name": "fn_01004732.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/dtor.cpp",
+    "symbol": "??1GameBoard@@QAE@XZ",
+    "addr": 16795442,
+    "size": 52
+  },
+  {
+    "name": "fn_01004766.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/reset_attrs.cpp",
+    "symbol": "?reset_attrs@GameBoard@@QAEXXZ",
+    "addr": 16795494,
+    "size": 38
+  },
+  {
+    "name": "fn_0100478C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/reset_board.cpp",
+    "symbol": "?reset_board@GameBoard@@QAEXXZ",
+    "addr": 16795532,
+    "size": 36
+  },
+  {
+    "name": "fn_010047B0.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/paint_board.cpp",
+    "symbol": "?paint_board@GameBoard@@QAEXPAUHDC__@@HH@Z",
+    "addr": 16795568,
+    "size": 437
+  },
+  {
+    "name": "fn_01004965.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/GameWin/move_run.cpp",
+    "symbol": "?move_run@GameWin@@QAEXHHHHH@Z",
+    "addr": 16796005,
+    "size": 455
+  },
+  {
+    "name": "fn_01004B2C.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/blink_move.cpp",
+    "symbol": "?blink_move@GameWin@@QAEXXZ",
+    "addr": 16796460,
+    "size": 246
+  },
+  {
+    "name": "fn_01004C22.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/pop_undo.cpp",
+    "symbol": "?pop_undo@GameWin@@QAEXXZ",
+    "addr": 16796706,
+    "size": 72
+  },
+  {
+    "name": "fn_01004C6A.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/check_saved.cpp",
+    "symbol": "?check_saved@GameWin@@QAEXXZ",
+    "addr": 16796778,
+    "size": 88
+  },
+  {
+    "name": "fn_01004CC2.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/GameWin/save_game.cpp",
+    "symbol": "?save_game@GameWin@@QAEHXZ",
+    "addr": 16796866,
+    "size": 360
+  },
+  {
+    "name": "fn_01004E2A.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/anim_deal.cpp",
+    "symbol": "?anim_deal@GameWin@@QAEXHH@Z",
+    "addr": 16797226,
+    "size": 637
+  },
+  {
+    "name": "fn_010050A7.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/paint_column.cpp",
+    "symbol": "?paint_column@GameBoard@@QAEXPAUHDC__@@HH@Z",
+    "addr": 16797863,
+    "size": 833
+  },
+  {
+    "name": "fn_010053E8.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/ctor.cpp",
+    "symbol": "??0GameBoard@@QAE@XZ",
+    "addr": 16798696,
+    "size": 118
+  },
+  {
+    "name": "fn_0100545E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/on_left_down.cpp",
+    "symbol": "?on_left_down@GameBoard@@QAEHPAUHWND__@@IIJ@Z",
+    "addr": 16798814,
+    "size": 588
+  },
+  {
+    "name": "fn_010056AA.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/on_right_up.cpp",
+    "symbol": "?on_right_up@GameBoard@@QAEHPAUHWND__@@IIJ@Z",
+    "addr": 16799402,
+    "size": 334
+  },
+  {
+    "name": "fn_010057F8.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/new_game.cpp",
+    "symbol": "?new_game@GameWin@@QAEXH@Z",
+    "addr": 16799736,
+    "size": 406
+  },
+  {
+    "name": "fn_0100598E.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/GameWin/paint_hdc.cpp",
+    "symbol": "?paint_hdc@GameWin@@QAEXPAUHDC__@@@Z",
+    "addr": 16800142,
+    "size": 1265
+  },
+  {
+    "name": "fn_01005E7F.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/won_game.cpp",
+    "symbol": "?won_game@GameWin@@QAEXXZ",
+    "addr": 16801407,
+    "size": 177
+  },
+  {
+    "name": "fn_01005F30.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/begin_drag.cpp",
+    "symbol": "?begin_drag@GameBoard@@QAEXHH@Z",
+    "addr": 16801584,
+    "size": 516
+  },
+  {
+    "name": "fn_01006134.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/seed_now.cpp",
+    "symbol": "?seed_now@GameWin@@QAEXXZ",
+    "addr": 16802100,
+    "size": 21
+  },
+  {
+    "name": "fn_01006149.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/take_suit.cpp",
+    "symbol": "?take_suit@GameWin@@QAEXH@Z",
+    "addr": 16802121,
+    "size": 493
+  },
+  {
+    "name": "fn_01006336.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/deal_prompt.cpp",
+    "symbol": "?deal_prompt@GameWin@@QAEXXZ",
+    "addr": 16802614,
+    "size": 98
+  },
+  {
+    "name": "fn_01006398.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameBoard/on_left_up.cpp",
+    "symbol": "?on_left_up@GameBoard@@QAEHPAUHWND__@@IIJ@Z",
+    "addr": 16802712,
+    "size": 633
+  },
+  {
+    "name": "fn_01006611.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/deal.cpp",
+    "symbol": "?deal@GameWin@@QAEXXZ",
+    "addr": 16803345,
+    "size": 528
+  },
+  {
+    "name": "fn_01006821.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/on_command.cpp",
+    "symbol": "?on_command@GameWin@@QAEJPAUHWND__@@IIJ@Z",
+    "addr": 16803873,
+    "size": 464
+  },
+  {
+    "name": "fn_010069F1.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/GameWin/wnd_proc.cpp",
+    "symbol": "?wnd_proc@GameWin@@QAEJPAUHWND__@@IIJ@Z",
+    "addr": 16804337,
+    "size": 754
+  },
+  {
+    "name": "fn_01006CE3.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/app/wnd_proc_thunk.cpp",
+    "symbol": "_wnd_proc_thunk@16",
+    "addr": 16805091,
+    "size": 10
+  },
+  {
+    "name": "fn_01006CED.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/app/WinMain.cpp",
+    "symbol": "_fn_01006CED@16",
+    "addr": 16805101,
+    "size": 618
+  },
+  {
+    "name": "fn_01006F57.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AttrTable/ctor.cpp",
+    "symbol": "??0AttrTable@@QAE@H@Z",
+    "addr": 16805719,
+    "size": 48
+  },
+  {
+    "name": "fn_01006F87.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AttrTable/clear_buf.cpp",
+    "symbol": "?clear_buf@AttrTable@@QAEXXZ",
+    "addr": 16805767,
+    "size": 23
+  },
+  {
+    "name": "fn_01006F9E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TripleTable/set_suit.cpp",
+    "symbol": "?set_suit@TripleTable@@QAEXHH@Z",
+    "addr": 16805790,
+    "size": 21
+  },
+  {
+    "name": "fn_01006FB3.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TripleTable/suit.cpp",
+    "symbol": "?suit@TripleTable@@QAEHH@Z",
+    "addr": 16805811,
+    "size": 17
+  },
+  {
+    "name": "fn_01006FC4.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TripleTable/rank.cpp",
+    "symbol": "?rank@TripleTable@@QAEHH@Z",
+    "addr": 16805828,
+    "size": 16
+  },
+  {
+    "name": "fn_01006FD4.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TripleTable/face.cpp",
+    "symbol": "?face@TripleTable@@QAEHH@Z",
+    "addr": 16805844,
+    "size": 17
+  },
+  {
+    "name": "fn_01006FE5.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TripleTable/shuffle.cpp",
+    "symbol": "?shuffle@TripleTable@@QAEXH@Z",
+    "addr": 16805861,
+    "size": 208
+  },
+  {
+    "name": "fn_010070B5.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TripleTable/next.cpp",
+    "symbol": "?next@TripleTable@@QAEPAHXZ",
+    "addr": 16806069,
+    "size": 27
+  },
+  {
+    "name": "fn_010070D0.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/dialogs/dlg_about.cpp",
+    "symbol": "fn_010070D0",
+    "addr": 16806096,
+    "size": 291
+  },
+  {
+    "name": "fn_010071F3.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/dialogs/fill_stats.cpp",
+    "symbol": "_fn_010071F3@8",
+    "addr": 16806387,
+    "size": 451
+  },
+  {
+    "name": "fn_010073B6.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/dialogs/dlg_options.cpp",
+    "symbol": "_fn_010073B6@16",
+    "addr": 16806838,
+    "size": 542
+  },
+  {
+    "name": "fn_010075D4.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/dialogs/dlg_deal_level.cpp",
+    "symbol": "_fn_010075D4@16",
+    "addr": 16807380,
+    "size": 213
+  },
+  {
+    "name": "fn_010076A9.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/dialogs/dlg_stats.cpp",
+    "symbol": "_fn_010076A9@16",
+    "addr": 16807593,
+    "size": 397
+  },
+  {
+    "name": "fn_01007836.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardColumn/slot_empty.cpp",
+    "symbol": "?slot_empty@CardColumn@@QAEHH@Z",
+    "addr": 16807990,
+    "size": 16
+  },
+  {
+    "name": "fn_01007846.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardColumn/any_empty.cpp",
+    "symbol": "?any_empty@CardColumn@@QAEHXZ",
+    "addr": 16808006,
+    "size": 26,
+    "link": false
+  },
+  {
+    "name": "fn_01007860.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardList/node_at.cpp",
+    "symbol": "?node_at@CardList@@QAEPAUCardNode@@H@Z",
+    "addr": 16808032,
+    "size": 27,
+    "link": false
+  },
+  {
+    "name": "fn_0100787B.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardList/tail.cpp",
+    "symbol": "?tail@CardList@@QAEPAUCardNode@@PAH@Z",
+    "addr": 16808059,
+    "size": 39
+  },
+  {
+    "name": "fn_010078A2.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardList/unlink.cpp",
+    "symbol": "?unlink@CardList@@QAEHH@Z",
+    "addr": 16808098,
+    "size": 63
+  },
+  {
+    "name": "fn_010078E1.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TenListBoard/ctor.cpp",
+    "symbol": "??0TenListBoard@@QAE@XZ",
+    "addr": 16808161,
+    "size": 52
+  },
+  {
+    "name": "fn_01007915.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/PileTable/card_value.cpp",
+    "symbol": "?card_value@PileTable@@QAEHHH@Z",
+    "addr": 16808213,
+    "size": 34
+  },
+  {
+    "name": "fn_01007937.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/PileTable/splice.cpp",
+    "symbol": "?splice@PileTable@@QAEXHHHH@Z",
+    "addr": 16808247,
+    "size": 127,
+    "link": false
+  },
+  {
+    "name": "fn_010079B6.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/PileTable/trim_pile.cpp",
+    "symbol": "?trim_pile@PileTable@@QAEXHH@Z",
+    "addr": 16808374,
+    "size": 50
+  },
+  {
+    "name": "fn_010079E8.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardList/drain.cpp",
+    "symbol": "?drain@CardList@@QAEXXZ",
+    "addr": 16808424,
+    "size": 31
+  },
+  {
+    "name": "fn_01007A07.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardList/append.cpp",
+    "symbol": "?append@CardList@@QAEHPAH0@Z",
+    "addr": 16808455,
+    "size": 91
+  },
+  {
+    "name": "fn_01007A62.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TenListBoard/clear_lists.cpp",
+    "symbol": "?clear_lists@TenListBoard@@QAEXXZ",
+    "addr": 16808546,
+    "size": 32
+  },
+  {
+    "name": "fn_01007A82.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TenListBoard/add_card.cpp",
+    "symbol": "?add_card@TenListBoard@@QAEXHHH@Z",
+    "addr": 16808578,
+    "size": 65
+  },
+  {
+    "name": "fn_01007AC3.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/CardList/release.cpp",
+    "symbol": "?release@CardList@@QAEPAXE@Z",
+    "addr": 16808643,
+    "size": 28
+  },
+  {
+    "name": "fn_01007ADF.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/TenListBoard/destroy_lists.cpp",
+    "symbol": "?destroy_lists@TenListBoard@@QAEXXZ",
+    "addr": 16808671,
+    "size": 33
+  },
+  {
+    "name": "fn_01007B00.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/vec/vec_add.cpp",
+    "symbol": "?vec_add@@YGPAUVec3@@PAU1@00@Z",
+    "addr": 16808704,
+    "size": 39
+  },
+  {
+    "name": "fn_01007B27.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/vec/vec_scale.cpp",
+    "symbol": "?vec_scale@@YGPAUVec3@@PAU1@M0@Z",
+    "addr": 16808743,
+    "size": 38
+  },
+  {
+    "name": "fn_01007B4D.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/vec/vec_div.cpp",
+    "symbol": "?vec_div@@YGPAUVec3@@PAU1@0M@Z",
+    "addr": 16808781,
+    "size": 43
+  },
+  {
+    "name": "fn_01007B78.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/vec/vec_length_sq.cpp",
+    "symbol": "?vec_length_sq@@YGMPAUVec3@@@Z",
+    "addr": 16808824,
+    "size": 37
+  },
+  {
+    "name": "fn_01007B9D.c",
+    "category": "game",
+    "kind": "game",
+    "source": "game/StrideCall/apply.cpp",
+    "symbol": "?apply@StrideCall@@QAEXPADHHP6IXPAX@Z@Z",
+    "addr": 16808861,
+    "size": 34,
+    "complete": true
+  },
+  {
+    "name": "fn_01007BBF.c",
+    "category": "game",
+    "kind": "game",
+    "source": "game/StrideCall/stride_keep.cpp",
+    "symbol": "?stride_keep@@YIPAXPAX@Z",
+    "addr": 16808895,
+    "size": 3,
+    "complete": true
+  },
+  {
+    "name": "fn_01007BC2.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/BlitBoard/blit.cpp",
+    "symbol": "?blit@BlitBoard@@QAEXXZ",
+    "addr": 16808898,
+    "size": 50
+  },
+  {
+    "name": "fn_01007BF4.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/SurfaceBlit/blit_to.cpp",
+    "symbol": "?blit_to@SurfaceBlit@@QAEXPAUHDC__@@@Z",
+    "addr": 16808948,
+    "size": 36
+  },
+  {
+    "name": "fn_01007C18.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/clear_draw.cpp",
+    "symbol": "?clear_draw@AnimState@@QAEXXZ",
+    "addr": 16808984,
+    "size": 127
+  },
+  {
+    "name": "fn_01007C97.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/prep_blit.cpp",
+    "symbol": "?prep_blit@AnimState@@QAEXXZ",
+    "addr": 16809111,
+    "size": 433
+  },
+  {
+    "name": "fn_01007E48.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/AnimState/run_fx.cpp",
+    "symbol": "?run_fx@AnimState@@QAEXPAUFxBank@@@Z",
+    "addr": 16809544,
+    "size": 573
+  },
+  {
+    "name": "fn_01008085.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/step_fx.cpp",
+    "symbol": "?step_fx@AnimState@@QAEXPAUFxItem@@@Z",
+    "addr": 16810117,
+    "size": 292
+  },
+  {
+    "name": "fn_010081A9.c",
+    "category": "game",
+    "kind": "game",
+    "source": "game/vec/vec_normalize.cpp",
+    "symbol": "?vec_normalize@@YGPAUVec3@@PAU1@0@Z",
+    "addr": 16810409,
+    "size": 35,
+    "complete": true
+  },
+  {
+    "name": "fn_010081CC.c",
+    "category": "game",
+    "kind": "game",
+    "source": "game/StrideCall/stride_fill.cpp",
+    "symbol": "?stride_fill@@YIPAXPAX@Z",
+    "addr": 16810444,
+    "size": 22,
+    "complete": true
+  },
+  {
+    "name": "fn_010081E2.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/stop.cpp",
+    "symbol": "?stop@AnimState@@QAEXXZ",
+    "addr": 16810466,
+    "size": 12
+  },
+  {
+    "name": "fn_010081EE.c",
+    "category": "game",
+    "complete": false,
+    "kind": "game",
+    "source": "game/AnimState/burst_fx.cpp",
+    "symbol": "?burst_fx@AnimState@@QAEXPAUFxBank@@@Z",
+    "addr": 16810478,
+    "size": 586
+  },
+  {
+    "name": "fn_01008438.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/init_draw.cpp",
+    "symbol": "?init_draw@AnimState@@QAEPAU1@PAUHWND__@@@Z",
+    "addr": 16811064,
+    "size": 43
+  },
+  {
+    "name": "fn_01008463.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/reset_draw.cpp",
+    "symbol": "?reset_draw@AnimState@@QAEXXZ",
+    "addr": 16811107,
+    "size": 328
+  },
+  {
+    "name": "fn_010085AB.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/shutdown.cpp",
+    "symbol": "?shutdown@AnimState@@QAEXXZ",
+    "addr": 16811435,
+    "size": 16
+  },
+  {
+    "name": "fn_010085BB.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/tick_fx.cpp",
+    "symbol": "?tick_fx@AnimState@@QAEXPAUFxBank@@@Z",
+    "addr": 16811451,
+    "size": 131
+  },
+  {
+    "name": "fn_0100863E.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "source": "game/AnimState/paint.cpp",
+    "symbol": "?paint@AnimState@@QAEXXZ",
+    "addr": 16811582,
+    "size": 208
+  },
+  {
+    "name": "crt_amsg_exit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__amsg_exit",
+    "addr": 16811790,
+    "size": 37
+  },
+  {
+    "name": "crt_WinMainCRTStartup.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_WinMainCRTStartup",
+    "addr": 16811827,
+    "size": 474
+  },
+  {
+    "name": "crt_cfltcvt_init.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cfltcvt_init",
+    "addr": 16812301,
+    "size": 69
+  },
+  {
+    "name": "crt_ftol.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ftol",
+    "addr": 16812384,
+    "size": 39
+  },
+  {
+    "name": "crt_2_YAPAXI_Z.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "??2@YAPAXI@Z",
+    "addr": 16812423,
+    "size": 14
+  },
+  {
+    "name": "crt_time.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_time",
+    "addr": 16812437,
+    "size": 57
+  },
+  {
+    "name": "crt_onexit_lk.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__onexit_lk",
+    "addr": 16812494,
+    "size": 130
+  },
+  {
+    "name": "crt_atexit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_atexit",
+    "addr": 16812624,
+    "size": 18
+  },
+  {
+    "name": "crt_onexitinit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___onexitinit",
+    "addr": 16812642,
+    "size": 40
+  },
+  {
+    "name": "crt_rand.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_rand",
+    "addr": 16812682,
+    "size": 54
+  },
+  {
+    "name": "crt_floor.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_floor",
+    "addr": 16812736,
+    "size": 64
+  },
+  {
+    "name": "crt_floor_pentium4.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__floor_pentium4",
+    "addr": 16812800,
+    "size": 225
+  },
+  {
+    "name": "crt_exp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_exp",
+    "addr": 16813040,
+    "size": 59
+  },
+  {
+    "name": "crt_CIexp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__CIexp",
+    "addr": 16813100,
+    "size": 79
+  },
+  {
+    "name": "crt_crtExitProcess.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___crtExitProcess",
+    "addr": 16813179,
+    "size": 47
+  },
+  {
+    "name": "crt_cinit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cinit",
+    "addr": 16813227,
+    "size": 90
+  },
+  {
+    "name": "crt_doexit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_doexit",
+    "addr": 16813317,
+    "size": 181
+  },
+  {
+    "name": "crt_exit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_exit",
+    "addr": 16813498,
+    "size": 17
+  },
+  {
+    "name": "crt_exit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__exit",
+    "addr": 16813515,
+    "size": 17
+  },
+  {
+    "name": "crt_cexit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cexit",
+    "addr": 16813532,
+    "size": 15
+  },
+  {
+    "name": "crt_c_exit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__c_exit",
+    "addr": 16813547,
+    "size": 15
+  },
+  {
+    "name": "crt_NMSG_WRITE.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__NMSG_WRITE",
+    "addr": 16813562,
+    "size": 457
+  },
+  {
+    "name": "crt_FF_MSGBANNER.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__FF_MSGBANNER",
+    "addr": 16814019,
+    "size": 57
+  },
+  {
+    "name": "crt_XcptFilter.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__XcptFilter",
+    "addr": 16814076,
+    "size": 369
+  },
+  {
+    "name": "crt_wincmdln.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__wincmdln",
+    "addr": 16814445,
+    "size": 105
+  },
+  {
+    "name": "crt_setenvp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__setenvp",
+    "addr": 16814550,
+    "size": 224
+  },
+  {
+    "name": "crt_parse_cmdline.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_parse_cmdline",
+    "addr": 16814774,
+    "size": 364
+  },
+  {
+    "name": "crt_setargv.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__setargv",
+    "addr": 16815138,
+    "size": 162
+  },
+  {
+    "name": "crt_crtGetEnvironmentStringsA.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___crtGetEnvironmentStringsA",
+    "addr": 16815300,
+    "size": 294
+  },
+  {
+    "name": "crt_ioinit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ioinit",
+    "addr": 16815594,
+    "size": 427
+  },
+  {
+    "name": "crt_heap_select.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___heap_select",
+    "addr": 16816021,
+    "size": 26
+  },
+  {
+    "name": "crt_heap_init.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__heap_init",
+    "addr": 16816047,
+    "size": 81
+  },
+  {
+    "name": "crt_SEH_prolog.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__SEH_prolog",
+    "addr": 16816128,
+    "size": 57
+  },
+  {
+    "name": "crt_SEH_epilog.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__SEH_epilog",
+    "addr": 16816185,
+    "size": 17
+  },
+  {
+    "name": "crt_chkstk.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__chkstk",
+    "addr": 16816208,
+    "size": 61
+  },
+  {
+    "name": "crt_free.c",
+    "category": "crt",
+    "complete": false,
+    "kind": "crt",
+    "symbol": "_free",
+    "addr": 16816269,
+    "size": 144
+  },
+  {
+    "name": "crt_cropzeros.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cropzeros",
+    "addr": 16816413,
+    "size": 75
+  },
+  {
+    "name": "crt_positive.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__positive",
+    "addr": 16816488,
+    "size": 26
+  },
+  {
+    "name": "crt_fassign.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__fassign",
+    "addr": 16816514,
+    "size": 62
+  },
+  {
+    "name": "crt_shift.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__shift",
+    "addr": 16816576,
+    "size": 29
+  },
+  {
+    "name": "crt_cftoe.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cftoe",
+    "addr": 16816605,
+    "size": 243
+  },
+  {
+    "name": "crt_cftof.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cftof",
+    "addr": 16816848,
+    "size": 221
+  },
+  {
+    "name": "crt_cftog.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cftog",
+    "addr": 16817069,
+    "size": 170
+  },
+  {
+    "name": "crt_cfltcvt.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cfltcvt",
+    "addr": 16817239,
+    "size": 81
+  },
+  {
+    "name": "crt_setdefaultprecision.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__setdefaultprecision",
+    "addr": 16817320,
+    "size": 18
+  },
+  {
+    "name": "crt_heap_alloc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__heap_alloc",
+    "addr": 16817338,
+    "size": 70
+  },
+  {
+    "name": "crt_nh_malloc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__nh_malloc",
+    "addr": 16817408,
+    "size": 44
+  },
+  {
+    "name": "crt_malloc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_malloc",
+    "addr": 16817452,
+    "size": 18
+  },
+  {
+    "name": "crt_aulldiv.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__aulldiv",
+    "addr": 16817472,
+    "size": 104
+  },
+  {
+    "name": "crt_realloc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_realloc",
+    "addr": 16817576,
+    "size": 406
+  },
+  {
+    "name": "crt_msize.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__msize",
+    "addr": 16817982,
+    "size": 56
+  },
+  {
+    "name": "crt_libm_error_support.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___libm_error_support",
+    "addr": 16818038,
+    "size": 636
+  },
+  {
+    "name": "crt_has_osfxsr_set.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_has_osfxsr_set",
+    "addr": 16818674,
+    "size": 53
+  },
+  {
+    "name": "crt_sse2_available_init.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sse2_available_init",
+    "addr": 16818727,
+    "size": 84
+  },
+  {
+    "name": "crt_floor_default.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__floor_default",
+    "addr": 16818811,
+    "size": 209
+  },
+  {
+    "name": "crt_CIexp_pentium4.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__CIexp_pentium4",
+    "addr": 16819024,
+    "size": 30
+  },
+  {
+    "name": "crt_exp_pentium4_start.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "start",
+    "addr": 16819054,
+    "size": 674
+  },
+  {
+    "name": "crt_00001.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_$$$00001",
+    "addr": 16819728,
+    "size": 334
+  },
+  {
+    "name": "crt_ffexpm1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ffexpm1",
+    "addr": 16820062,
+    "size": 67
+  },
+  {
+    "name": "crt_fn_00000191.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "fn_00000191",
+    "addr": 16820129,
+    "size": 102
+  },
+  {
+    "name": "crt_cintrindisp2.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cintrindisp2",
+    "addr": 16820240,
+    "size": 62
+  },
+  {
+    "name": "crt_cintrindisp1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__cintrindisp1",
+    "addr": 16820302,
+    "size": 54
+  },
+  {
+    "name": "crt_ctrandisp2.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ctrandisp2",
+    "addr": 16820356,
+    "size": 58
+  },
+  {
+    "name": "crt_ctranexit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "ctranexit",
+    "addr": 16820414,
+    "size": 7
+  },
+  {
+    "name": "crt_cintrinexit.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "cintrinexit",
+    "addr": 16820421,
+    "size": 325
+  },
+  {
+    "name": "crt_ctrandisp1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ctrandisp1",
+    "addr": 16820746,
+    "size": 44
+  },
+  {
+    "name": "crt_fload.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__fload",
+    "addr": 16820790,
+    "size": 60
+  },
+  {
+    "name": "crt_crtMessageBoxA.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___crtMessageBoxA",
+    "addr": 16820850,
+    "size": 249
+  },
+  {
+    "name": "crt_strncpy.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_strncpy",
+    "addr": 16821104,
+    "size": 254
+  },
+  {
+    "name": "crt_x_ismbbtype.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_x_ismbbtype",
+    "addr": 16821358,
+    "size": 49
+  },
+  {
+    "name": "crt_ismbblead.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ismbblead",
+    "addr": 16821407,
+    "size": 17
+  },
+  {
+    "name": "crt_CPtoLCID.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_CPtoLCID",
+    "addr": 16821424,
+    "size": 47
+  },
+  {
+    "name": "crt_setSBCS.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_setSBCS",
+    "addr": 16821471,
+    "size": 41
+  },
+  {
+    "name": "crt_setSBUpLow.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_setSBUpLow",
+    "addr": 16821512,
+    "size": 380
+  },
+  {
+    "name": "crt_setmbcp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__setmbcp",
+    "addr": 16821892,
+    "size": 470
+  },
+  {
+    "name": "crt_initmbctable.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___initmbctable",
+    "addr": 16822362,
+    "size": 30
+  },
+  {
+    "name": "crt_sbh_heap_init.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_heap_init",
+    "addr": 16822392,
+    "size": 72
+  },
+  {
+    "name": "crt_sbh_find_block.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_find_block",
+    "addr": 16822464,
+    "size": 43
+  },
+  {
+    "name": "crt_sbh_free_block.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_free_block",
+    "addr": 16822507,
+    "size": 792
+  },
+  {
+    "name": "crt_sbh_alloc_new_region.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_alloc_new_region",
+    "addr": 16823299,
+    "size": 183
+  },
+  {
+    "name": "crt_sbh_alloc_new_group.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_alloc_new_group",
+    "addr": 16823482,
+    "size": 262
+  },
+  {
+    "name": "crt_sbh_resize_block.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_resize_block",
+    "addr": 16823744,
+    "size": 735
+  },
+  {
+    "name": "crt_sbh_alloc_block.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___sbh_alloc_block",
+    "addr": 16824479,
+    "size": 773
+  },
+  {
+    "name": "crt_except_handler3.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__except_handler3",
+    "addr": 16825252,
+    "size": 189
+  },
+  {
+    "name": "crt_seh_longjmp_unwind_4.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__seh_longjmp_unwind@4",
+    "addr": 16825441,
+    "size": 27
+  },
+  {
+    "name": "crt_isctype.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__isctype",
+    "addr": 16825468,
+    "size": 126
+  },
+  {
+    "name": "crt_tolower.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_tolower",
+    "addr": 16825594,
+    "size": 213
+  },
+  {
+    "name": "crt_ZeroTail.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ZeroTail",
+    "addr": 16825807,
+    "size": 50
+  },
+  {
+    "name": "crt_IncMan.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__IncMan",
+    "addr": 16825857,
+    "size": 77
+  },
+  {
+    "name": "crt_RoundMan.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__RoundMan",
+    "addr": 16825934,
+    "size": 114
+  },
+  {
+    "name": "crt_CopyMan.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__CopyMan",
+    "addr": 16826048,
+    "size": 27
+  },
+  {
+    "name": "crt_IsZeroMan.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__IsZeroMan",
+    "addr": 16826075,
+    "size": 25
+  },
+  {
+    "name": "crt_ShrMan.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ShrMan",
+    "addr": 16826100,
+    "size": 123
+  },
+  {
+    "name": "crt_ld12cvt.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ld12cvt",
+    "addr": 16826223,
+    "size": 344
+  },
+  {
+    "name": "crt_ld12tod.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ld12tod",
+    "addr": 16826567,
+    "size": 22
+  },
+  {
+    "name": "crt_ld12tod_0100C0DD.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ld12tod_0100C0DD",
+    "addr": 16826589,
+    "size": 22
+  },
+  {
+    "name": "crt_atodbl.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__atodbl",
+    "addr": 16826611,
+    "size": 45
+  },
+  {
+    "name": "crt_atodbl_0100C120.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__atodbl_0100C120",
+    "addr": 16826656,
+    "size": 45
+  },
+  {
+    "name": "crt_memcpy.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_memcpy",
+    "addr": 16826704,
+    "size": 821
+  },
+  {
+    "name": "crt_strlen.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_strlen",
+    "addr": 16827536,
+    "size": 123
+  },
+  {
+    "name": "crt_mbscpy.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__mbscpy",
+    "addr": 16827664,
+    "size": 16
+  },
+  {
+    "name": "crt_strcat.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_strcat",
+    "addr": 16827680,
+    "size": 224
+  },
+  {
+    "name": "crt_fptostr.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__fptostr",
+    "addr": 16827904,
+    "size": 127
+  },
+  {
+    "name": "crt_dtold.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___dtold",
+    "addr": 16828031,
+    "size": 186
+  },
+  {
+    "name": "crt_fltout.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__fltout",
+    "addr": 16828217,
+    "size": 100
+  },
+  {
+    "name": "crt_memset.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_memset",
+    "addr": 16828320,
+    "size": 97
+  },
+  {
+    "name": "crt_abstract_cw.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__abstract_cw",
+    "addr": 16828417,
+    "size": 146
+  },
+  {
+    "name": "crt_hw_cw.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__hw_cw",
+    "addr": 16828563,
+    "size": 142
+  },
+  {
+    "name": "crt_control87.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__control87",
+    "addr": 16828705,
+    "size": 50
+  },
+  {
+    "name": "crt_controlfp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__controlfp",
+    "addr": 16828755,
+    "size": 22
+  },
+  {
+    "name": "crt_callnewh.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__callnewh",
+    "addr": 16828777,
+    "size": 27
+  },
+  {
+    "name": "crt_init_collate.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___init_collate",
+    "addr": 16828804,
+    "size": 3
+  },
+  {
+    "name": "crt_raise_exc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__raise_exc",
+    "addr": 16828807,
+    "size": 677
+  },
+  {
+    "name": "crt_handle_exc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__handle_exc",
+    "addr": 16829484,
+    "size": 546
+  },
+  {
+    "name": "crt_set_errno.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__set_errno",
+    "addr": 16830030,
+    "size": 38
+  },
+  {
+    "name": "crt_errcode.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__errcode",
+    "addr": 16830068,
+    "size": 45
+  },
+  {
+    "name": "crt_umatherr.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__umatherr",
+    "addr": 16830113,
+    "size": 160
+  },
+  {
+    "name": "crt_handle_qnan1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__handle_qnan1",
+    "addr": 16830273,
+    "size": 82
+  },
+  {
+    "name": "crt_except1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__except1",
+    "addr": 16830355,
+    "size": 160
+  },
+  {
+    "name": "crt_frnd.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__frnd",
+    "addr": 16830515,
+    "size": 19
+  },
+  {
+    "name": "crt_set_exp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__set_exp",
+    "addr": 16830534,
+    "size": 42
+  },
+  {
+    "name": "crt_sptype.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__sptype",
+    "addr": 16830576,
+    "size": 91
+  },
+  {
+    "name": "crt_decomp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__decomp",
+    "addr": 16830667,
+    "size": 186
+  },
+  {
+    "name": "crt_statfp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__statfp",
+    "addr": 16830853,
+    "size": 13
+  },
+  {
+    "name": "crt_clrfp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__clrfp",
+    "addr": 16830866,
+    "size": 14
+  },
+  {
+    "name": "crt_ctrlfp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__ctrlfp",
+    "addr": 16830880,
+    "size": 36
+  },
+  {
+    "name": "crt_set_statfp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__set_statfp",
+    "addr": 16830916,
+    "size": 89
+  },
+  {
+    "name": "crt_trandisp1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__trandisp1",
+    "addr": 16831008,
+    "size": 103
+  },
+  {
+    "name": "crt_trandisp2.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__trandisp2",
+    "addr": 16831111,
+    "size": 171
+  },
+  {
+    "name": "crt_tosnan1.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__tosnan1",
+    "addr": 16831282,
+    "size": 167
+  },
+  {
+    "name": "crt_fn_000001B9.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "fn_000001B9",
+    "addr": 16831449,
+    "size": 17
+  },
+  {
+    "name": "crt_d_inttype.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__d_inttype",
+    "addr": 16831466,
+    "size": 106
+  },
+  {
+    "name": "crt_powhlp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__powhlp",
+    "addr": 16831572,
+    "size": 354
+  },
+  {
+    "name": "crt_87except.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__87except",
+    "addr": 16831926,
+    "size": 221
+  },
+  {
+    "name": "crt_crtLCMapStringA.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___crtLCMapStringA",
+    "addr": 16832147,
+    "size": 972
+  },
+  {
+    "name": "crt_crtGetStringTypeA.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___crtGetStringTypeA",
+    "addr": 16833119,
+    "size": 450
+  },
+  {
+    "name": "crt_global_unwind2.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__global_unwind2",
+    "addr": 16833572,
+    "size": 66
+  },
+  {
+    "name": "crt_local_unwind2.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__local_unwind2",
+    "addr": 16833638,
+    "size": 148
+  },
+  {
+    "name": "crt_NLG_Notify.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__NLG_Notify",
+    "addr": 16833786,
+    "size": 24
+  },
+  {
+    "name": "crt_addl.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___addl",
+    "addr": 16833810,
+    "size": 33
+  },
+  {
+    "name": "crt_add_12.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___add_12",
+    "addr": 16833843,
+    "size": 94
+  },
+  {
+    "name": "crt_shl_12.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___shl_12",
+    "addr": 16833937,
+    "size": 46
+  },
+  {
+    "name": "crt_shr_12.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___shr_12",
+    "addr": 16833983,
+    "size": 45
+  },
+  {
+    "name": "crt_mtold12.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___mtold12",
+    "addr": 16834028,
+    "size": 206
+  },
+  {
+    "name": "crt_strgtold12.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___strgtold12",
+    "addr": 16834234,
+    "size": 1143
+  },
+  {
+    "name": "crt_I10_OUTPUT.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_$I10_OUTPUT",
+    "addr": 16835377,
+    "size": 638
+  },
+  {
+    "name": "crt_fpclass.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__fpclass",
+    "addr": 16836015,
+    "size": 154
+  },
+  {
+    "name": "crt_ansicp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___ansicp",
+    "addr": 16836169,
+    "size": 50
+  },
+  {
+    "name": "crt_convertcp.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___convertcp",
+    "addr": 16836219,
+    "size": 460
+  },
+  {
+    "name": "crt_resetstkoflw.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__resetstkoflw",
+    "addr": 16836679,
+    "size": 209
+  },
+  {
+    "name": "crt_calloc.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_calloc",
+    "addr": 16836888,
+    "size": 129
+  },
+  {
+    "name": "crt_ld12mul.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___ld12mul",
+    "addr": 16837017,
+    "size": 546
+  },
+  {
+    "name": "crt_multtenpow12.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "___multtenpow12",
+    "addr": 16837563,
+    "size": 118
+  },
+  {
+    "name": "crt_atol.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_atol",
+    "addr": 16837681,
+    "size": 123
+  },
+  {
+    "name": "crt_allmul.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "__allmul",
+    "addr": 16837808,
+    "size": 52
+  },
+  {
+    "name": "crt_RtlUnwind_16.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_RtlUnwind@16",
+    "addr": 16837860,
+    "size": 6
+  },
+  {
+    "name": "crt_GetRegisteredLocation.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "?GetRegisteredLocation@@YGHPAD@Z",
+    "addr": 16837866,
+    "size": 95
+  },
+  {
+    "name": "crt_HtmlHelpW_16.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "crt",
+    "symbol": "_HtmlHelpW@16",
+    "addr": 16837961,
+    "size": 153
+  },
+  {
+    "name": "fn_0100EDE2.c",
+    "category": "game",
+    "complete": true,
+    "kind": "game",
+    "symbol": "_$E1",
+    "addr": 16838114,
+    "size": 34,
+    "source": "game/app/g_board.cpp"
+  },
+  {
+    "name": "import_data.c",
+    "category": "crt",
+    "complete": true,
+    "kind": "rdata",
+    "symbol": "import_data",
+    "addr": 16838148,
+    "size": 3316
+  }
+]

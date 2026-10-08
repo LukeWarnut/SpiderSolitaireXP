@@ -1,0 +1,884 @@
+Sections:
+	.text       type:code align:4096
+	.data       type:data align:4096
+	.rsrc       type:rodata align:4096
+
+iat:
+	.text       start:0x01001000 end:0x01001280 align:1
+
+text_rdata:
+	.text       start:0x01001280 end:0x01002660 align:1
+
+fn_01002660.c:
+	.text       start:0x01002660 end:0x0100267c align:1
+
+fn_0100267C.c:
+	.text       start:0x0100267c end:0x01002698 align:1
+
+fn_01002698.c:
+	.text       start:0x01002698 end:0x010026b4 align:1
+
+fn_010026B4.c:
+	.text       start:0x010026b4 end:0x01002815 align:1
+
+fn_01002815.c:
+	.text       start:0x01002815 end:0x01002a07 align:1
+
+fn_01002A07.c:
+	.text       start:0x01002a07 end:0x01002a43 align:1
+
+fn_01002A43.c:
+	.text       start:0x01002a43 end:0x01002a5e align:1
+
+fn_01002A5E.c:
+	.text       start:0x01002a5e end:0x01002a78 align:1
+
+fn_01002A78.c:
+	.text       start:0x01002a78 end:0x01002ad0 align:1
+
+fn_01002AD0.c:
+	.text       start:0x01002ad0 end:0x01002af6 align:1
+
+fn_01002AF6.c:
+	.text       start:0x01002af6 end:0x01002b7c align:1
+
+fn_01002B7C.c:
+	.text       start:0x01002b7c end:0x01002c17 align:1
+
+fn_01002C17.c:
+	.text       start:0x01002c17 end:0x01002c35 align:1
+
+fn_01002C35.c:
+	.text       start:0x01002c35 end:0x01002c8c align:1
+
+fn_01002C8C.c:
+	.text       start:0x01002c8c end:0x01002ceb align:1
+
+fn_01002CEB.c:
+	.text       start:0x01002ceb end:0x01002d22 align:1
+
+fn_01002D22.c:
+	.text       start:0x01002d22 end:0x01002d59 align:1
+
+fn_01002D59.c:
+	.text       start:0x01002d59 end:0x01002d90 align:1
+
+fn_01002D90.c:
+	.text       start:0x01002d90 end:0x01002e68 align:1
+
+fn_01002E68.c:
+	.text       start:0x01002e68 end:0x01002f22 align:1
+
+fn_01002F22.c:
+	.text       start:0x01002f22 end:0x01002fad align:1
+
+fn_01002FAD.c:
+	.text       start:0x01002fad end:0x01003015 align:1
+
+fn_01003015.c:
+	.text       start:0x01003015 end:0x0100302f align:1
+
+fn_0100302F.c:
+	.text       start:0x0100302f end:0x01003078 align:1
+
+fn_01003078.c:
+	.text       start:0x01003078 end:0x010030e9 align:1
+
+fn_010030E9.c:
+	.text       start:0x010030e9 end:0x0100311a align:1
+
+fn_0100311A.c:
+	.text       start:0x0100311a end:0x01003138 align:1
+
+fn_01003138.c:
+	.text       start:0x01003138 end:0x0100314f align:1
+
+fn_0100314F.c:
+	.text       start:0x0100314f end:0x01003166 align:1
+
+fn_01003166.c:
+	.text       start:0x01003166 end:0x0100317d align:1
+
+fn_0100317D.c:
+	.text       start:0x0100317d end:0x01003434 align:1
+
+fn_01003434.c:
+	.text       start:0x01003434 end:0x01003478 align:1
+
+fn_01003478.c:
+	.text       start:0x01003478 end:0x0100348c align:1
+
+fn_0100348C.c:
+	.text       start:0x0100348c end:0x010034ae align:1
+	.data       start:0x010107c0 end:0x01010fc0 align:1 rename:.bss
+
+fn_010034AE.c:
+	.text       start:0x010034ae end:0x010034ed align:1
+
+fn_010034ED.c:
+	.text       start:0x010034ed end:0x01003578 align:1
+
+fn_01003578.c:
+	.text       start:0x01003578 end:0x01003634 align:1
+
+fn_01003634.c:
+	.text       start:0x01003634 end:0x0100364b align:1
+
+fn_0100364B.c:
+	.text       start:0x0100364b end:0x01003662 align:1
+
+fn_01003662.c:
+	.text       start:0x01003662 end:0x010036a6 align:1
+
+fn_010036A6.c:
+	.text       start:0x010036a6 end:0x01003703 align:1
+
+fn_01003703.c:
+	.text       start:0x01003703 end:0x0100376a align:1
+
+fn_0100376A.c:
+	.text       start:0x0100376a end:0x0100379d align:1
+
+fn_0100379D.c:
+	.text       start:0x0100379d end:0x0100382e align:1
+
+fn_0100382E.c:
+	.text       start:0x0100382e end:0x010038b1 align:1
+
+fn_010038B1.c:
+	.text       start:0x010038b1 end:0x01003a01 align:1
+
+fn_01003A01.c:
+	.text       start:0x01003a01 end:0x01003a7e align:1
+
+fn_01003A7E.c:
+	.text       start:0x01003a7e end:0x01003f0c align:1
+
+fn_01003F0C.c:
+	.text       start:0x01003f0c end:0x010042b6 align:1
+
+fn_010042B6.c:
+	.text       start:0x010042b6 end:0x0100431a align:1
+
+fn_0100431A.c:
+	.text       start:0x0100431a end:0x01004583 align:1
+
+fn_01004583.c:
+	.text       start:0x01004583 end:0x0100467e align:1
+
+fn_0100467E.c:
+	.text       start:0x0100467e end:0x01004732 align:1
+
+fn_01004732.c:
+	.text       start:0x01004732 end:0x01004766 align:1
+
+fn_01004766.c:
+	.text       start:0x01004766 end:0x0100478c align:1
+
+fn_0100478C.c:
+	.text       start:0x0100478c end:0x010047b0 align:1
+
+fn_010047B0.c:
+	.text       start:0x010047b0 end:0x01004965 align:1
+
+fn_01004965.c:
+	.text       start:0x01004965 end:0x01004b2c align:1
+
+fn_01004B2C.c:
+	.text       start:0x01004b2c end:0x01004c22 align:1
+
+fn_01004C22.c:
+	.text       start:0x01004c22 end:0x01004c6a align:1
+
+fn_01004C6A.c:
+	.text       start:0x01004c6a end:0x01004cc2 align:1
+
+fn_01004CC2.c:
+	.text       start:0x01004cc2 end:0x01004e2a align:1
+
+fn_01004E2A.c:
+	.text       start:0x01004e2a end:0x010050a7 align:1
+
+fn_010050A7.c:
+	.text       start:0x010050a7 end:0x010053e8 align:1
+
+fn_010053E8.c:
+	.text       start:0x010053e8 end:0x0100545e align:1
+
+fn_0100545E.c:
+	.text       start:0x0100545e end:0x010056aa align:1
+
+fn_010056AA.c:
+	.text       start:0x010056aa end:0x010057f8 align:1
+
+fn_010057F8.c:
+	.text       start:0x010057f8 end:0x0100598e align:1
+
+fn_0100598E.c:
+	.text       start:0x0100598e end:0x01005e7f align:1
+
+fn_01005E7F.c:
+	.text       start:0x01005e7f end:0x01005f30 align:1
+
+fn_01005F30.c:
+	.text       start:0x01005f30 end:0x01006134 align:1
+
+fn_01006134.c:
+	.text       start:0x01006134 end:0x01006149 align:1
+
+fn_01006149.c:
+	.text       start:0x01006149 end:0x01006336 align:1
+
+fn_01006336.c:
+	.text       start:0x01006336 end:0x01006398 align:1
+
+fn_01006398.c:
+	.text       start:0x01006398 end:0x01006611 align:1
+
+fn_01006611.c:
+	.text       start:0x01006611 end:0x01006821 align:1
+
+fn_01006821.c:
+	.text       start:0x01006821 end:0x010069f1 align:1
+
+fn_010069F1.c:
+	.text       start:0x010069f1 end:0x01006ce3 align:1
+
+fn_01006CE3.c:
+	.text       start:0x01006ce3 end:0x01006ced align:1
+
+fn_01006CED.c:
+	.text       start:0x01006ced end:0x01006f57 align:1
+	.data       start:0x01010fc0 end:0x01010fc4 align:4 rename:.bss
+
+fn_01006F57.c:
+	.text       start:0x01006f57 end:0x01006f87 align:1
+
+fn_01006F87.c:
+	.text       start:0x01006f87 end:0x01006f9e align:1
+
+fn_01006F9E.c:
+	.text       start:0x01006f9e end:0x01006fb3 align:1
+
+fn_01006FB3.c:
+	.text       start:0x01006fb3 end:0x01006fc4 align:1
+
+fn_01006FC4.c:
+	.text       start:0x01006fc4 end:0x01006fd4 align:1
+
+fn_01006FD4.c:
+	.text       start:0x01006fd4 end:0x01006fe5 align:1
+
+fn_01006FE5.c:
+	.text       start:0x01006fe5 end:0x010070b5 align:1
+
+fn_010070B5.c:
+	.text       start:0x010070b5 end:0x010070d0 align:1
+
+fn_010070D0.c:
+	.text       start:0x010070d0 end:0x010071f3 align:1
+
+fn_010071F3.c:
+	.text       start:0x010071f3 end:0x010073b6 align:1
+
+fn_010073B6.c:
+	.text       start:0x010073b6 end:0x010075d4 align:1
+	.data       start:0x01010000 end:0x01010038 align:1
+	.data       start:0x01012000 end:0x01012004 align:1 rename:.bss
+
+fn_010075D4.c:
+	.text       start:0x010075d4 end:0x010076a9 align:1
+	.data       start:0x01012004 end:0x01012008 align:1 rename:.bss
+
+fn_010076A9.c:
+	.text       start:0x010076a9 end:0x01007836 align:1
+	.data       start:0x01012008 end:0x0101200c align:1 rename:.bss
+
+fn_01007836.c:
+	.text       start:0x01007836 end:0x01007846 align:1
+
+fn_01007846.c:
+	.text       start:0x01007846 end:0x01007860 align:1
+
+fn_01007860.c:
+	.text       start:0x01007860 end:0x0100787b align:1
+
+fn_0100787B.c:
+	.text       start:0x0100787b end:0x010078a2 align:1
+
+fn_010078A2.c:
+	.text       start:0x010078a2 end:0x010078e1 align:1
+
+fn_010078E1.c:
+	.text       start:0x010078e1 end:0x01007915 align:1
+
+fn_01007915.c:
+	.text       start:0x01007915 end:0x01007937 align:1
+
+fn_01007937.c:
+	.text       start:0x01007937 end:0x010079b6 align:1
+
+fn_010079B6.c:
+	.text       start:0x010079b6 end:0x010079e8 align:1
+
+fn_010079E8.c:
+	.text       start:0x010079e8 end:0x01007a07 align:1
+
+fn_01007A07.c:
+	.text       start:0x01007a07 end:0x01007a62 align:1
+
+fn_01007A62.c:
+	.text       start:0x01007a62 end:0x01007a82 align:1
+
+fn_01007A82.c:
+	.text       start:0x01007a82 end:0x01007ac3 align:1
+
+fn_01007AC3.c:
+	.text       start:0x01007ac3 end:0x01007adf align:1
+
+fn_01007ADF.c:
+	.text       start:0x01007adf end:0x01007b00 align:1
+
+fn_01007B00.c:
+	.text       start:0x01007b00 end:0x01007b27 align:1
+
+fn_01007B27.c:
+	.text       start:0x01007b27 end:0x01007b4d align:1
+
+fn_01007B4D.c:
+	.text       start:0x01007b4d end:0x01007b78 align:1
+
+fn_01007B78.c:
+	.text       start:0x01007b78 end:0x01007b9d align:1
+
+fn_01007B9D.c:
+	.text       start:0x01007b9d end:0x01007bbf align:1
+
+fn_01007BBF.c:
+	.text       start:0x01007bbf end:0x01007bc2 align:1
+
+fn_01007BC2.c:
+	.text       start:0x01007bc2 end:0x01007bf4 align:1
+
+fn_01007BF4.c:
+	.text       start:0x01007bf4 end:0x01007c18 align:1
+
+fn_01007C18.c:
+	.text       start:0x01007c18 end:0x01007c97 align:1
+
+fn_01007C97.c:
+	.text       start:0x01007c97 end:0x01007e48 align:1
+
+fn_01007E48.c:
+	.text       start:0x01007e48 end:0x01008085 align:1
+
+fn_01008085.c:
+	.text       start:0x01008085 end:0x010081a9 align:1
+
+fn_010081A9.c:
+	.text       start:0x010081a9 end:0x010081cc align:1
+
+fn_010081CC.c:
+	.text       start:0x010081cc end:0x010081e2 align:1
+
+fn_010081E2.c:
+	.text       start:0x010081e2 end:0x010081ee align:1
+
+fn_010081EE.c:
+	.text       start:0x010081ee end:0x01008438 align:1
+
+fn_01008438.c:
+	.text       start:0x01008438 end:0x01008463 align:1
+
+fn_01008463.c:
+	.text       start:0x01008463 end:0x010085ab align:1
+
+fn_010085AB.c:
+	.text       start:0x010085ab end:0x010085bb align:1
+
+fn_010085BB.c:
+	.text       start:0x010085bb end:0x0100863e align:1
+
+fn_0100863E.c:
+	.text       start:0x0100863e end:0x0100870e align:1
+
+crt_amsg_exit.c:
+	.text       start:0x0100870e end:0x01008733 align:1
+
+crt_WinMainCRTStartup.c:
+	.text       start:0x01008733 end:0x0100890d align:1
+
+crt_cfltcvt_init.c:
+	.text       start:0x0100890d end:0x01008960 align:1
+
+crt_ftol.c:
+	.text       start:0x01008960 end:0x01008987 align:1
+
+crt_2_YAPAXI_Z.c:
+	.text       start:0x01008987 end:0x01008995 align:1
+
+crt_time.c:
+	.text       start:0x01008995 end:0x010089ce align:1
+
+crt_onexit_lk.c:
+	.text       start:0x010089ce end:0x01008a50 align:1
+
+crt_atexit.c:
+	.text       start:0x01008a50 end:0x01008a62 align:1
+
+crt_onexitinit.c:
+	.text       start:0x01008a62 end:0x01008a8a align:1
+
+crt_rand.c:
+	.text       start:0x01008a8a end:0x01008ac0 align:1
+
+crt_floor.c:
+	.text       start:0x01008ac0 end:0x01008b00 align:1
+
+crt_floor_pentium4.c:
+	.text       start:0x01008b00 end:0x01008bf0 align:1
+
+crt_exp.c:
+	.text       start:0x01008bf0 end:0x01008c2c align:1
+
+crt_CIexp.c:
+	.text       start:0x01008c2c end:0x01008c7b align:1
+
+crt_crtExitProcess.c:
+	.text       start:0x01008c7b end:0x01008cab align:1
+
+crt_cinit.c:
+	.text       start:0x01008cab end:0x01008d05 align:1
+
+crt_doexit.c:
+	.text       start:0x01008d05 end:0x01008dba align:1
+
+crt_exit.c:
+	.text       start:0x01008dba end:0x01008dcb align:1
+
+crt_exit.c:
+	.text       start:0x01008dcb end:0x01008ddc align:1
+
+crt_cexit.c:
+	.text       start:0x01008ddc end:0x01008deb align:1
+
+crt_c_exit.c:
+	.text       start:0x01008deb end:0x01008dfa align:1
+
+crt_NMSG_WRITE.c:
+	.text       start:0x01008dfa end:0x01008fc3 align:1
+
+crt_FF_MSGBANNER.c:
+	.text       start:0x01008fc3 end:0x01008ffc align:1
+
+crt_XcptFilter.c:
+	.text       start:0x01008ffc end:0x0100916d align:1
+
+crt_wincmdln.c:
+	.text       start:0x0100916d end:0x010091d6 align:1
+
+crt_setenvp.c:
+	.text       start:0x010091d6 end:0x010092b6 align:1
+
+crt_parse_cmdline.c:
+	.text       start:0x010092b6 end:0x01009422 align:1
+
+crt_setargv.c:
+	.text       start:0x01009422 end:0x010094c4 align:1
+
+crt_crtGetEnvironmentStringsA.c:
+	.text       start:0x010094c4 end:0x010095ea align:1
+
+crt_ioinit.c:
+	.text       start:0x010095ea end:0x01009795 align:1
+
+crt_heap_select.c:
+	.text       start:0x01009795 end:0x010097af align:1
+
+crt_heap_init.c:
+	.text       start:0x010097af end:0x01009800 align:1
+
+crt_SEH_prolog.c:
+	.text       start:0x01009800 end:0x01009839 align:1
+
+crt_SEH_epilog.c:
+	.text       start:0x01009839 end:0x01009850 align:1
+
+crt_chkstk.c:
+	.text       start:0x01009850 end:0x0100988d align:1
+
+crt_free.c:
+	.text       start:0x0100988d end:0x0100991d align:1
+
+crt_cropzeros.c:
+	.text       start:0x0100991d end:0x01009968 align:1
+
+crt_positive.c:
+	.text       start:0x01009968 end:0x01009982 align:1
+
+crt_fassign.c:
+	.text       start:0x01009982 end:0x010099c0 align:1
+
+crt_shift.c:
+	.text       start:0x010099c0 end:0x010099dd align:1
+
+crt_cftoe.c:
+	.text       start:0x010099dd end:0x01009ad0 align:1
+
+crt_cftof.c:
+	.text       start:0x01009ad0 end:0x01009bad align:1
+
+crt_cftog.c:
+	.text       start:0x01009bad end:0x01009c57 align:1
+
+crt_cfltcvt.c:
+	.text       start:0x01009c57 end:0x01009ca8 align:1
+
+crt_setdefaultprecision.c:
+	.text       start:0x01009ca8 end:0x01009cba align:1
+
+crt_heap_alloc.c:
+	.text       start:0x01009cba end:0x01009d00 align:1
+
+crt_nh_malloc.c:
+	.text       start:0x01009d00 end:0x01009d2c align:1
+
+crt_malloc.c:
+	.text       start:0x01009d2c end:0x01009d40 align:1
+
+crt_aulldiv.c:
+	.text       start:0x01009d40 end:0x01009da8 align:1
+
+crt_realloc.c:
+	.text       start:0x01009da8 end:0x01009f3e align:1
+
+crt_msize.c:
+	.text       start:0x01009f3e end:0x01009f76 align:1
+
+crt_libm_error_support.c:
+	.text       start:0x01009f76 end:0x0100a1f2 align:1
+
+crt_has_osfxsr_set.c:
+	.text       start:0x0100a1f2 end:0x0100a227 align:1
+
+crt_sse2_available_init.c:
+	.text       start:0x0100a227 end:0x0100a27b align:1
+
+crt_floor_default.c:
+	.text       start:0x0100a27b end:0x0100a350 align:1
+
+crt_CIexp_pentium4.c:
+	.text       start:0x0100a350 end:0x0100a36e align:1
+
+crt_exp_pentium4_start.c:
+	.text       start:0x0100a36e end:0x0100a610 align:1
+
+crt_00001.c:
+	.text       start:0x0100a610 end:0x0100a75e align:1
+
+crt_ffexpm1.c:
+	.text       start:0x0100a75e end:0x0100a7a1 align:1
+
+crt_fn_00000191.c:
+	.text       start:0x0100a7a1 end:0x0100a810 align:1
+
+crt_cintrindisp2.c:
+	.text       start:0x0100a810 end:0x0100a84e align:1
+
+crt_cintrindisp1.c:
+	.text       start:0x0100a84e end:0x0100a884 align:1
+
+crt_ctrandisp2.c:
+	.text       start:0x0100a884 end:0x0100a8be align:1
+
+crt_ctranexit.c:
+	.text       start:0x0100a8be end:0x0100a8c5 align:1
+
+crt_cintrinexit.c:
+	.text       start:0x0100a8c5 end:0x0100aa0a align:1
+
+crt_ctrandisp1.c:
+	.text       start:0x0100aa0a end:0x0100aa36 align:1
+
+crt_fload.c:
+	.text       start:0x0100aa36 end:0x0100aa72 align:1
+
+crt_crtMessageBoxA.c:
+	.text       start:0x0100aa72 end:0x0100ab70 align:1
+
+crt_strncpy.c:
+	.text       start:0x0100ab70 end:0x0100ac6e align:1
+
+crt_x_ismbbtype.c:
+	.text       start:0x0100ac6e end:0x0100ac9f align:1
+
+crt_ismbblead.c:
+	.text       start:0x0100ac9f end:0x0100acb0 align:1
+
+crt_CPtoLCID.c:
+	.text       start:0x0100acb0 end:0x0100acdf align:1
+
+crt_setSBCS.c:
+	.text       start:0x0100acdf end:0x0100ad08 align:1
+
+crt_setSBUpLow.c:
+	.text       start:0x0100ad08 end:0x0100ae84 align:1
+
+crt_setmbcp.c:
+	.text       start:0x0100ae84 end:0x0100b05a align:1
+
+crt_initmbctable.c:
+	.text       start:0x0100b05a end:0x0100b078 align:1
+
+crt_sbh_heap_init.c:
+	.text       start:0x0100b078 end:0x0100b0c0 align:1
+
+crt_sbh_find_block.c:
+	.text       start:0x0100b0c0 end:0x0100b0eb align:1
+
+crt_sbh_free_block.c:
+	.text       start:0x0100b0eb end:0x0100b403 align:1
+
+crt_sbh_alloc_new_region.c:
+	.text       start:0x0100b403 end:0x0100b4ba align:1
+
+crt_sbh_alloc_new_group.c:
+	.text       start:0x0100b4ba end:0x0100b5c0 align:1
+
+crt_sbh_resize_block.c:
+	.text       start:0x0100b5c0 end:0x0100b89f align:1
+
+crt_sbh_alloc_block.c:
+	.text       start:0x0100b89f end:0x0100bba4 align:1
+
+crt_except_handler3.c:
+	.text       start:0x0100bba4 end:0x0100bc61 align:1
+
+crt_seh_longjmp_unwind_4.c:
+	.text       start:0x0100bc61 end:0x0100bc7c align:1
+
+crt_isctype.c:
+	.text       start:0x0100bc7c end:0x0100bcfa align:1
+
+crt_tolower.c:
+	.text       start:0x0100bcfa end:0x0100bdcf align:1
+
+crt_ZeroTail.c:
+	.text       start:0x0100bdcf end:0x0100be01 align:1
+
+crt_IncMan.c:
+	.text       start:0x0100be01 end:0x0100be4e align:1
+
+crt_RoundMan.c:
+	.text       start:0x0100be4e end:0x0100bec0 align:1
+
+crt_CopyMan.c:
+	.text       start:0x0100bec0 end:0x0100bedb align:1
+
+crt_IsZeroMan.c:
+	.text       start:0x0100bedb end:0x0100bef4 align:1
+
+crt_ShrMan.c:
+	.text       start:0x0100bef4 end:0x0100bf6f align:1
+
+crt_ld12cvt.c:
+	.text       start:0x0100bf6f end:0x0100c0c7 align:1
+
+crt_ld12tod.c:
+	.text       start:0x0100c0c7 end:0x0100c0dd align:1
+
+crt_ld12tod_0100C0DD.c:
+	.text       start:0x0100c0dd end:0x0100c0f3 align:1
+
+crt_atodbl.c:
+	.text       start:0x0100c0f3 end:0x0100c120 align:1
+
+crt_atodbl_0100C120.c:
+	.text       start:0x0100c120 end:0x0100c150 align:1
+
+crt_memcpy.c:
+	.text       start:0x0100c150 end:0x0100c490 align:1
+
+crt_strlen.c:
+	.text       start:0x0100c490 end:0x0100c510 align:1
+
+crt_mbscpy.c:
+	.text       start:0x0100c510 end:0x0100c520 align:1
+
+crt_strcat.c:
+	.text       start:0x0100c520 end:0x0100c600 align:1
+
+crt_fptostr.c:
+	.text       start:0x0100c600 end:0x0100c67f align:1
+
+crt_dtold.c:
+	.text       start:0x0100c67f end:0x0100c739 align:1
+
+crt_fltout.c:
+	.text       start:0x0100c739 end:0x0100c7a0 align:1
+
+crt_memset.c:
+	.text       start:0x0100c7a0 end:0x0100c801 align:1
+
+crt_abstract_cw.c:
+	.text       start:0x0100c801 end:0x0100c893 align:1
+
+crt_hw_cw.c:
+	.text       start:0x0100c893 end:0x0100c921 align:1
+
+crt_control87.c:
+	.text       start:0x0100c921 end:0x0100c953 align:1
+
+crt_controlfp.c:
+	.text       start:0x0100c953 end:0x0100c969 align:1
+
+crt_callnewh.c:
+	.text       start:0x0100c969 end:0x0100c984 align:1
+
+crt_init_collate.c:
+	.text       start:0x0100c984 end:0x0100c987 align:1
+
+crt_raise_exc.c:
+	.text       start:0x0100c987 end:0x0100cc2c align:1
+
+crt_handle_exc.c:
+	.text       start:0x0100cc2c end:0x0100ce4e align:1
+
+crt_set_errno.c:
+	.text       start:0x0100ce4e end:0x0100ce74 align:1
+
+crt_errcode.c:
+	.text       start:0x0100ce74 end:0x0100cea1 align:1
+
+crt_umatherr.c:
+	.text       start:0x0100cea1 end:0x0100cf41 align:1
+
+crt_handle_qnan1.c:
+	.text       start:0x0100cf41 end:0x0100cf93 align:1
+
+crt_except1.c:
+	.text       start:0x0100cf93 end:0x0100d033 align:1
+
+crt_frnd.c:
+	.text       start:0x0100d033 end:0x0100d046 align:1
+
+crt_set_exp.c:
+	.text       start:0x0100d046 end:0x0100d070 align:1
+
+crt_sptype.c:
+	.text       start:0x0100d070 end:0x0100d0cb align:1
+
+crt_decomp.c:
+	.text       start:0x0100d0cb end:0x0100d185 align:1
+
+crt_statfp.c:
+	.text       start:0x0100d185 end:0x0100d192 align:1
+
+crt_clrfp.c:
+	.text       start:0x0100d192 end:0x0100d1a0 align:1
+
+crt_ctrlfp.c:
+	.text       start:0x0100d1a0 end:0x0100d1c4 align:1
+
+crt_set_statfp.c:
+	.text       start:0x0100d1c4 end:0x0100d220 align:1
+
+crt_trandisp1.c:
+	.text       start:0x0100d220 end:0x0100d287 align:1
+
+crt_trandisp2.c:
+	.text       start:0x0100d287 end:0x0100d332 align:1
+
+crt_tosnan1.c:
+	.text       start:0x0100d332 end:0x0100d3d9 align:1
+
+crt_fn_000001B9.c:
+	.text       start:0x0100d3d9 end:0x0100d3ea align:1
+
+crt_d_inttype.c:
+	.text       start:0x0100d3ea end:0x0100d454 align:1
+
+crt_powhlp.c:
+	.text       start:0x0100d454 end:0x0100d5b6 align:1
+
+crt_87except.c:
+	.text       start:0x0100d5b6 end:0x0100d693 align:1
+
+crt_crtLCMapStringA.c:
+	.text       start:0x0100d693 end:0x0100da5f align:1
+
+crt_crtGetStringTypeA.c:
+	.text       start:0x0100da5f end:0x0100dc24 align:1
+
+crt_global_unwind2.c:
+	.text       start:0x0100dc24 end:0x0100dc66 align:1
+
+crt_local_unwind2.c:
+	.text       start:0x0100dc66 end:0x0100dcfa align:1
+
+crt_NLG_Notify.c:
+	.text       start:0x0100dcfa end:0x0100dd12 align:1
+
+crt_addl.c:
+	.text       start:0x0100dd12 end:0x0100dd33 align:1
+
+crt_add_12.c:
+	.text       start:0x0100dd33 end:0x0100dd91 align:1
+
+crt_shl_12.c:
+	.text       start:0x0100dd91 end:0x0100ddbf align:1
+
+crt_shr_12.c:
+	.text       start:0x0100ddbf end:0x0100ddec align:1
+
+crt_mtold12.c:
+	.text       start:0x0100ddec end:0x0100deba align:1
+
+crt_strgtold12.c:
+	.text       start:0x0100deba end:0x0100e331 align:1
+
+crt_I10_OUTPUT.c:
+	.text       start:0x0100e331 end:0x0100e5af align:1
+
+crt_fpclass.c:
+	.text       start:0x0100e5af end:0x0100e649 align:1
+
+crt_ansicp.c:
+	.text       start:0x0100e649 end:0x0100e67b align:1
+
+crt_convertcp.c:
+	.text       start:0x0100e67b end:0x0100e847 align:1
+
+crt_resetstkoflw.c:
+	.text       start:0x0100e847 end:0x0100e918 align:1
+
+crt_calloc.c:
+	.text       start:0x0100e918 end:0x0100e999 align:1
+
+crt_ld12mul.c:
+	.text       start:0x0100e999 end:0x0100ebbb align:1
+
+crt_multtenpow12.c:
+	.text       start:0x0100ebbb end:0x0100ec31 align:1
+
+crt_atol.c:
+	.text       start:0x0100ec31 end:0x0100ecb0 align:1
+
+crt_allmul.c:
+	.text       start:0x0100ecb0 end:0x0100ece4 align:1
+
+crt_RtlUnwind_16.c:
+	.text       start:0x0100ece4 end:0x0100ecea align:1
+
+crt_GetRegisteredLocation.c:
+	.text       start:0x0100ecea end:0x0100ed49 align:1
+
+crt_HtmlHelpW_16.c:
+	.text       start:0x0100ed49 end:0x0100ede2 align:1
+
+fn_0100EDE2.c:
+	.text       start:0x0100ede2 end:0x0100ee02 align:1
+	.data       start:0x01010fc8 end:0x01012000 align:8 rename:.bss
+
+import_data.c:
+	.text       start:0x0100ee02 end:0x0100faf8 align:1
