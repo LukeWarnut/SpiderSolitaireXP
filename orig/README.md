@@ -9,12 +9,12 @@ Place (or keep) the dumps here:
 | Path | Role |
 |------|------|
 | `XPSP1/spider.exe` | **Matching target** — English XP SP1 (`5.1.2600.1106`) |
-| `cards.dll` | Unmodified English `cards.dll` (copied next to the rebuilt exe) |
+| `XPSP1/cards.dll` | **Matching target** — English XP RTM cards library (`5.1.2600.0`) |
 | `XPSP3/spider.exe` | Reference only (VC7.1 /GS build) |
 | `TABLET/spider.exe` | Reference only (SP2-era, same family as SP3) |
 | `TR_RTM/spider.exe` | Reference only (Turkish RTM, VC7.0) |
 
-`configure.py` expects `orig/XPSP1/spider.exe` and `orig/cards.dll`.
+`configure.py` expects `orig/XPSP1/spider.exe` and `orig/XPSP1/cards.dll`. If it finds the old `orig/cards.dll` path, it warns.
 
 ## Toolchain (not committed)
 

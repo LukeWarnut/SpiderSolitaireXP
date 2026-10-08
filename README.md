@@ -1,6 +1,6 @@
 # Spider Solitaire (Windows XP SP1) matching decompilation
 
-Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe` (`5.1.2600.1106`, `xpsp1.020828-1920`). `cards.dll` is the original English binary and is not decompiled.
+Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe` (`5.1.2600.1106`, `xpsp1.020828-1920`) and English XP RTM `cards.dll` (`5.1.2600.0`, `xpclient.010817-1148`). Each binary is a module: `config/XPSP1/{spider,cards}/`, `src/{spider,cards}/`, `build/XPSP1/{spider,cards}/`.
 
 This is a scaffold: split the original PE, compile C++ with the original MSVC 7.0 toolchain under Wine, and diff COFF objects in [objdiff](https://github.com/encounter/objdiff).
 
@@ -22,7 +22,7 @@ SP3 is a different compile. Matching SP1 will not produce an SP3-identical exe.
 - [ninja](https://ninja-build.org/) (`brew install ninja`)
 - [Wine](https://wiki.winehq.org/MacOS) 9+ — already used here as Wine 11.x
 - A **VC7.0 `cl.exe` 13.00.9178** tree (XP DDK / XP build-lab compiler). Not committed. See [orig/README.md](orig/README.md).
-- Original `orig/XPSP1/spider.exe` and `orig/cards.dll`
+- Original `orig/XPSP1/spider.exe` and `orig/XPSP1/cards.dll`
 
 `configure.py` downloads:
 
@@ -31,7 +31,7 @@ SP3 is a different compile. Matching SP1 will not produce an SP3-identical exe.
 
 ## Setup
 
-1. Copy the SP1 exe and English `cards.dll` into `orig/` if they are not already there.
+1. Copy the SP1 exe and English `cards.dll` into `orig/XPSP1/` if they are not already there.
 2. Install the 13.00.9178 toolchain under `orig/toolchain/` (see `orig/README.md`).
 3. Check the compiler:
 
@@ -51,13 +51,14 @@ ninja
 The first `ninja` downloads dtk, splits `spider.exe` into expected COFF objects, then re-runs `configure.py`. After the toolchain is in place:
 
 ```sh
-ninja all_source          # compile src/*.c with Wine cl
-ninja spider              # link build/XPSP1/spider.exe and copy cards.dll
+ninja all_source          # compile every module's sources with Wine cl
+ninja spider              # link build/XPSP1/spider/spider.exe
+ninja cards               # link build/XPSP1/cards/cards.dll
 ninja build/XPSP1/report.json
 python3 configure.py progress
 ```
 
-`ninja check` SHA-1s the rebuilt exe against [config/XPSP1/build.sha1](config/XPSP1/build.sha1). It will fail until the image matches.
+`ninja check` SHA-1s the rebuilt spider exe against [config/XPSP1/spider/build.sha1](config/XPSP1/spider/build.sha1). It will fail until the image matches. cards.dll has no SHA-1 check: gold's IAT is pre-bound.
 
 ## objdiff
 
@@ -69,9 +70,9 @@ Open the app, set **Project directory** to this repository root. `objdiff.json` 
 
 Instruction bytes do not contain C++ names. objdiff still pairs a function only when the COFF symbol on the Wine-built object is the same string as on the split object, including every call reloc.
 
-MSVC encodes that string from the C++ declaration, so each renamed function is declared once in `include/game_api.h` and defined in its unit's source file (`src/game/<Class>/<method>.cpp`; `config/XPSP1/units.json` maps each `fn_<address>` unit to its `source`). Callers must use that declaration; a local copy on another class mangles to a different symbol.
+MSVC encodes that string from the C++ declaration, so each renamed spider function is declared once in `include/spider/game_api.h` and defined in its unit's source file (`src/spider/game/<Class>/<method>.cpp`; `config/XPSP1/spider/units.json` maps each `fn_<address>` unit to its `source`). Callers must use that declaration; a local copy on another class mangles to a different symbol.
 
-`config/XPSP1/names.txt` is the objdiff sidebar label only (`fn_01007836` → `CardColumn::slot_empty`). It is not the linker symbol. After changing a declaration or this file:
+`config/XPSP1/spider/names.txt` is the objdiff sidebar label only (`fn_01007836` → `CardColumn::slot_empty`). It is not the linker symbol. After changing a declaration or this file:
 
 ```sh
 ninja all_source          # compile so the .obj has the new mangled name
@@ -86,29 +87,37 @@ ninja                     # re-split so the expected object uses the same name
 | Path | Purpose |
 |------|---------|
 | `orig/XPSP1/spider.exe` | Matching target |
-| `orig/cards.dll` | Unmodified English cards library |
+| `orig/XPSP1/cards.dll` | Matching target (English XP RTM cards library) |
 | `orig/toolchain/` | User-supplied `cl.exe` / `link.exe` / headers / `libcmt.lib` |
 | `orig/XPSP3`, `TABLET`, `TR_RTM` | Reference binaries only |
-| `config/XPSP1/` | `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `build.sha1` |
-| `src/`, `include/` | Decompiled C / C++ (`game_api.h` holds shared declarations) |
-| `src/spider.rc` | Resource script: menu, dialogs, strings, accelerators, version info |
-| `build/XPSP1/assets/` | Bitmaps, icons, sounds, and manifest extracted from the original by `configure.py` |
+| `config/XPSP1/spider/`, `config/XPSP1/cards/` | Per-module `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `units.json` |
+| `src/spider/`, `include/spider/` | Spider decompiled C / C++ (`game_api.h` holds shared declarations) |
+| `src/cards/`, `include/cards/` | cards.dll C, `.def`, and `cards.rc` |
+| `src/spider/spider.rc` | Resource script: menu, dialogs, strings, accelerators, version info |
+| `build/XPSP1/spider/assets/`, `build/XPSP1/cards/assets/` | Media extracted from each original by `configure.py` |
 | `tools/wine_msvc.sh` | Wine wrapper (project `WINEPREFIX`, `z:` path rewrite) |
 | `configure.py` | Writes `build.ninja` + `objdiff.json` |
 
 ## Resources
 
-`python3 configure.py` writes every media resource of `orig/XPSP1/spider.exe` to `build/XPSP1/assets/` as a normal file (`bitmaps/*.bmp`, `icons/*.ico`, `sounds/*.wav`, `manifest/1.manifest`). They are copyrighted, so they stay out of the repository. `ninja` compiles `src/spider.rc` with the toolchain's `rc.exe` (`/i build/XPSP1/assets`), converts it with `cvtres`, and links it. The rebuilt `.rsrc` section is byte-identical to the original's once data addresses are taken relative to the section:
+`python3 configure.py` writes every media resource of each original into `build/XPSP1/<module>/assets/` as a normal file (`bitmaps/*.bmp`, `icons/*.ico`, `sounds/*.wav`, `manifest/1.manifest`). They are copyrighted, so they stay out of the repository. `ninja` compiles that module's `.rc` with the toolchain's `rc.exe` (`/i` the assets dir), converts it with `cvtres`, and links it. The rebuilt `.rsrc` section is byte-identical to the original's once data addresses are taken relative to the section:
 
 ```sh
-python3 tools/cmp_rsrc.py orig/XPSP1/spider.exe build/XPSP1/spider.exe   # RSRC MATCH
+python3 tools/cmp_rsrc.py orig/XPSP1/spider.exe build/XPSP1/spider/spider.exe   # RSRC MATCH
+python3 tools/cmp_rsrc.py orig/XPSP1/cards.dll build/XPSP1/cards/cards.dll
 ```
 
-`rc` writes resource data in statement order (string tables always last), so the order of statements in `spider.rc` is part of the match. `python3 tools/extract_assets.py orig/XPSP1/spider.exe build/XPSP1/assets --rc src/spider.rc` regenerates the script from the original.
+`rc` writes resource data in statement order (string tables always last), so the order of statements in the `.rc` is part of the match. `python3 tools/extract_assets.py orig/XPSP1/cards.dll build/XPSP1/cards/assets --rc src/cards/cards.rc` regenerates the script from the original.
+
+## cards.dll
+
+Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12 /DEF:src/cards/cards.def`. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. The IAT is pre-bound, so a full-image SHA-1 is not a target.
 
 CRT is not decompiled: once the toolchain is installed, pull matching objects from that `libcmt.lib` and list them in `configure.py` / `splits.txt`.
 
 ## Compiler flags (starting point)
+
+Spider:
 
 ```
 cl  /W3 /wd4234 /MT /GR- /DUNICODE /D_UNICODE /DWIN32 /D_WINDOWS /DNDEBUG /O1
@@ -116,4 +125,12 @@ link /MACHINE:I386 /SUBSYSTEM:WINDOWS,4.0 /OSVERSION:5.1 /VERSION:5.1
      /BASE:0x01000000 /FIXED /RELEASE /INCREMENTAL:NO /OPT:REF /OPT:ICF
 ```
 
-`/O1` is locked by a 100% objdiff match on `fn_01007836`. No `/GS`, `/hotpatch`, or `/SAFESEH` (those are the SP2/SP3 / VC7.1 additions).
+cards.dll:
+
+```
+cl  /W3 /wd4234 /TC /Zl /GR- /DWIN32 /D_WINDOWS /DNDEBUG /O1
+link /DLL /MACHINE:I386 /SUBSYSTEM:WINDOWS,4.0 /OSVERSION:5.1 /VERSION:5.1
+     /BASE:0x6FC10000 /NODEFAULTLIB /ENTRY:DllMain@12 /DEF:src/cards/cards.def
+```
+
+`/O1` is locked by a 100% objdiff match on spider `fn_01007836` and by reloc-matched cards helpers (`DllMain`, `WEP`, `delete_if`, `cdtDraw`). No `/GS`, `/hotpatch`, or `/SAFESEH` (those are the SP2/SP3 / VC7.1 additions).

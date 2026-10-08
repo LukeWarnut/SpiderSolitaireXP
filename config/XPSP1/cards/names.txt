@@ -1,1 +1,13 @@
 cards.c  cards
+_DllMain@12  DllMain
+_save_corners@24  save_corners
+_cdtAnimate@20  cdtAnimate
+_restore_corners@24  restore_corners
+_load_face  load_face
+_delete_if@4  delete_if
+_cdtTerm  cdtTerm
+_WEP@4  WEP
+_cdtInit@8  cdtInit
+_load_back@4  load_back
+_cdtDrawExt@32  cdtDrawExt
+_cdtDraw@24  cdtDraw
