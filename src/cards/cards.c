@@ -1,18 +1,18 @@
 #include "cards.h"
 
-int g_height;
-int g_width;
-HBITMAP g_curbmp;
-int g_nloaded;
-HBITMAP g_faces[52];
-HBITMAP g_hbmH;
-HBITMAP g_hbmA;
-HBITMAP g_hbmX;
-HBITMAP g_hbmO;
-int g_anim_id;
-int g_init;
-int g_lru;
-HINSTANCE g_hinst;
+static int g_height;
+static int g_width;
+static HBITMAP g_curbmp;
+static int g_nloaded;
+static HBITMAP g_faces[52];
+static HBITMAP g_hbmH;
+static HBITMAP g_hbmA;
+static HBITMAP g_hbmX;
+static HBITMAP g_hbmO;
+static int g_anim_id;
+static int g_init;
+static int g_lru;
+static HINSTANCE g_hinst;
 
 void WINAPI save_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy);
 void WINAPI restore_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy);

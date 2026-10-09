@@ -10,8 +10,8 @@ Regenerate the numbers with `ninja report && python3 configure.py progress`. "Ex
 
 | | `spider.exe` | `cards.dll` |
 |---|---|---|
-| Functions exact | 533 / 543 (98.2%) | 11 / 12 in `cards.c` |
-| Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,776 / 1,975 in `cards.c` (89.9%) |
+| Functions exact | 533 / 543 (98.2%) | 12 / 12 in `cards.c` |
+| Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,975 / 1,975 in `cards.c` (100%) |
 | Units complete | 283 / 293 | 0 / 1 (`cards.c` is the only source unit) |
 | `.rsrc` (`cmp_rsrc`) | match (90 resources) | match (75 resources) |
 | Whole image (`ninja check_<module>`) | fails: linker layout | fails: linker layout |
@@ -36,11 +36,9 @@ The remaining CRT unit, `crt_free.c` (`0x0100988D`, 144 bytes), is two functions
 
 ### cards.dll
 
-| Function | Match | What still differs |
-|---|---|---|
-| `cdtInit` | 98.0% | In the early-out, gold loads `pdx` before `g_width`; ours loads the global first (four bytes) |
+Every function is exact (objdiff 100% and `cmp_reloc` clean), including `cdtDrawExt` (800 bytes, jump table), `load_face` (the face-bitmap cache), and both corner save/restore helpers.
 
-All other functions are exact, including `cdtDrawExt` (800 bytes, jump table), `load_face` (the face-bitmap cache), and both corner save/restore helpers.
+The unit is not marked complete because its `.bss` is 99.2%. The globals are file-`static` (an extern `g_width` changes the load order in `cdtInit`), and MSVC lays statics out in its own name-dependent order, not declaration order. Ours comes out as `g_hinst`, `g_width`, `g_nloaded`, ... with 4 bytes of padding before the 8-aligned `g_faces` (0x104 bytes); gold is `g_height`, `g_width`, `g_curbmp`, ... in 0x100. The order follows the names, which are ours, not the originals.
 
 ### Whole-image check
 
