@@ -83,7 +83,7 @@ SP3 is a different compile. Matching SP1 will not produce an SP3-identical exe.
 
 ## Dependencies
 
-Python 3, [ninja](https://ninja-build.org/), a **VC7.0 `cl.exe` 13.00.9178** tree (XP DDK / XP build-lab compiler, not committed; see [orig/README.md](orig/README.md)), and the original `orig/XPSP1/spider.exe` and `orig/XPSP1/cards.dll`.
+Python 3, [ninja](https://ninja-build.org/), a **VC7.0 `cl.exe` 13.00.9178** tree (XP DDK / XP build-lab compiler, not committed; see [orig/README.md](orig/README.md)), and the original `orig/spider.exe` and `orig/cards.dll`.
 
 `configure.py` downloads a host build of:
 
@@ -104,7 +104,7 @@ Python 3, [ninja](https://ninja-build.org/), a **VC7.0 `cl.exe` 13.00.9178** tre
 
 ## Setup
 
-1. Copy the SP1 exe and English `cards.dll` into `orig/XPSP1/` if they are not already there.
+1. Copy the SP1 exe and English `cards.dll` into `orig/` if they are not already there.
 2. Install the 13.00.9178 toolchain under `orig/toolchain/` (see `orig/README.md`).
 3. Check the compiler:
 
@@ -136,7 +136,7 @@ Each module is measured and checked on its own:
 | Target | What it does |
 |--------|--------------|
 | `ninja report_spider` / `ninja report_cards` | objdiff report for that module only, from `build/XPSP1/<module>/objdiff.json` |
-| `ninja check_spider` / `ninja check_cards` | Byte-compares the rebuilt image with `orig/XPSP1/<binary>` (`tools/cmp_image.py`) |
+| `ninja check_spider` / `ninja check_cards` | Byte-compares the rebuilt image with `orig/<binary>` (`tools/cmp_image.py`) |
 | `ninja report` / `ninja check` | Both modules |
 
 Both gold images were processed by `bind.exe`, so a whole-file SHA-1 can never match. `cmp_image.py` normalizes both sides first (IAT restored from the import name table, bind timestamps and the bound-import directory zeroed, checksum and link/debug timestamps zeroed) and then requires every other byte to match. On failure it names the differing header fields and the first differing addresses per section. The root `objdiff.json` still lists every module for the GUI.
@@ -167,8 +167,8 @@ ninja                     # re-split so the expected object uses the same name
 
 | Path | Purpose |
 |------|---------|
-| `orig/XPSP1/spider.exe` | Matching target |
-| `orig/XPSP1/cards.dll` | Matching target (English XP RTM cards library) |
+| `orig/spider.exe` | Matching target |
+| `orig/cards.dll` | Matching target (English XP RTM cards library) |
 | `orig/toolchain/` | User-supplied `cl.exe` / `link.exe` / headers / `libcmt.lib` |
 | `orig/XPSP3`, `TABLET`, `TR_RTM` | Reference binaries only |
 | `config/XPSP1/spider/`, `config/XPSP1/cards/` | Per-module `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `units.json` |
@@ -186,11 +186,11 @@ ninja                     # re-split so the expected object uses the same name
 `python3 configure.py` writes every media resource of each original into `build/XPSP1/<module>/assets/` as a normal file (`bitmaps/*.bmp`, `icons/*.ico`, `sounds/*.wav`, `manifest/1.manifest`). They are copyrighted, so they stay out of the repository. `ninja` compiles that module's `.rc` with the toolchain's `rc.exe` (`/i` the assets dir), converts it with `cvtres`, and links it. The rebuilt `.rsrc` section is byte-identical to the original's once data addresses are taken relative to the section:
 
 ```sh
-python3 tools/cmp_rsrc.py orig/XPSP1/spider.exe build/XPSP1/spider/spider.exe   # RSRC MATCH
-python3 tools/cmp_rsrc.py orig/XPSP1/cards.dll build/XPSP1/cards/cards.dll
+python3 tools/cmp_rsrc.py orig/spider.exe build/XPSP1/spider/spider.exe   # RSRC MATCH
+python3 tools/cmp_rsrc.py orig/cards.dll build/XPSP1/cards/cards.dll
 ```
 
-`rc` writes resource data in statement order (string tables always last), so the order of statements in the `.rc` is part of the match. Each script sets `#pragma code_page(1252)` so `\251` and `\256` widen to the copyright and registered-trademark characters even when the host ANSI code page is UTF-8. `python3 tools/extract_assets.py orig/XPSP1/cards.dll build/XPSP1/cards/assets --rc src/cards/cards.rc` regenerates the script from the original.
+`rc` writes resource data in statement order (string tables always last), so the order of statements in the `.rc` is part of the match. Each script sets `#pragma code_page(1252)` so `\251` and `\256` widen to the copyright and registered-trademark characters even when the host ANSI code page is UTF-8. `python3 tools/extract_assets.py orig/cards.dll build/XPSP1/cards/assets --rc src/cards/cards.rc` regenerates the script from the original.
 
 ## cards.dll
 

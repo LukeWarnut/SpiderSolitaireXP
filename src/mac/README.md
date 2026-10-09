@@ -13,14 +13,14 @@ brew install cmake sdl3 ffmpeg
 # Xcode supplies clang and iconutil.
 
 # English XP SP1 spider.exe (5.1.2600.1106). Not committed.
-cp /path/to/spider.exe orig/XPSP1/spider.exe
+cp /path/to/spider.exe orig/spider.exe
 
 cmake -S src/mac -B build/mac
 cmake --build build/mac
 open build/mac/Spider.app
 ```
 
-The build extracts bitmaps, sounds, and icon 103 from `orig/XPSP1/spider.exe` into the app bundle. Those files are copyrighted, so they are not stored in git. Override the source exe with `-DSPIDER_EXE=/path/to/spider.exe` if it does not live at `orig/XPSP1/spider.exe`.
+The build extracts bitmaps, sounds, and icon 103 from `orig/spider.exe` into the app bundle. Those files are copyrighted, so they are not stored in git. Override the source exe with `-DSPIDER_EXE=/path/to/spider.exe` if it does not live at `orig/spider.exe`.
 
 `ffmpeg` and `iconutil` are only used to turn icon 103 into `Spider.icns`. Without them the app still builds, with the default icon.
 

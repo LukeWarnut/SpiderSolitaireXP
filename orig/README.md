@@ -8,8 +8,8 @@ The original binaries are required to compile this project to aquire the necessa
 
 | Path | Role |
 |------|------|
-| `XPSP1/spider.exe` | **Matching target** — English XP SP1 (`5.1.2600.1106`) |
-| `XPSP1/cards.dll` | **Matching target** — English XP RTM cards library (`5.1.2600.0`) |
+| `spider.exe` | **Matching target** — English XP SP1 (`5.1.2600.1106`) |
+| `cards.dll` | **Matching target** — English XP RTM cards library (`5.1.2600.0`) |
 
 ## Toolchain (not committed)
 

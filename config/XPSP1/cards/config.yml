@@ -1,4 +1,4 @@
-object_base: orig/XPSP1
+object_base: orig
 name: cards
 object: cards.dll
 hash: 0a19ac47361a87029a3df157d23204a4461f4874

@@ -726,7 +726,7 @@ MANGLED = {
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--exe", type=Path, default=ROOT / "orig/XPSP1/spider.exe")
+    parser.add_argument("--exe", type=Path, default=ROOT / "orig/spider.exe")
     parser.add_argument("--symbols", type=Path, default=ROOT / "config/XPSP1/spider/symbols.txt")
     parser.add_argument("--splits", type=Path, default=ROOT / "config/XPSP1/spider/splits.txt")
     parser.add_argument("--units", type=Path, default=ROOT / "config/XPSP1/spider/units.json")

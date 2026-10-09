@@ -141,7 +141,7 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         ldflags.append(f"/MAP:{(build_dir / version / 'spider' / 'spider.map').as_posix()}")
     return Module(
         name="spider",
-        orig=Path("orig") / version / "spider.exe",
+        orig=Path("orig/spider.exe"),
         image_base=0x01000000,
         config_dir=Path("config") / version / "spider",
         src_dir=Path("src/spider"),
@@ -198,7 +198,7 @@ def cards_module(version: str, build_dir: Path, map_file: bool = False) -> Modul
         ldflags.append(f"/MAP:{(build_dir / version / 'cards' / 'cards.map').as_posix()}")
     return Module(
         name="cards",
-        orig=Path("orig") / version / "cards.dll",
+        orig=Path("orig/cards.dll"),
         image_base=0x6FC10000,
         config_dir=Path("config") / version / "cards",
         src_dir=Path("src/cards"),

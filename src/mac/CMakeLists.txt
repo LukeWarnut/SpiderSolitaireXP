@@ -14,7 +14,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 set(MAC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 get_filename_component(REPO_ROOT "${MAC_ROOT}/../.." ABSOLUTE)
-set(SPIDER_EXE "${REPO_ROOT}/orig/XPSP1/spider.exe" CACHE FILEPATH "Original spider.exe to take bitmaps and sounds from")
+set(SPIDER_EXE "${REPO_ROOT}/orig/spider.exe" CACHE FILEPATH "Original spider.exe to take bitmaps and sounds from")
 set(ASSET_DIR ${CMAKE_BINARY_DIR}/assets)
 set(ASSET_STAMP ${ASSET_DIR}/.extracted)
 

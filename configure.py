@@ -56,10 +56,11 @@ if not is_windows() and args.wrapper:
 config.dtk_tag = "v0.0.29"
 config.objdiff_tag = "v3.8.2"
 
-legacy_cards = Path("orig/cards.dll")
-new_cards = Path("orig") / config.version / "cards.dll"
-if legacy_cards.is_file() and not new_cards.is_file():
-    print(f"warning: {legacy_cards} is the old path; move it to {new_cards}")
+for name in ("spider.exe", "cards.dll"):
+    old = Path("orig") / config.version / name
+    new = Path("orig") / name
+    if old.is_file() and not new.is_file():
+        print(f"warning: {old} is the old path; move it to {new}")
 
 config.modules = [m for m in all_modules(config.version, config.build_dir, args.map) if m.config_yml.is_file()]
 if not config.modules:

@@ -421,7 +421,7 @@ def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path 
     """Resource script whose rc output lays the data out in the original order."""
     if any(r.lang != LANG_EN_US for r in rs.resources):
         raise ValueError("only en-US resources are handled")
-    src = orig or Path("orig/XPSP1/spider.exe")
+    src = orig or Path("orig/spider.exe")
     include = assets or Path("build/XPSP1/spider/assets")
     out = [
         f"// Decompiled from {src} by tools/extract_assets.py --rc.",

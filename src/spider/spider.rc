@@ -1,4 +1,4 @@
-// Decompiled from orig/XPSP1/spider.exe by tools/extract_assets.py --rc.
+// Decompiled from orig/spider.exe by tools/extract_assets.py --rc.
 // rc writes resource data in statement order (STRINGTABLE always last), and
 // the linker keeps that order in .rsrc, so the order below is part of the match.
 // Media files are extracted from the original at configure time and found
