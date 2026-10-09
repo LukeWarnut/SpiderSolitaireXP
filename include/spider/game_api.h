@@ -455,6 +455,5 @@ void *__fastcall stride_keep(void *p);
 void *__fastcall stride_fill(void *p);
 
 extern "C" LRESULT __stdcall wnd_proc_thunk(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
-extern "C" void spider_boot(void);
 
 extern "C" wchar_t g_strBuf[0x400];

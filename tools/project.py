@@ -148,15 +148,6 @@ def objects_for_module(module: Module, units: Dict[str, Dict[str, Any]]) -> Dict
             cflags=list(module.cflags),
         ).resolve(module)
         out[obj.name] = obj
-    for name, source, category in module.extra_sources:
-        obj = Object(
-            False,
-            name,
-            source=source,
-            progress_category=category,
-            cflags=list(module.cflags),
-        ).resolve(module)
-        out[obj.name] = obj
     return out
 
 
@@ -288,7 +279,6 @@ def generate_build(config: ProjectConfig) -> None:
         units = config.module_units.get(module.name, {})
         assets = config.module_assets.get(module.name, [])
         source_objs: List[Path] = []
-        run_objs: List[Path] = []
 
         n.comment(f"{module.name} ({module.orig})")
         n.build(
@@ -329,9 +319,7 @@ def generate_build(config: ProjectConfig) -> None:
                 implicit=implicit_inputs,
                 variables={"cflags": make_flags_str(cflags)},
             )
-            if obj.name in module.run_only:
-                run_objs.append(obj.src_obj_path)
-            elif units.get(obj.name, {}).get("link", True):
+            if units.get(obj.name, {}).get("link", True):
                 source_objs.append(obj.src_obj_path)
             all_source.append(obj.src_obj_path)
             module_sources.setdefault(module.name, []).append(obj.src_obj_path)
@@ -372,23 +360,6 @@ def generate_build(config: ProjectConfig) -> None:
         n.build(outputs=module.name, rule="phony", inputs=[module.output])
         default_outputs.append(module.output)
         n.newline()
-
-        if module.runnable_base is not None:
-            run_exe = module.build_dir / "run" / module.output_name
-            run_ldflags = [
-                f"/BASE:0x{module.runnable_base:08X}" if f.startswith("/BASE:") else f
-                for f in module.ldflags
-                if not f.startswith(("/MAP:", "/PDB", "/DEBUG"))
-            ]
-            n.build(
-                outputs=run_exe,
-                rule="link",
-                inputs=source_objs + run_objs + extra_objs,
-                implicit=wrapper,
-                variables={"ldflags": make_flags_str(run_ldflags)},
-            )
-            n.build(outputs=f"{module.name}_run", rule="phony", inputs=[run_exe])
-            n.newline()
 
         n.build(
             outputs=f"check_{module.name}",

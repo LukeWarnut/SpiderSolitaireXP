@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import struct
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
@@ -36,11 +36,7 @@ class Module:
     # Link input order is recorded in the Rich header: gold links the .exp that
     # `lib /DEF` built first, then the resource object, then the code objects.
     res_first: bool = False
-    runnable_base: Optional[int] = None
     progress_category: Optional[str] = None
-    extra_sources: List[tuple] = field(default_factory=list)
-    # Objects linked into the runnable image only (the runtime harness).
-    run_only: List[str] = field(default_factory=list)
 
     @property
     def config_yml(self) -> Path:
@@ -168,10 +164,7 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         ldflags=ldflags,
         res_script=Path("src/spider/spider.rc"),
         output_name="spider.exe",
-        runnable_base=0x00400000,
         progress_category="game",
-        extra_sources=[("winmain.c", "winmain.cpp", None)],
-        run_only=["winmain.c"],
     )
 
 
