@@ -212,6 +212,13 @@ int main(int argc, char **argv) {
     const Uint32 cmd_event = CocoaHost::command_event();
     bool running = true;
     while (running) {
+        /* While a card or the win animation is moving, wait for a free
+         * drawable before reading the mouse. nextDrawable blocks until the
+         * previous frame is on its way to the display; sampling first would
+         * paint a cursor position from before that wait. */
+        if (game.busy()) {
+            renderer.acquire(cw, ch);
+        }
         SDL_Event e;
         bool have = game.busy() ? SDL_PollEvent(&e) : SDL_WaitEventTimeout(&e, 500);
         while (have && running) {

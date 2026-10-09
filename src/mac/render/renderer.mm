@@ -10,6 +10,7 @@
 #import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
+#import <QuartzCore/CATransaction.h>
 
 #include <algorithm>
 #include <cmath>
@@ -138,6 +139,9 @@ struct Renderer::Impl {
     Atlas small_font;
     Atlas large_font;
     float atlas_scale = 0;
+    id<CAMetalDrawable> drawable = nil;
+    int backing_w = 0;
+    int backing_h = 0;
     std::vector<Vertex> verts;
     size_t base_end = 0;
     size_t invert_end = 0;
@@ -347,6 +351,11 @@ bool Renderer::init(SDL_Window *window, const std::string &asset_dir) {
     r.layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     r.layer.framebufferOnly = YES;
     r.layer.displaySyncEnabled = YES;
+    /* Two drawables, presented in the current Core Animation transaction.
+     * The default queue of three, presented asynchronously, shows the cursor
+     * a frame or two behind where GDI's BitBlt put it. */
+    r.layer.maximumDrawableCount = 2;
+    r.layer.presentsWithTransaction = YES;
     r.queue = [r.device newCommandQueue];
     return r.build_pipelines() && r.load_textures(asset_dir);
 }
@@ -524,9 +533,9 @@ void Renderer::Impl::encode(id<MTLCommandBuffer> cmd, id<MTLTexture> target, flo
     [enc endEncoding];
 }
 
-void Renderer::draw(const Frame &frame, int client_w, int client_h) {
+void Renderer::acquire(int client_w, int client_h) {
     Impl &r = *impl;
-    if (r.layer == nil || client_w <= 0 || client_h <= 0) {
+    if (r.layer == nil || client_w <= 0 || client_h <= 0 || r.drawable != nil) {
         return;
     }
     int pw = 0, ph = 0;
@@ -534,18 +543,44 @@ void Renderer::draw(const Frame &frame, int client_w, int client_h) {
     if (pw <= 0 || ph <= 0) {
         return;
     }
-    r.layer.drawableSize = CGSizeMake(pw, ph);
-    r.ensure_fonts((float)pw / (float)client_w);
+    if (pw != r.backing_w || ph != r.backing_h) {
+        r.layer.drawableSize = CGSizeMake(pw, ph);
+        r.backing_w = pw;
+        r.backing_h = ph;
+        r.ensure_fonts((float)pw / (float)client_w);
+    }
     @autoreleasepool {
-        id<CAMetalDrawable> drawable = [r.layer nextDrawable];
-        if (drawable == nil) {
-            return;
-        }
+        r.drawable = [r.layer nextDrawable];
+    }
+}
+
+void Renderer::draw(const Frame &frame, int client_w, int client_h) {
+    Impl &r = *impl;
+    if (r.layer == nil || client_w <= 0 || client_h <= 0) {
+        return;
+    }
+    int pw = 0, ph = 0;
+    SDL_GetWindowSizeInPixels(r.window, &pw, &ph);
+    if (r.drawable != nil && (r.drawable.texture.width != (NSUInteger)pw || r.drawable.texture.height != (NSUInteger)ph)) {
+        r.drawable = nil;
+    }
+    acquire(client_w, client_h);
+    if (r.drawable == nil) {
+        return;
+    }
+    @autoreleasepool {
+        id<CAMetalDrawable> drawable = r.drawable;
+        r.drawable = nil;
         r.build(frame, (float)client_w, (float)client_h);
         id<MTLCommandBuffer> cmd = [r.queue commandBuffer];
         r.encode(cmd, drawable.texture, (float)client_w, (float)client_h);
-        [cmd presentDrawable:drawable];
+        /* presentsWithTransaction forbids presentDrawable:. Waiting until the
+         * buffer is scheduled, then presenting and flushing, puts this frame
+         * on the next vsync instead of the one after it. */
         [cmd commit];
+        [cmd waitUntilScheduled];
+        [drawable present];
+        [CATransaction flush];
     }
 }
 
