@@ -168,7 +168,13 @@ def rc_string(s: str, cp: int = 1252) -> str:
                 raw = ch.encode(f"cp{cp}")
             except UnicodeEncodeError:
                 raise ValueError(f"U+{c:04X} in {s!r} is not in code page {cp}") from None
-            out.extend(f"\\{b:03o}" for b in raw)
+            # rc reads each \ooo as one character of this code page. A DBCS
+            # character is several source bytes, so it has to be written as
+            # those bytes. Callers encode the script with `cp`.
+            if len(raw) == 1:
+                out.append(f"\\{raw[0]:03o}")
+            else:
+                out.append(ch)
     return '"' + "".join(out) + '"'
 
 
@@ -240,9 +246,14 @@ def style_delta(style: int, default: int) -> str:
     return " | ".join(parts)
 
 
-def control_line(cls: Key, text: Key, cid: int, style: int, ex: int, rect: tuple, cp: int) -> str:
+def control_line(cls: Key, text: Key, cid: int, style: int, ex: int, rect: tuple, cp: int, wide_id: bool = False) -> str:
     x, y, cx, cy = rect
-    id_s = "-1" if cid == 0xFFFF else str(cid)
+    # A classic DIALOG id is a WORD, and rc writes -1 as 0xFFFF. DIALOGEX ids are
+    # DWORDs, and -1 becomes 0xFFFFFFFF, so the static id has to be written as 65535.
+    if cid == 0xFFFF and not wide_id:
+        id_s = "-1"
+    else:
+        id_s = str(cid)
     geom = f"{x}, {y}, {cx}, {cy}"
     text_s = str(text) if isinstance(text, int) else rc_string(text, cp)
     if isinstance(cls, int):
@@ -266,9 +277,9 @@ def control_line(cls: Key, text: Key, cid: int, style: int, ex: int, rect: tuple
 
 def dialog_rc(r: Resource, cp: int) -> list[str]:
     b = r.data
-    style, ex, n, x, y, cx, cy = struct.unpack_from("<IIHhhhh", b, 0)
     if struct.unpack_from("<HH", b, 0) == (1, 0xFFFF):
-        raise ValueError("DIALOGEX templates are not handled")
+        return dialogex_rc(r, cp)
+    style, ex, n, x, y, cx, cy = struct.unpack_from("<IIHhhhh", b, 0)
     p = 18
     menu, p = sz_or_ord(b, p)
     cls, p = sz_or_ord(b, p)
@@ -306,6 +317,57 @@ def dialog_rc(r: Resource, cp: int) -> list[str]:
         if extra:
             raise ValueError(f"dialog {r.name}: control creation data is not handled")
         lines.append(control_line(c, t, cid, s, e, (x, y, cx, cy), cp))
+    lines.append("END")
+    return lines
+
+
+def dialogex_rc(r: Resource, cp: int) -> list[str]:
+    """DLGTEMPLATEEX. The font record adds weight, italic, and charset, and control ids are 32-bit."""
+    b = r.data
+    help_id, ex, style, n, x, y, cx, cy = struct.unpack_from("<IIIHhhhh", b, 4)
+    p = 26
+    menu, p = sz_or_ord(b, p)
+    cls, p = sz_or_ord(b, p)
+    title, p = sz_or_ord(b, p)
+    font = None
+    if style & 0x40:
+        pt, weight, italic, charset = struct.unpack_from("<HHBB", b, p)
+        face, p = sz_or_ord(b, p + 6)
+        font = (pt, face, weight, italic, charset)
+    head = f"{r.name} DIALOGEX {x}, {y}, {cx}, {cy}"
+    if help_id:
+        head += f", {help_id}"
+    lines = [head]
+    ws = flag_expr(style & 0xFFFF0000, WS_FLAGS)
+    ds = flag_expr(style & 0xFFFF, DS_FLAGS)
+    lines.append("STYLE " + " | ".join(ds + ws))
+    if ex:
+        lines.append(f"EXSTYLE 0x{ex:X}")
+    if title:
+        lines.append(f"CAPTION {rc_string(title, cp)}")
+    if menu:
+        lines.append(f"MENU {menu}")
+    if cls:
+        lines.append(f"CLASS {rc_string(cls, cp) if isinstance(cls, str) else cls}")
+    if font:
+        pt, face, weight, italic, charset = font
+        lines.append(f"FONT {pt}, {rc_string(face, cp)}, {weight}, {italic}, {charset}")
+    lines.append("BEGIN")
+    for _ in range(n):
+        p = (p + 3) & ~3
+        item_help, item_ex, item_style = struct.unpack_from("<III", b, p)
+        ix, iy, icx, icy = struct.unpack_from("<hhhh", b, p + 12)
+        cid = struct.unpack_from("<I", b, p + 20)[0]
+        p += 24
+        c, p = sz_or_ord(b, p)
+        t, p = sz_or_ord(b, p)
+        extra = struct.unpack_from("<H", b, p)[0]
+        p += 2
+        if extra:
+            raise ValueError(f"dialog {r.name}: control creation data is not handled")
+        if item_help:
+            raise ValueError(f"dialog {r.name}: control help ids are not handled")
+        lines.append(control_line(c, t, cid, item_style, item_ex, (ix, iy, icx, icy), cp, wide_id=True))
     lines.append("END")
     return lines
 
@@ -444,8 +506,11 @@ def version_rc(r: Resource, cp: int) -> list[str]:
     return lines
 
 
-def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path | None = None) -> str:
-    """Resource script whose rc output lays the data out in the original order."""
+def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path | None = None) -> tuple[str, int]:
+    """Resource script whose rc output lays the data out in the original order.
+
+    The script is Unicode text. Encode it with the returned code page before rc reads it.
+    """
     langs = rs.languages()
     if len(langs) != 1:
         raise ValueError(f"resources in more than one language: {sorted(hex(l) for l in langs)}")
@@ -494,7 +559,7 @@ def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path 
     if strings:
         out.append("")
         out += string_rc(strings, cp)
-    return "\n".join(out) + "\n"
+    return "\n".join(out) + "\n", cp
 
 
 def main() -> int:
@@ -506,9 +571,9 @@ def main() -> int:
     paths = extract_assets(args.exe, args.out_dir)
     print(f"{len(paths)} asset file(s) in {args.out_dir}")
     if args.rc:
-        script = resource_script(ResourceSection(args.exe), orig=args.exe, assets=args.out_dir)
+        script, cp = resource_script(ResourceSection(args.exe), orig=args.exe, assets=args.out_dir)
         args.rc.parent.mkdir(parents=True, exist_ok=True)
-        args.rc.write_bytes(script.encode("ascii"))
+        args.rc.write_bytes(script.encode(f"cp{cp}"))
         print(f"wrote {args.rc}")
     return 0
 

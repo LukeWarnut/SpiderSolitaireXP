@@ -188,8 +188,8 @@ if args.mode == "configure":
         if module.matching:
             write_split_yml(module)
         else:
-            script = resource_script(ResourceSection(source), orig=source, assets=module.assets_dir)
-            write_if_changed(module.resource_script, script.encode("ascii"))
+            script, cp = resource_script(ResourceSection(source), orig=source, assets=module.assets_dir)
+            write_if_changed(module.resource_script, script.encode(f"cp{cp}"))
             print(f"Wrote {module.resource_script.as_posix()} from {source.as_posix()} (not gold)")
     generate_build(config)
 elif args.mode == "progress":
