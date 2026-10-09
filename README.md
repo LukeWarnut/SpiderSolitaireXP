@@ -1,8 +1,6 @@
-# Spider Solitaire (Windows XP SP1) matching decompilation
+# Spider Solitaire (Windows XP SP1) decompilation
 
 Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe` (`5.1.2600.1106`, `xpsp1.020828-1920`) and English XP RTM `cards.dll` (`5.1.2600.0`, `xpclient.010817-1148`). Each binary is a module: `config/XPSP1/{spider,cards}/`, `src/{spider,cards}/`, `build/XPSP1/{spider,cards}/`.
-
-This is a scaffold: split the original PE, compile C++ with the original MSVC 7.0 toolchain under Wine, and diff COFF objects in [objdiff](https://github.com/encounter/objdiff).
 
 `spider.exe` does not call `cards.dll`. It draws from bitmaps in its own resources. The DLL is a second matching target: the shared card library used by Solitaire and FreeCell.
 
@@ -51,7 +49,7 @@ The `.bss` (0x100 bytes of globals) also matches, so `cards.c` is complete. The 
 - A bound-import directory in the original only (48 bytes in the header slack, naming `USER32.dll` and `GDI32.dll`). Each of its import descriptors has `TimeDateStamp` and `ForwarderChain` set to `0xFFFFFFFF`; both are zero in the rebuild.
 - The import address table at the start of `.text` (89 bytes). The original holds the absolute addresses `bind.exe` wrote; the rebuild still has the linker's relative virtual addresses into the import name table.
 
-That took linker settings, not source changes:
+That took linker settings:
 
 - `/MERGE:.rdata=.text /FILEALIGN:0x200 /STACK:0x40000 /SECTION:.rsrc,R /OPT:REF`;
 - `/DEBUG /DEBUGTYPE:VC6 /PDBALTPATH:cards.pdb`: gold's debug directory holds an `NB10` (PDB 2.0) CodeView record naming just `cards.pdb`. This linker writes `RSDS` unless given the undocumented `/DEBUGTYPE:VC6`, and `/PDBALTPATH` replaces the full path;
@@ -81,7 +79,7 @@ SP3 is a different compile. Matching SP1 will not produce an SP3-identical exe.
 
 - Python 3
 - [ninja](https://ninja-build.org/) (`brew install ninja`)
-- [Wine](https://wiki.winehq.org/MacOS) 9+ — already used here as Wine 11.x
+- [Wine](https://wiki.winehq.org/MacOS) 9+ — Only Wine 11.18 tested
 - A **VC7.0 `cl.exe` 13.00.9178** tree (XP DDK / XP build-lab compiler). Not committed. See [orig/README.md](orig/README.md).
 - Original `orig/XPSP1/spider.exe` and `orig/XPSP1/cards.dll`
 
@@ -184,7 +182,7 @@ Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` wit
 
 CRT is not decompiled: spider links gold's single-threaded `libc.lib` from the toolchain, and `tools/crt_ident.py` names each `crt_*` unit after the library symbol it matches.
 
-## Compiler flags (starting point)
+## Compiler flags
 
 Spider:
 
