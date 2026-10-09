@@ -47,24 +47,27 @@ void AnimState::run_fx(FxBank *fx)
         } else {
             Vec3 acc;
             Vec3 v;
-            Vec3 k;
             Vec3 at;
             Vec3 g;
             Vec3 d1;
             Vec3 e1;
             Vec3 d2;
-            /* Memory homes: x87 spills x and z around the y-only 6.8 subtract. */
-            volatile float kx;
-            volatile float kz;
 
             acc = it->acc;
             v = it->vel;
             f = (1.0f - (float)exp(age * -1.8f)) * 0.308642f;
-            vset(&k, acc.x * 1.8f, acc.y * 1.8f, acc.z * 1.8f);
-            kz = k.z;
-            kx = k.x;
-            k.y = k.y - 6.8f;
-            vset(&at, kx * f, k.y * f, kz * f);
+            {
+                /* k and gr are real Vec3 homes: gold spills k.z into k and
+                   (k - gr).x into k2, and folds the x/z subtracts of 0. */
+                Vec3 k;
+                Vec3 k2;
+                Vec3 gr;
+
+                vset(&k, acc.x * 1.8f, acc.y * 1.8f, acc.z * 1.8f);
+                vset(&gr, 0.0f, 6.8f, 0.0f);
+                vset(&k2, k.x - gr.x, k.y - gr.y, k.z - gr.z);
+                vset(&at, k2.x * f, k2.y * f, k2.z * f);
+            }
             g.x = age * 0.0f;
             g.y = age * -6.8f;
             g.z = g.x;

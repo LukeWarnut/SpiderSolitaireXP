@@ -31,7 +31,7 @@ Game code is 122 of 131 functions exact (81.4% of 24,782 bytes). The C runtime i
 | `GameWin::save_game` | 98.2% | Gold keeps 0 in `edi` for compares, ours uses immediates; one address has base and index swapped |
 | `GameWin::move_run` | 97.1% | The constant zero lives in `edx` instead of `eax` |
 | `DealView::full_suit` | 96.7% | `add esi, -2` and `lea edi, [eax+1]` in the opposite order |
-| `AnimState::run_fx` | 96.1% | Frame is 20 bytes smaller, and the x87 block is scheduled differently (same rounding) |
+| `AnimState::run_fx` | 98.9% | Same size, frame, and stack slots; the `mov esi, [fx]` reload sits two `fst`s early |
 | `GameBoard::slide_drag` | 96.1% | `(a+b) - b + c` vs `c - b + (a+b)`; 2 bytes longer |
 
 The remaining CRT unit, `crt_free.c` (`0x0100988D`, 144 bytes), is two functions in one range: `_free` (56 bytes) and `_forcdecpt` (88 bytes). Each matches `libc.lib` exactly once relocations are masked. The unit needs splitting in two, not decompiling.
