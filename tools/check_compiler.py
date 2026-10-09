@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WRAPPER = ROOT / "tools" / "wine_msvc.sh"
+LAUNCHER = ROOT / "tools" / "msvc.py"
 
 # XP DDK 2600.1106: cl/c1 banner is 13.00.9176; c2.dll (codegen) is 13.00.9178
 # which is what spider.exe's Rich header records.
@@ -28,9 +28,10 @@ REJECT_CL = (
 
 def run_tool(name: str) -> str:
     env = os.environ.copy()
-    env.setdefault("WINEDEBUG", "-all")
+    if os.name != "nt":
+        env.setdefault("WINEDEBUG", "-all")
     proc = subprocess.run(
-        [str(WRAPPER), name],
+        [sys.executable, str(LAUNCHER), name],
         cwd=ROOT,
         env=env,
         stdout=subprocess.PIPE,
@@ -68,7 +69,11 @@ def main() -> int:
     cl_ver = parse_cl_version(cl_out)
     if cl_ver is None:
         print("error: could not run cl.exe / parse its version banner:", file=sys.stderr)
-        print(cl_out or "(no output — is Wine installed and orig/toolchain populated?)", file=sys.stderr)
+        if os.name == "nt":
+            hint = "(no output — is orig/toolchain populated?)"
+        else:
+            hint = "(no output — is Wine installed and orig/toolchain populated?)"
+        print(cl_out or hint, file=sys.stderr)
         return 1
 
     print(f"cl.exe {cl_ver}")

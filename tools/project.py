@@ -159,11 +159,22 @@ def generate_build(config: ProjectConfig) -> None:
         module.build_dir.mkdir(parents=True, exist_ok=True)
         module.src_obj_dir.mkdir(parents=True, exist_ok=True)
 
-    python = sys.executable
-    download_tool = config.tools_dir / "download_tool.py"
-    wrapper = config.wrapper or (config.tools_dir / "wine_msvc.sh")
-    if not is_windows() and not wrapper.is_file():
-        sys.exit(f"Wine wrapper missing: {wrapper}")
+    python = sys.executable.replace("\\", "/")
+    # cmd.exe treats an unquoted "C:..." token as a drive change.
+    if is_windows() or any(ch in python for ch in " \t"):
+        python = f'"{python}"'
+    download_tool = (config.tools_dir / "download_tool.py").as_posix()
+    if is_windows():
+        launcher = config.tools_dir / "msvc.py"
+        if not launcher.is_file():
+            sys.exit(f"MSVC launcher missing: {launcher}")
+        # tools/msvc.py is a Python script. cmd.exe will not run a shebang.
+        msvc = "$python tools/msvc.py"
+    else:
+        launcher = config.wrapper or (config.tools_dir / "wine_msvc.sh")
+        if not launcher.is_file():
+            sys.exit(f"Wine wrapper missing: {launcher}")
+        msvc = str(launcher).replace("\\", "/")
 
     out = io.StringIO()
     n = ninja_syntax.Writer(out)
@@ -181,10 +192,11 @@ def generate_build(config: ProjectConfig) -> None:
     )
     n.newline()
 
+    tool_suffix = ".exe" if is_windows() else ""
     if config.dtk_path is not None and config.dtk_path.is_file():
         dtk = config.dtk_path
     else:
-        dtk = tools_path / "dtk"
+        dtk = tools_path / f"dtk{tool_suffix}"
         n.build(
             outputs=dtk,
             rule="download_tool",
@@ -194,7 +206,7 @@ def generate_build(config: ProjectConfig) -> None:
     if config.objdiff_path is not None and config.objdiff_path.is_file():
         objdiff = config.objdiff_path
     else:
-        objdiff = tools_path / "objdiff-cli"
+        objdiff = tools_path / f"objdiff-cli{tool_suffix}"
         n.build(
             outputs=objdiff,
             rule="download_tool",
@@ -203,11 +215,24 @@ def generate_build(config: ProjectConfig) -> None:
         )
     n.newline()
 
+    dtk_cmd = str(dtk).replace("\\", "/")
+    objdiff_cmd = str(objdiff).replace("\\", "/")
+
     n.comment("Split original PE into relocatable COFF objects")
+    if is_windows():
+        # Kitware ninja executes the command directly, so a shell "&&" is an
+        # argument to dtk. split_module.py runs dtk and then fix_bss.py.
+        split_command = (
+            f"$python tools/split_module.py {dtk_cmd} $in $out_dir $splits"
+        )
+    else:
+        split_command = (
+            f"{dtk_cmd} coff split --no-update $in $out_dir"
+            f" && $python tools/fix_bss.py $out_dir $splits"
+        )
     n.rule(
         name="split",
-        command=f"{dtk} coff split --no-update $in $out_dir"
-        f" && $python tools/fix_bss.py $out_dir $splits",
+        command=split_command,
         description="SPLIT $in",
         depfile="$out_dir/dep",
         deps="gcc",
@@ -215,30 +240,42 @@ def generate_build(config: ProjectConfig) -> None:
     )
     n.newline()
 
-    n.comment("MSVC 7.0 via Wine")
+    if is_windows():
+        n.comment("MSVC 7.0, run natively. The link response file keeps one-object-per-function inputs off the cmd.exe command line.")
+    else:
+        n.comment("MSVC 7.0 via Wine")
     n.rule(
         name="cl",
-        command=f"{wrapper} cl /nologo $cflags /c $in /Fo$out",
+        command=f"{msvc} cl /nologo $cflags /c $in /Fo$out",
         description="CL $out",
     )
-    n.rule(
-        name="link",
-        command=f"{wrapper} link $ldflags /OUT:$out $in",
-        description="LINK $out",
-    )
+    if is_windows():
+        n.rule(
+            name="link",
+            command=f"{msvc} link $ldflags /OUT:$out @$out.rsp",
+            description="LINK $out",
+            rspfile="$out.rsp",
+            rspfile_content="$in_newline",
+        )
+    else:
+        n.rule(
+            name="link",
+            command=f"{msvc} link $ldflags /OUT:$out $in",
+            description="LINK $out",
+        )
     n.rule(
         name="lib_def",
-        command=f"{wrapper} lib /nologo /MACHINE:I386 /DEF:$def /OUT:$implib $in",
+        command=f"{msvc} lib /nologo /MACHINE:I386 /DEF:$def /OUT:$implib $in",
         description="LIB $out",
     )
     n.rule(
         name="rc",
-        command=f"{wrapper} rc /i $assets /fo $out $in",
+        command=f"{msvc} rc /i $assets /fo $out $in",
         description="RC $out",
     )
     n.rule(
         name="cvtres",
-        command=f"{wrapper} cvtres /nologo /MACHINE:IX86 /OUT:$out $in",
+        command=f"{msvc} cvtres /nologo /MACHINE:IX86 /OUT:$out $in",
         description="CVTRES $out",
     )
     n.newline()
@@ -254,7 +291,7 @@ def generate_build(config: ProjectConfig) -> None:
     n.comment("objdiff progress report, one per module")
     n.rule(
         name="report",
-        command=f"{objdiff} report generate -p $project -o $out",
+        command=f"{objdiff_cmd} report generate -p $project -o $out",
         description="REPORT $out",
     )
     n.newline()
@@ -291,6 +328,7 @@ def generate_build(config: ProjectConfig) -> None:
                 module.splits,
                 module.symbols,
                 Path("tools") / "fix_bss.py",
+                *([Path("tools") / "split_module.py"] if is_windows() else []),
             ],
             variables={"out_dir": module.build_dir, "splits": module.splits},
         )
@@ -306,7 +344,7 @@ def generate_build(config: ProjectConfig) -> None:
                 missing_source.append(str(obj.src_path))
                 continue
             cflags = list(obj.options["cflags"] or []) + list(obj.options["extra_cflags"] or [])
-            implicit_inputs: List[Path] = [wrapper]
+            implicit_inputs: List[Path] = [launcher]
             src_text = obj.src_path.read_text(encoding="utf-8", errors="replace")
             for inc in re.findall(r'#include\s+"([^"]+\.cpp)"', src_text):
                 sibling = obj.src_path.parent / inc
@@ -331,21 +369,21 @@ def generate_build(config: ProjectConfig) -> None:
                 outputs=module.res_path,
                 rule="rc",
                 inputs=module.res_script,
-                implicit=[wrapper, *assets],
+                implicit=[launcher, *assets],
                 variables={"assets": module.assets_dir},
             )
-            n.build(outputs=module.res_obj, rule="cvtres", inputs=module.res_path, implicit=wrapper)
+            n.build(outputs=module.res_obj, rule="cvtres", inputs=module.res_path, implicit=launcher)
             extra_objs.append(module.res_obj)
             n.newline()
 
-        link_implicit: List[Path] = [wrapper]
+        link_implicit: List[Path] = [launcher]
         link_objs = extra_objs + source_objs if module.res_first else source_objs + extra_objs
         if module.def_file is not None:
             n.build(
                 outputs=module.exp_path,
                 rule="lib_def",
                 inputs=link_objs,
-                implicit=[wrapper, module.def_file],
+                implicit=[launcher, module.def_file],
                 implicit_outputs=module.implib_path,
                 variables={"def": module.def_file, "implib": module.implib_path},
             )

@@ -31,3 +31,5 @@ Then:
 ```
 python3 tools/check_compiler.py
 ```
+
+On Windows, use `python` instead of `python3`. The checker runs `cl.exe` and `link.exe` directly there. On macOS and Linux it runs them under Wine.

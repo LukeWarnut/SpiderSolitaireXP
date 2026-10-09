@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Run a 32-bit MSVC 7.0 tool (cl, link, rc, cvtres, ml) under Wine.
+# Windows does not use this script; tools/msvc.py runs the same tools natively.
 # Rewrites Unix absolute paths to z: paths so cl.exe does not treat /Users/... as a switch.
 set -euo pipefail
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile a unit with Wine MSVC /O1 and compare masked .text to gold."""
+"""Compile a unit with VC7 /O1 and compare masked .text to gold."""
 from __future__ import annotations
 
 import argparse
@@ -108,7 +108,8 @@ def main() -> int:
         mod = infer_module(src)
     obj.parent.mkdir(parents=True, exist_ok=True)
     cflags = [
-        str(ROOT / "tools/wine_msvc.sh"),
+        sys.executable,
+        str(ROOT / "tools" / "msvc.py"),
         "cl",
         "/nologo",
         *mod.cflags,

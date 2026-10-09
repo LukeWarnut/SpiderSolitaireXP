@@ -124,7 +124,7 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         "/TSAWARE",
         "/DEBUG",
         "/DEBUGTYPE:VC6",
-        f"/PDB:{build_dir / version / 'spider' / 'spider.pdb'}",
+        f"/PDB:{(build_dir / version / 'spider' / 'spider.pdb').as_posix()}",
         "/PDBALTPATH:spider.pdb",
         # Import descriptors follow library order.
         "advapi32.lib",
@@ -138,7 +138,7 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         "libc.lib",
     ]
     if map_file:
-        ldflags.append(f"/MAP:{build_dir / version / 'spider' / 'spider.map'}")
+        ldflags.append(f"/MAP:{(build_dir / version / 'spider' / 'spider.map').as_posix()}")
     return Module(
         name="spider",
         orig=Path("orig") / version / "spider.exe",
@@ -189,13 +189,13 @@ def cards_module(version: str, build_dir: Path, map_file: bool = False) -> Modul
         "/OPT:REF",
         "/DEBUG",
         "/DEBUGTYPE:VC6",
-        f"/PDB:{build_dir / version / 'cards' / 'cards.pdb'}",
+        f"/PDB:{(build_dir / version / 'cards' / 'cards.pdb').as_posix()}",
         "/PDBALTPATH:cards.pdb",
         "user32.lib",
         "gdi32.lib",
     ]
     if map_file:
-        ldflags.append(f"/MAP:{build_dir / version / 'cards' / 'cards.map'}")
+        ldflags.append(f"/MAP:{(build_dir / version / 'cards' / 'cards.map').as_posix()}")
     return Module(
         name="cards",
         orig=Path("orig") / version / "cards.dll",

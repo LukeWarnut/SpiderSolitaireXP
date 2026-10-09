@@ -431,6 +431,8 @@ def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path 
         f"// through /i {include}.",
         "",
         "#include <winresrc.h>",
+        "// \\251 and \\256 are CP1252 bytes. Pin the page so a UTF-8 host still matches.",
+        "#pragma code_page(1252)",
         "",
         "LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US",
         "",

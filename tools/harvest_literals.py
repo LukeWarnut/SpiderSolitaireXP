@@ -12,6 +12,7 @@ usage: harvest_literals.py [--write]
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -26,7 +27,7 @@ from tools.modules import get_module
 
 RDATA_BASE = 0x01001280
 RDATA_END = 0x01002660
-OBJDIFF = ROOT / "build/tools/objdiff-cli"
+OBJDIFF = ROOT / "build" / "tools" / ("objdiff-cli.exe" if os.name == "nt" else "objdiff-cli")
 LITERAL_PREFIXES = ("??_C@", "__real@", "__xmm@")
 
 

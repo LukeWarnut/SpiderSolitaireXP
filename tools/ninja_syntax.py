@@ -21,7 +21,6 @@ use Python.
 
 import re
 import textwrap
-import os
 from io import StringIO
 from pathlib import Path
 from typing import Dict, Iterable, List, Match, Optional, Tuple, Union
@@ -211,10 +210,9 @@ class Writer(object):
 def serialize_path(input: Optional[NinjaPath]) -> str:
     if not input:
         return ""
-    if isinstance(input, Path):
-        return str(input).replace("/", os.sep)
-    else:
-        return str(input)
+    # Ninja treats '\' as a plain character, but depfiles and cmd.exe both
+    # behave better when every path uses '/'. That spelling matches macOS.
+    return str(input).replace("\\", "/")
 
 
 def serialize_paths(input: Optional[NinjaPathOrPaths]) -> List[str]:
