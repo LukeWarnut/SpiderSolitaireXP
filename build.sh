@@ -4,6 +4,7 @@
 #   ./build.sh                       spider and cards (the matching decompilation)
 #   ./build.sh cards                 one target; any ninja target works
 #   ./build.sh spider_mac            the macOS app, build/mac/Spider.app
+#   ./build.sh spider_wasm           the browser port, build/wasm/index.html
 #   ./build.sh clean [target...]     delete build output, keeping downloaded tools
 #   ./build.sh --orig orig/XPSP3 -y  options before or after targets go to configure.py
 #
@@ -24,6 +25,7 @@ Targets:
   spider, cards      link build/XPSP1/<module>/<binary> (default: both)
   spider_mac         macOS app (CMake + SDL3)
   spider_mac_test    macOS headless rule tests
+  spider_wasm        browser app (CMake + Emscripten), build/wasm/index.html
   check, report      byte-compare with gold / objdiff report (also *_spider, *_cards)
   progress           objdiff report, then the progress summary
   configure          re-run configure.py (with the options last used)
@@ -38,6 +40,7 @@ RECONFIGURE=0
 CONF_OPTS=()
 NINJA_TARGETS=()
 MAC_TARGETS=()
+WASM_TARGETS=()
 PROGRESS=0
 
 while [ $# -gt 0 ]; do
@@ -47,6 +50,7 @@ while [ $# -gt 0 ]; do
     configure) RECONFIGURE=1 ;;
     progress) PROGRESS=1 ;;
     spider_mac|spider_mac_test) MAC_TARGETS+=("$1") ;;
+    spider_wasm) WASM_TARGETS+=("$1") ;;
     --orig|--build-dir|--dtk|--objdiff|--ninja|--wrapper|-v|--version)
       [ $# -ge 2 ] || die "$1 needs a value"
       CONF_OPTS+=("$1" "$2")
@@ -63,11 +67,12 @@ done
 
 MODULE_DIR="$BUILD_DIR/XPSP1"
 MAC_DIR="$BUILD_DIR/mac"
+WASM_DIR="$BUILD_DIR/wasm"
 
 # ---- clean ------------------------------------------------------------------
 
 if [ "$CLEAN" = 1 ]; then
-  if [ ${#NINJA_TARGETS[@]} -eq 0 ] && [ ${#MAC_TARGETS[@]} -eq 0 ]; then
+  if [ ${#NINJA_TARGETS[@]} -eq 0 ] && [ ${#MAC_TARGETS[@]} -eq 0 ] && [ ${#WASM_TARGETS[@]} -eq 0 ]; then
     echo "Removing $BUILD_DIR/ (keeping $BUILD_DIR/tools) and the generated ninja files"
     if [ -d "$BUILD_DIR" ]; then
       for entry in "$BUILD_DIR"/* "$BUILD_DIR"/.[!.]*; do
@@ -78,11 +83,12 @@ if [ "$CLEAN" = 1 ]; then
     fi
     rm -rf build.ninja .ninja_deps .ninja_log objdiff.json
   else
-    for t in ${NINJA_TARGETS[@]+"${NINJA_TARGETS[@]}"} ${MAC_TARGETS[@]+"${MAC_TARGETS[@]}"}; do
+    for t in ${NINJA_TARGETS[@]+"${NINJA_TARGETS[@]}"} ${MAC_TARGETS[@]+"${MAC_TARGETS[@]}"} ${WASM_TARGETS[@]+"${WASM_TARGETS[@]}"}; do
       case "$t" in
         spider|cards) echo "Removing $MODULE_DIR/$t/"; rm -rf "${MODULE_DIR:?}/$t" ;;
         spider_mac|spider_mac_test) echo "Removing $MAC_DIR/"; rm -rf "$MAC_DIR" ;;
-        *) die "clean takes spider, cards, or spider_mac (got $t)" ;;
+        spider_wasm) echo "Removing $WASM_DIR/"; rm -rf "$WASM_DIR" ;;
+        *) die "clean takes spider, cards, spider_mac, or spider_wasm (got $t)" ;;
       esac
     done
   fi
@@ -98,7 +104,7 @@ if [ -z "$PYTHON" ]; then
   else die "Python 3 not found (brew install python)"; fi
 fi
 
-if [ ${#NINJA_TARGETS[@]} -eq 0 ] && [ ${#MAC_TARGETS[@]} -eq 0 ] \
+if [ ${#NINJA_TARGETS[@]} -eq 0 ] && [ ${#MAC_TARGETS[@]} -eq 0 ] && [ ${#WASM_TARGETS[@]} -eq 0 ] \
    && [ "$PROGRESS" = 0 ] && [ "$RECONFIGURE" = 0 ]; then
   NINJA_TARGETS=(spider cards)
 fi
@@ -166,4 +172,22 @@ if [ ${#MAC_TARGETS[@]} -gt 0 ]; then
         ctest --test-dir "$MAC_DIR" --output-on-failure ;;
     esac
   done
+fi
+
+# ---- WASM port (Emscripten + CMake) ------------------------------------------
+
+if [ ${#WASM_TARGETS[@]} -gt 0 ]; then
+  command -v cmake >/dev/null 2>&1 || die "cmake not found"
+  command -v emcmake >/dev/null 2>&1 || die "emcmake not found; install and activate emsdk (https://emscripten.org/docs/getting_started)"
+  # Same spider.exe lookup as the macOS port: --orig first, then orig/.
+  spider_exe="$ROOT/orig/spider.exe"
+  if [ -n "$ORIG_DIR" ]; then
+    case "$ORIG_DIR" in /*) candidate="$ORIG_DIR/spider.exe" ;; *) candidate="$ROOT/$ORIG_DIR/spider.exe" ;; esac
+    [ -f "$candidate" ] && spider_exe="$candidate"
+  fi
+  [ -f "$spider_exe" ] || die "no spider.exe at $spider_exe (see orig/README.md)"
+  emcmake cmake -S src/wasm -B "$WASM_DIR" -DCMAKE_BUILD_TYPE=Release "-DSPIDER_EXE=$spider_exe"
+  cmake --build "$WASM_DIR"
+  echo "Built $WASM_DIR/index.html -- serve it with:"
+  echo "  python3 -m http.server -d \"$WASM_DIR\""
 fi

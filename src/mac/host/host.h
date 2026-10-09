@@ -88,4 +88,8 @@ public:
     virtual void save_settings(const Settings &settings) = 0;
     virtual std::string save_path() = 0;
     virtual bool save_exists() = 0;
+    /* Called after save_to writes spider.sav, so a host with an asynchronous
+     * filesystem (the WASM port's IDBFS) can flush it. Native files are
+     * already on disk, so the default does nothing. */
+    virtual void persist() {}
 };

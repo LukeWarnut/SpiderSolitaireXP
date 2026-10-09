@@ -816,6 +816,7 @@ bool Game::save_to(const std::string &path) {
         return false;
     }
     save_file_exists = true;
+    host->persist();
     return true;
 }
 

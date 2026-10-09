@@ -13,6 +13,8 @@ struct Image {
 
 /* Uncompressed 1/4/8/24/32-bit Windows BMP. */
 bool load_bmp(const std::string &path, Image &out);
+/* Same, from an in-memory file (the WASM port fetches bitmaps over HTTP). */
+bool load_bmp_mem(const std::vector<uint8_t> &data, Image &out);
 
 /* Clear the six corner pixels per end that draw_card painted felt green, so
  * the card below (or the felt) shows through. */
