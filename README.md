@@ -4,6 +4,8 @@ Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe`
 
 This is a scaffold: split the original PE, compile C++ with the original MSVC 7.0 toolchain under Wine, and diff COFF objects in [objdiff](https://github.com/encounter/objdiff).
 
+`spider.exe` does not call `cards.dll`. It draws from bitmaps in its own resources. The DLL is a second matching target: the shared card library used by Solitaire and FreeCell.
+
 ## Status
 
 Regenerate the numbers with `ninja report && python3 configure.py progress`. "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
