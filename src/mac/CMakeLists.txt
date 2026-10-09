@@ -80,11 +80,22 @@ set_target_properties(spider PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING 5.1.2600.1106
     MACOSX_BUNDLE_BUNDLE_VERSION 5.1.2600.1106
     MACOSX_BUNDLE_ICON_FILE Spider.icns
-    BUILD_RPATH "${SDL3_DIR}/../.."
 )
+
+# SDL3's imported library records an absolute install name (Homebrew's).
+# bundle_sdl.sh copies that dylib into the bundle and retargets the executable
+# at it, then ad-hoc signs the result so it runs on another machine.
+get_target_property(SDL3_LIB SDL3::SDL3 IMPORTED_LOCATION)
+if(NOT SDL3_LIB)
+    get_target_property(SDL3_LIB SDL3::SDL3 IMPORTED_LOCATION_RELEASE)
+endif()
+if(NOT SDL3_LIB)
+    message(FATAL_ERROR "SDL3::SDL3 has no imported library location")
+endif()
 
 add_custom_command(TARGET spider POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSET_DIR} $<TARGET_BUNDLE_CONTENT_DIR:spider>/Resources/assets
+    COMMAND sh ${MAC_ROOT}/bundle_sdl.sh "${SDL3_LIB}" "$<TARGET_BUNDLE_DIR:spider>"
     VERBATIM
 )
 
