@@ -2,7 +2,7 @@
 
 A playable port of Windows XP Spider Solitaire. The rules, scoring, undo, and save format come from the XP SP1 `spider.exe` decompilation in this repository. The Mac app is a normal 64-bit program: an SDL3 window, a Metal renderer, and AppKit menus and dialogs. It does not try to match the original instruction bytes.
 
-`spider.exe` draws its own card bitmaps. It does not call `cards.dll`.
+Saved games go to `~/Library/Application Support/Spider/spider.sav`, in the same integer layout as XP. Settings and statistics go to the app's preferences (`AnimDeal`, `SaveOnExit`, window rect, per-difficulty high scores, and the rest of the XP registry keys).
 
 ## Build
 
@@ -33,7 +33,7 @@ cmake --build build/mac --target spider_test
 ctest --test-dir build/mac
 ```
 
-## Play
+## Controls
 
 | Action | Key |
 |---|---|
@@ -48,11 +48,6 @@ ctest --test-dir build/mac
 | Quit | Command-Q |
 | Minimize | Escape |
 
-Drag a face-up card, or a descending run of one suit, onto a card one rank higher or onto an empty column. Every column must have a card before a new row can be dealt. Right-click a face-up card to show it in full until you release.
-
-A game starts at 500 points, loses one point per move (including undo), and gains 100 for each king-to-ace run removed. The last run plays the firework animation. Choosing "Yes" deals again.
-
-Saved games go to `~/Library/Application Support/Spider/spider.sav`, in the same integer layout as XP. Settings and statistics go to the app's preferences (`AnimDeal`, `SaveOnExit`, window rect, per-difficulty high scores, and the rest of the XP registry keys).
 
 ## Layout
 
