@@ -6,7 +6,12 @@
 
 (async () => {
     const canvas = document.getElementById("board");
-    const ctx = canvas.getContext("2d");
+    /* desynchronized: Chromium's low-latency canvas. Without it the canvas
+     * reaches the screen one compositor frame behind the hardware cursor, so
+     * a dragged card trails the pointer. Browsers that do not support it
+     * (Firefox) ignore the hint. */
+    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+    const lowLatency = !!(ctx.getContextAttributes && ctx.getContextAttributes().desynchronized);
 
     let cw = 1024;
     let ch = 720;
@@ -74,6 +79,7 @@
             const dpr = window.devicePixelRatio || 1;
             canvas.width = Math.max(1, Math.round(rect.width * dpr));
             canvas.height = Math.max(1, Math.round(rect.height * dpr));
+            SpiderRender.invalidate();
             cw = rect.width;
             ch = rect.height;
             /* layout() re-enters wasm; skip it while ASYNCIFY is waiting on a dialog. */
@@ -87,24 +93,81 @@
         window.addEventListener("resize", resize);
         resize();
 
-        function paint() {
-            applyTransform();
-            Module.tick();
-            SpiderRender.draw(ctx, Module.frame(), cw, ch);
+        /* F8, or ?fps in the URL: how often the browser runs requestAnimationFrame,
+         * and the resolution of performance.now(), which times the slides and
+         * fireworks. A coarse clock makes motion step even at a high frame rate. */
+        let showFps = new URLSearchParams(location.search).has("fps");
+        let fpsStart = 0;
+        let fpsFrames = 0;
+        let fpsHz = 0;
+        let clockStep = null;
+
+        function measureClockStep() {
+            const t0 = performance.now();
+            let last = t0;
+            let step = Infinity;
+            while (performance.now() - t0 < 50) {
+                const t = performance.now();
+                if (t !== last) {
+                    step = Math.min(step, t - last);
+                    last = t;
+                }
+            }
+            return step;
         }
 
-        function loop() {
+        function countFrame(ts) {
+            if (!fpsStart) {
+                fpsStart = ts;
+                fpsFrames = 0;
+                return;
+            }
+            fpsFrames++;
+            if (ts - fpsStart >= 1000) {
+                fpsHz = (fpsFrames * 1000) / (ts - fpsStart);
+                fpsStart = ts;
+                fpsFrames = 0;
+            }
+        }
+
+        function drawFps() {
+            if (clockStep === null) {
+                clockStep = measureClockStep();
+            }
+            const text = `rAF ${fpsHz.toFixed(0)} Hz   clock step ${clockStep.toFixed(3)} ms   ` +
+                `low-latency ${lowLatency ? "on" : "off"}`;
+            ctx.font = "bold 12px Tahoma, sans-serif";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "rgba(0,0,0,0.6)";
+            ctx.fillRect(cw - ctx.measureText(text).width - 16, 4, ctx.measureText(text).width + 12, 18);
+            ctx.fillStyle = "#fff";
+            ctx.fillText(text, cw - 10, 7);
+            ctx.textAlign = "start";
+        }
+
+        function paint() {
+            applyTransform();
+            SpiderRender.drawPacked(ctx, Module.step(), cw, ch);
+            if (showFps) {
+                drawFps();
+            }
+        }
+
+        function loop(ts) {
             if (!looping) {
                 return;
+            }
+            requestAnimationFrame(loop);
+            if (showFps) {
+                countFrame(ts);
             }
             try {
                 paint();
             } catch (e) {
                 looping = false;
                 fail(e);
-                return;
             }
-            requestAnimationFrame(loop);
         }
 
         function startLoop() {
@@ -166,6 +229,12 @@
         });
 
         window.addEventListener("keydown", (e) => {
+            if (e.key === "F8") {
+                showFps = !showFps;
+                fpsStart = 0;
+                e.preventDefault();
+                return;
+            }
             if (e.ctrlKey || e.metaKey || e.altKey) {
                 if ((e.key === "z" || e.key === "Z") && (e.ctrlKey || e.metaKey)) {
                     runCommand(Module.CommandId.UNDO.value);

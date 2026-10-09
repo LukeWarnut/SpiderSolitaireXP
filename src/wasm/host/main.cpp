@@ -144,6 +144,63 @@ Frame current_frame() {
     return frame;
 }
 
+/* Packed draw list for the rAF loop: one typed-array view instead of an
+ * embind Frame (which copies every Sprite through wasm). Layout:
+ *   nboard, (code,x,y)*nboard, nfront, (code,x,y)*nfront,
+ *   show_score, score_x, score_y, score_w, score_h, score, moves,
+ *   hint_on, hint_x, hint_y, hint_w, hint_h,
+ *   win_text, win_r, win_g, win_b,
+ *   nfx, (x,y,rad,r,g,b)*nfx */
+std::vector<float> g_draw;
+
+void pack_push(float v) { g_draw.push_back(v); }
+
+void pack_sprites(const std::vector<Sprite> &list) {
+    pack_push((float)list.size());
+    for (const Sprite &s : list) {
+        pack_push((float)s.code);
+        pack_push(s.x);
+        pack_push(s.y);
+    }
+}
+
+emscripten::val step_frame() {
+    Frame frame;
+    if (g_game) {
+        g_game->tick();
+        g_game->build_frame(frame);
+    }
+    g_draw.clear();
+    pack_sprites(frame.board);
+    pack_sprites(frame.front);
+    pack_push(frame.show_score ? 1.f : 0.f);
+    pack_push((float)frame.score_x);
+    pack_push((float)frame.score_y);
+    pack_push((float)frame.score_w);
+    pack_push((float)frame.score_h);
+    pack_push((float)frame.score);
+    pack_push((float)frame.moves);
+    pack_push(frame.hint_on ? 1.f : 0.f);
+    pack_push((float)frame.hint_x);
+    pack_push((float)frame.hint_y);
+    pack_push((float)frame.hint_w);
+    pack_push((float)frame.hint_h);
+    pack_push(frame.win_text ? 1.f : 0.f);
+    pack_push(frame.win_r);
+    pack_push(frame.win_g);
+    pack_push(frame.win_b);
+    pack_push((float)frame.fx.size());
+    for (const Particle &p : frame.fx) {
+        pack_push(p.x);
+        pack_push(p.y);
+        pack_push(p.rad);
+        pack_push(p.r);
+        pack_push(p.g);
+        pack_push(p.b);
+    }
+    return emscripten::val(emscripten::typed_memory_view(g_draw.size(), g_draw.data()));
+}
+
 bool closing_wanted() { return g_game && g_game->closing; }
 
 Settings *game_settings() { return g_game ? &g_game->settings : nullptr; }
@@ -241,6 +298,7 @@ EMSCRIPTEN_BINDINGS(spider) {
     function("tick", &on_tick);
     function("busy", &is_busy);
     function("frame", &current_frame);
+    function("step", &step_frame);
     function("closingWanted", &closing_wanted);
     function("imageCount", &image_count);
     function("imageName", &image_name);

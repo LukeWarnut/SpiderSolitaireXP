@@ -12,6 +12,7 @@ const SpiderRender = (() => {
 
     let images = null; /* name -> canvas */
     let feltPattern = null;
+    let feltFill = null; /* createPattern is per-context; cache until resize */
 
     /* Upload the wasm image table once. */
     function init(Module) {
@@ -54,24 +55,14 @@ const SpiderRender = (() => {
         return null;
     }
 
-    function drawCard(ctx, sprite) {
-        const c = cardCanvas(sprite.code);
+    function drawCardXY(ctx, code, x, y) {
+        const c = cardCanvas(code);
         if (c) {
-            ctx.drawImage(c, sprite.x, sprite.y);
+            ctx.drawImage(c, x, y);
         }
     }
 
-    function drawSprites(ctx, list) {
-        for (let i = 0; i < list.size(); i++) {
-            drawCard(ctx, list.get(i));
-        }
-    }
-
-    function drawScore(ctx, frame) {
-        const x = frame.score_x;
-        const y = frame.score_y;
-        const w = frame.score_w;
-        const h = frame.score_h;
+    function drawScore(ctx, x, y, w, h, score, moves) {
         /* paint_board: RGB(0,127,0) fill, black frame, white labels. */
         ctx.fillStyle = "rgb(0,127,0)";
         ctx.fillRect(x, y, w, h);
@@ -82,8 +73,8 @@ const SpiderRender = (() => {
         ctx.font = "bold 11px Tahoma, sans-serif";
         ctx.textBaseline = "top";
         const rows = [
-            ["Score:", String(frame.score), y + 0x1e],
-            ["Moves:", String(frame.moves), y + 0x32],
+            ["Score:", String(score), y + 0x1e],
+            ["Moves:", String(moves), y + 0x32],
         ];
         for (const [label, value, top] of rows) {
             ctx.textAlign = "right";
@@ -95,8 +86,10 @@ const SpiderRender = (() => {
 
     function felt(ctx, w, h) {
         if (feltPattern) {
-            const pat = ctx.createPattern(feltPattern, "repeat");
-            ctx.fillStyle = pat;
+            if (!feltFill) {
+                feltFill = ctx.createPattern(feltPattern, "repeat");
+            }
+            ctx.fillStyle = feltFill;
             ctx.fillRect(0, 0, w, h);
         } else {
             ctx.fillStyle = "#008000";
@@ -104,45 +97,72 @@ const SpiderRender = (() => {
         }
     }
 
-    function draw(ctx, frame, w, h) {
+    function invalidate() {
+        feltFill = null;
+    }
+
+    /* Packed buffer from Module.step(). See host/main.cpp. Paint order
+     * matches paint_hdc: felt, columns, score, stock/drag, hint, win, fx. */
+    function drawPacked(ctx, data, w, h) {
         felt(ctx, w, h);
-
-        drawSprites(ctx, frame.board);
-        if (frame.show_score) {
-            drawScore(ctx, frame);
+        let i = 0;
+        const nboard = data[i++];
+        for (let n = 0; n < nboard; n++) {
+            drawCardXY(ctx, data[i], data[i + 1], data[i + 2]);
+            i += 3;
         }
-        drawSprites(ctx, frame.front);
-
-        /* blink_move: InvertRect over what is already drawn. */
-        if (frame.hint_on) {
+        const nfront = data[i++];
+        const frontAt = i;
+        i += nfront * 3;
+        const show = data[i++];
+        const sx = data[i++];
+        const sy = data[i++];
+        const sw = data[i++];
+        const sh = data[i++];
+        const score = data[i++];
+        const moves = data[i++];
+        if (show) {
+            drawScore(ctx, sx, sy, sw, sh, score, moves);
+        }
+        for (let n = 0; n < nfront; n++) {
+            const o = frontAt + n * 3;
+            drawCardXY(ctx, data[o], data[o + 1], data[o + 2]);
+        }
+        const hintOn = data[i++];
+        const hx = data[i++];
+        const hy = data[i++];
+        const hw = data[i++];
+        const hh = data[i++];
+        if (hintOn) {
             ctx.save();
             ctx.globalCompositeOperation = "difference";
             ctx.fillStyle = "#fff";
-            ctx.fillRect(frame.hint_x, frame.hint_y, frame.hint_w, frame.hint_h);
+            ctx.fillRect(hx, hy, hw, hh);
             ctx.restore();
         }
-
-        /* AnimState::paint: the text (prep_blit) under the particles. */
-        if (frame.win_text) {
-            const r = Math.round(frame.win_r * 255);
-            const g = Math.round(frame.win_g * 255);
-            const b = Math.round(frame.win_b * 255);
+        const winText = data[i++];
+        const wr = data[i++];
+        const wg = data[i++];
+        const wb = data[i++];
+        if (winText) {
             ctx.font = "800 64px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.fillStyle = `rgb(${Math.round(wr * 255)},${Math.round(wg * 255)},${Math.round(wb * 255)})`;
             ctx.fillText("You Won!", w / 2, h / 2);
         }
-        for (let i = 0; i < frame.fx.size(); i++) {
-            const p = frame.fx.get(i);
-            const r = Math.round(p.r * 255);
-            const g = Math.round(p.g * 255);
-            const b = Math.round(p.b * 255);
+        const nfx = data[i++];
+        for (let n = 0; n < nfx; n++) {
+            const x = data[i++];
+            const y = data[i++];
+            const rad = data[i++];
+            const r = data[i++];
+            const g = data[i++];
+            const b = data[i++];
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.rad, 0, Math.PI * 2);
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.arc(x, y, rad, 0, Math.PI * 2);
+            ctx.fillStyle = `rgb(${Math.round(r * 255)},${Math.round(g * 255)},${Math.round(b * 255)})`;
             ctx.fill();
-            /* The DC's default 1px black pen. */
             ctx.lineWidth = 1;
             ctx.strokeStyle = "#000";
             ctx.stroke();
@@ -150,5 +170,5 @@ const SpiderRender = (() => {
         ctx.textAlign = "start";
     }
 
-    return { init, felt, draw, CARD_W, CARD_H };
+    return { init, felt, invalidate, drawPacked, CARD_W, CARD_H };
 })();
