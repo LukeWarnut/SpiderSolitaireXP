@@ -1,0 +1,142 @@
+/* XP-flavored chrome around the game canvas: Tahoma everywhere, a silver
+ * menu bar, and classic dialog boxes. */
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+    font-size: 11px;
+    background: #008000;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#menubar {
+    display: flex;
+    align-items: stretch;
+    height: 22px;
+    background: #ece9d8;
+    border-bottom: 1px solid #aca899;
+    padding: 0 2px;
+    position: relative;
+    z-index: 10;
+}
+
+.menu-top {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    padding: 0 8px;
+    cursor: default;
+}
+.menu-top:hover, .menu-top.open { background: #316ac5; color: #fff; }
+
+.menu-drop {
+    position: absolute;
+    top: 21px;
+    min-width: 200px;
+    background: #f1efe2;
+    border: 1px solid #aca899;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.35);
+    padding: 2px;
+    display: none;
+}
+.menu-drop.show { display: block; }
+
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    padding: 4px 20px 4px 24px;
+    cursor: default;
+    white-space: nowrap;
+}
+.menu-item:hover:not(:disabled) { background: #316ac5; color: #fff; }
+.menu-item:disabled { color: #919b9c; }
+.menu-item .accel { color: inherit; opacity: 0.75; }
+
+.menu-sep {
+    height: 1px;
+    margin: 3px 2px;
+    background: #aca899;
+}
+
+#board {
+    display: block;
+    position: absolute;
+    top: 22px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(100% - 22px);
+    touch-action: none;
+}
+
+/* ---- dialogs ---------------------------------------------------------- */
+
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.dialog {
+    min-width: 280px;
+    max-width: 480px;
+    background: #ece9d8;
+    border: 1px solid #716f64;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+    padding: 0;
+}
+
+.dialog-title {
+    background: linear-gradient(90deg, #0058e6, #3a93ff);
+    color: #fff;
+    font-weight: bold;
+    padding: 3px 6px;
+}
+
+.dialog-body { padding: 14px 16px; white-space: pre-wrap; }
+.dialog-body table { border-collapse: collapse; margin: 0 auto; }
+.dialog-body td { padding: 2px 10px; }
+.dialog-body td.num { text-align: right; }
+.dialog-body tr.level-head td {
+    font-weight: bold;
+    border-bottom: 1px solid #aca899;
+    padding-top: 6px;
+}
+.dialog-body label { display: block; padding: 3px 0; }
+.dialog-body input { vertical-align: -2px; }
+
+.dialog-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 0 16px 14px;
+}
+
+.dialog-buttons button {
+    min-width: 74px;
+    padding: 3px 10px;
+    font: inherit;
+    background: #ece9d8;
+    border: 1px solid #716f64;
+    border-radius: 2px;
+}
+.dialog-buttons button:hover { background: #f6f3e8; }
+.dialog-buttons button:focus { outline: 1px dotted #000; outline-offset: -4px; }
+
+.dialog-art { display: block; margin: 0 auto 10px; }

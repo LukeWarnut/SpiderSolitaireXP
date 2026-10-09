@@ -10,6 +10,10 @@ Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe`
 
 Build it with `./build.sh spider_mac` (see [Building](#building)). Its dependencies and controls are in [src/mac/README.md](src/mac/README.md).
 
+## WASM port
+
+[`src/wasm`](src/wasm/README.md) runs the same game core in a browser. It compiles to WebAssembly with Emscripten and replaces the shell with HTML menus/dialogs and a Canvas2D renderer. Build it with `.\build.ps1 spider_wasm` or `./build.sh spider_wasm` (needs Emscripten), then serve `build/wasm/`. See [src/wasm/README.md](src/wasm/README.md).
+
 ## Status
 
 Regenerate the numbers with `./build.sh progress` (`.\build.ps1 progress` on Windows). "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
@@ -95,6 +99,7 @@ The build downloads a host build of:
 - `brew install python ninja`
 - [Wine](https://wiki.winehq.org/MacOS) 9+ — only Wine 11.18 tested. `tools/wine_msvc.sh` runs `cl.exe`, `link.exe`, `lib.exe`, `rc.exe`, and `cvtres.exe`.
 - For `spider_mac` only: `brew install cmake sdl3 ffmpeg`, plus Xcode (see [src/mac/README.md](src/mac/README.md)).
+- For `spider_wasm` only: [Emscripten](https://emscripten.org/docs/getting_started/downloads.html) (with `emcmake` on `PATH`) and CMake (see [src/wasm/README.md](src/wasm/README.md)).
 
 ### Windows
 
@@ -126,13 +131,14 @@ Name one or more targets to build only those:
 | `cards` | Links `build/XPSP1/cards/cards.dll` |
 | `spider_mac` | macOS only: builds `build/mac/Spider.app` |
 | `spider_mac_test` | macOS only: builds and runs the Mac port's headless rule tests |
+| `spider_wasm` | Builds the browser port `build/wasm/index.html` (CMake + Emscripten) |
 | `check_spider` / `check_cards` / `check` | Byte-compares the rebuilt image with `orig/<binary>` (`tools/cmp_image.py`) |
 | `report_spider` / `report_cards` / `report` | objdiff report in `build/XPSP1/<module>/report.json` |
 | `progress` | `report`, then prints the progress summary |
 | `all_source` | Compiles every source file without linking |
 | `configure` | Re-runs `configure.py` |
 | `clean` | Deletes build output, `build.ninja`, and the other generated files. Keeps downloaded dtk and objdiff in `build/tools`. Nothing is built |
-| `clean spider` / `clean cards` / `clean spider_mac` | Deletes only that target's build directory |
+| `clean spider` / `clean cards` / `clean spider_mac` / `clean spider_wasm` | Deletes only that target's build directory |
 
 Any other argument that is not an option is passed to ninja as a target. For example, `./build.sh build/XPSP1/spider/src/fn_01007836.obj` compiles one unit.
 
@@ -194,6 +200,7 @@ MSVC encodes that string from the C++ declaration, so each renamed spider functi
 | `orig/XPSP2`, `XPSP3`, `TABLET`, `TR_RTM`, `DUTCH_SP1`, `XPSP1_64` | Other builds. Reference, or a resource source with `--orig` |
 | `config/XPSP1/spider/`, `config/XPSP1/cards/` | Per-module `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `units.json` |
 | `src/mac/` | macOS port (SDL3, Metal, AppKit). See [src/mac/README.md](src/mac/README.md) |
+| `src/wasm/` | Web port (Emscripten, Canvas2D). See [src/wasm/README.md](src/wasm/README.md) |
 | `src/spider/`, `include/spider/` | Spider decompiled C / C++ (`game_api.h` holds shared declarations) |
 | `src/cards/`, `include/cards/` | cards.dll C, `.def`, and `cards.rc` |
 | `src/spider/spider.rc` | Resource script: menu, dialogs, strings, accelerators, version info |

@@ -2,6 +2,7 @@
 #
 #   .\build.ps1                       spider and cards (the matching decompilation)
 #   .\build.ps1 cards                 one target; any ninja target works
+#   .\build.ps1 spider_wasm           the browser port, build\wasm\index.html
 #   .\build.ps1 clean [target...]     delete build output, keeping downloaded tools
 #   .\build.ps1 --orig orig\XPSP3 -y  options before or after targets go to configure.py
 #
@@ -21,6 +22,7 @@ function Show-Usage {
 
 Targets:
   spider, cards      link build\XPSP1\<module>\<binary> (default: both)
+  spider_wasm        browser app (CMake + Emscripten), build\wasm\index.html
   check, report      byte-compare with gold / objdiff report (also *_spider, *_cards)
   progress           objdiff report, then the progress summary
   configure          re-run configure.py (with the options last used)
@@ -40,13 +42,67 @@ function Invoke-Native([string[]]$Command) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
+# Prepend $Dir to PATH for this process if it is not already there.
+function Add-PathDir([string]$Dir) {
+    if (-not $Dir -or -not (Test-Path -LiteralPath $Dir)) { return }
+    $parts = $env:PATH -split ';'
+    foreach ($p in $parts) {
+        if ($p -and [string]::Equals($p, $Dir, [System.StringComparison]::OrdinalIgnoreCase)) { return }
+    }
+    $env:PATH = $Dir + ';' + $env:PATH
+}
+
+# Chocolatey/emsdk --permanent writes the user PATH, but emsdk.ps1 in the same
+# session can drop machine PATH entries (CMake lives in Program Files). Look in
+# the usual places and put them back on PATH for this process. Source emsdk
+# first: emsdk_env.ps1 also rewrites PATH, so cmake is prepended after that.
+function Find-WasmTools {
+    $emcmake = Get-Command emcmake -ErrorAction SilentlyContinue
+    if (-not $emcmake) {
+        $emsdk = Join-Path $env:LOCALAPPDATA 'emsdk'
+        $envPs1 = Join-Path $emsdk 'emsdk_env.ps1'
+        if (Test-Path -LiteralPath $envPs1) {
+            $ErrorActionPreference = 'Continue'
+            . $envPs1
+            $ErrorActionPreference = 'Stop'
+            $emcmake = Get-Command emcmake -ErrorAction SilentlyContinue
+        }
+        if (-not $emcmake) {
+            $emDir = Join-Path $emsdk 'upstream\emscripten'
+            if (Test-Path -LiteralPath (Join-Path $emDir 'emcmake.bat')) {
+                Add-PathDir $emsdk
+                Add-PathDir $emDir
+                $emcmake = Get-Command emcmake -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    if (-not $emcmake) { Fail 'emcmake not found; install and activate emsdk (https://emscripten.org/docs/getting_started)' }
+
+    $cmake = Get-Command cmake -ErrorAction SilentlyContinue
+    if (-not $cmake) {
+        foreach ($p in @(
+            "${env:ProgramFiles}\CMake\bin\cmake.exe",
+            "${env:ProgramFiles(x86)}\CMake\bin\cmake.exe"
+        )) {
+            if (Test-Path -LiteralPath $p) {
+                Add-PathDir (Split-Path -Parent $p)
+                $cmake = Get-Command cmake -ErrorAction SilentlyContinue
+                break
+            }
+        }
+    }
+    if (-not $cmake) { Fail 'cmake not found (winget install Kitware.CMake)' }
+}
+
 $BuildDir = 'build'
 $Clean = $false
 $Reconfigure = $false
 $Progress = $false
 $ConfOpts = New-Object System.Collections.Generic.List[string]
 $NinjaTargets = New-Object System.Collections.Generic.List[string]
+$WasmTargets = New-Object System.Collections.Generic.List[string]
 $ValueOptions = @('--orig', '--build-dir', '--dtk', '--objdiff', '--ninja', '-v', '--version')
+$OrigDir = ''
 
 for ($i = 0; $i -lt $args.Count; $i++) {
     $a = [string]$args[$i]
@@ -54,21 +110,25 @@ for ($i = 0; $i -lt $args.Count; $i++) {
     elseif ($a -eq 'clean') { $Clean = $true }
     elseif ($a -eq 'configure') { $Reconfigure = $true }
     elseif ($a -eq 'progress') { $Progress = $true }
+    elseif ($a -eq 'spider_wasm') { $WasmTargets.Add($a) }
     elseif ($a -in $ValueOptions) {
         if ($i + 1 -ge $args.Count) { Fail "$a needs a value" }
         $i++
         $ConfOpts.Add($a)
         $ConfOpts.Add([string]$args[$i])
         if ($a -eq '--build-dir') { $BuildDir = [string]$args[$i] }
+        if ($a -eq '--orig') { $OrigDir = [string]$args[$i] }
     }
     elseif ($a.StartsWith('-')) {
         if ($a.StartsWith('--build-dir=')) { $BuildDir = $a.Substring(12) }
+        if ($a.StartsWith('--orig=')) { $OrigDir = $a.Substring(7) }
         $ConfOpts.Add($a)
     }
     else { $NinjaTargets.Add($a) }
 }
 
 $ModuleDir = Join-Path $BuildDir 'XPSP1'
+$WasmDir = Join-Path $BuildDir 'wasm'
 if (-not $Clean) {
     foreach ($t in $NinjaTargets) {
         if ($t -in @('spider_mac', 'spider_mac_test')) { Fail "$t builds only on macOS; run build.sh there" }
@@ -90,10 +150,11 @@ if ($Clean) {
         }
     }
     else {
-        foreach ($t in $NinjaTargets) {
+        foreach ($t in ($NinjaTargets + $WasmTargets)) {
             if ($t -in @('spider', 'cards')) { $p = Join-Path $ModuleDir $t }
             elseif ($t -in @('spider_mac', 'spider_mac_test')) { $p = Join-Path $BuildDir 'mac' }
-            else { Fail "clean takes spider, cards, or spider_mac (got $t)" }
+            elseif ($t -eq 'spider_wasm') { $p = $WasmDir }
+            else { Fail "clean takes spider, cards, spider_mac, or spider_wasm (got $t)" }
             Write-Host "Removing $p\"
             if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Recurse -Force }
         }
@@ -117,7 +178,7 @@ foreach ($candidate in @(, [string[]]@('python')) + @(, [string[]]@('py', '-3'))
 }
 if (-not $Python) { Fail 'Python 3.8+ not found (winget install Python.Python.3.12)' }
 
-if ($NinjaTargets.Count -eq 0 -and -not $Progress -and -not $Reconfigure) {
+if ($NinjaTargets.Count -eq 0 -and $WasmTargets.Count -eq 0 -and -not $Progress -and -not $Reconfigure) {
     $NinjaTargets.Add('spider')
     $NinjaTargets.Add('cards')
 }
@@ -157,4 +218,21 @@ if ($NinjaTargets.Count -gt 0) {
 }
 if ($Progress) {
     Invoke-Native ($Python + @('configure.py', 'progress'))
+}
+
+# ---- WASM port (Emscripten + CMake) -----------------------------------------
+
+if ($WasmTargets.Count -gt 0) {
+    Find-WasmTools
+    # Same spider.exe lookup as build.sh: --orig first, then orig\.
+    $SpiderExe = Join-Path $PSScriptRoot 'orig\spider.exe'
+    if ($OrigDir -ne '') {
+        $candidate = if ([System.IO.Path]::IsPathRooted($OrigDir)) { Join-Path $OrigDir 'spider.exe' } else { Join-Path (Join-Path $PSScriptRoot $OrigDir) 'spider.exe' }
+        if (Test-Path -LiteralPath $candidate) { $SpiderExe = $candidate }
+    }
+    if (-not (Test-Path -LiteralPath $SpiderExe)) { Fail "no spider.exe at $SpiderExe (see orig\README.md)" }
+    Invoke-Native (@('emcmake', 'cmake', '-S', 'src/wasm', '-B', $WasmDir, '-DCMAKE_BUILD_TYPE=Release', "-DSPIDER_EXE=$SpiderExe"))
+    Invoke-Native (@('cmake', '--build', $WasmDir))
+    Write-Host "Built $WasmDir\index.html -- serve it with:"
+    Write-Host "  python -m http.server -d $WasmDir"
 }

@@ -47,6 +47,10 @@ bool load_bmp(const std::string &path, Image &out) {
         return false;
     }
     std::vector<uint8_t> d((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    return load_bmp_mem(d, out);
+}
+
+bool load_bmp_mem(const std::vector<uint8_t> &d, Image &out) {
     if (d.size() < 54 || d[0] != 'B' || d[1] != 'M') {
         return false;
     }
