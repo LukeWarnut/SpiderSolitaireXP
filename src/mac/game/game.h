@@ -70,6 +70,8 @@ struct Slide {
     float x0 = 0, y0 = 0, x1 = 0, y1 = 0;
     uint32_t t0 = 0;
     bool started = false;
+    /* Last card of a removed suit: flip the card underneath and score it. */
+    bool settle = false;
 };
 
 struct FxItem {
@@ -236,6 +238,7 @@ private:
     void choose_difficulty();
     void finish_slides();
     void advance_slides();
+    void retire_slide(const Slide &s);
     bool slide_hides(int pile, int index) const;
     void burst(FxBank &bank);
     void run_bank(FxBank &bank, float now);

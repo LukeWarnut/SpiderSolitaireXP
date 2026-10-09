@@ -180,6 +180,65 @@ int run_game_tests() {
     win.command(CMD_STATS);
     check(!win.celebrating, "a command ends the win animation");
 
+    /* Animated suit removal keeps the run in the column. Only the card whose
+     * slide has started leaves; the completed king is drawn at the lower left
+     * the whole time. */
+    Game fly(&host);
+    fly.layout(1024, 720);
+    fly.settings.animate = 1;
+    fly.settings.sound = 0;
+    fly.deck[0].suit = 3;
+    fly.deck[0].face = 0;
+    fly.deck[0].up = 0;
+    fly.add_card(0, 0, 0);
+    for (int k = 0; k < 13; k++) {
+        fly.deck[k + 1].suit = 3;
+        fly.deck[k + 1].face = 12 - k;
+        fly.deck[k + 1].up = 1;
+        fly.add_card(0, k + 1, 1);
+    }
+    fly.cards_out = 14;
+    fly.started = true;
+    check(fly.full_suit(0), "run on top of a face-down card");
+    int score_fly = fly.score;
+    fly.take_suit(0);
+    check(fly.piles[0].size() == 14, "the run stays in the column when the animation starts");
+    check(fly.slides.size() == 13 && fly.score == score_fly, "scoring waits until the run has flown");
+    Frame flying;
+    fly.build_frame(flying);
+    int home = 0;
+    bool king_slot = false;
+    for (const Sprite &s : flying.board) {
+        if (s.x == (float)fly.column_x(0)) {
+            home++;
+        }
+    }
+    for (const Sprite &s : flying.front) {
+        if (s.code == 52 && s.y == (float)fly.deal_top()) {
+            king_slot = true;
+        }
+    }
+    check(home == 14, "every card of the run is still drawn");
+    check(king_slot, "the completed suit is shown at the lower left");
+    fly.tick();
+    fly.build_frame(flying);
+    home = 0;
+    for (const Sprite &s : flying.board) {
+        if (s.x == (float)fly.column_x(0)) {
+            home++;
+        }
+    }
+    check(home == 13, "the ace leaves the column when its slide starts");
+    check(!flying.front.empty(), "the ace is drawn in flight");
+    for (int i = 0; i < 13; i++) {
+        host.now += 101;
+        fly.tick();
+    }
+    check(fly.slides.empty(), "suit slides finish");
+    check(fly.piles[0].size() == 1 && fly.deck[0].up == 1, "the card under the run flips after the king leaves");
+    check(fly.score == score_fly + 100 && fly.cards_out == 1, "the suit scores when the animation ends");
+    check(host.won == 1, "a suit that does not empty the table does not win");
+
     std::filesystem::remove(host.save_path());
     if (failures == 0) {
         std::printf("game tests ok\n");

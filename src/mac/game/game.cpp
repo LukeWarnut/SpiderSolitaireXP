@@ -466,27 +466,35 @@ void Game::take_suit(int pile) {
     }
     completed[suit]++;
     total++;
+    undo_n = 0;
+    hints_ready = false;
+    hint_phase = 0;
     if (settings.animate) {
+        /* begin_drag slides one card, then trim_pile removes it. The other
+         * twelve stay in the column until it is their turn. The king is
+         * already drawn in the completed-suit slot. */
         float tx = (float)(margin - 12 + total * 12);
         float ty = (float)deal_top();
         for (int c = n - 1; c >= n - 13; c--) {
             Slide s;
             s.deal = false;
-            s.pile = -1;
-            s.index = total - 1;
+            s.pile = pile;
+            s.index = c;
             s.code = card_code(pile, c);
             s.x0 = (float)column_x(pile);
             s.y0 = (float)card_y(pile, c);
             s.x1 = tx;
             s.y1 = ty;
+            s.settle = c == n - 13;
             slides.push_back(s);
         }
-    } else if (settings.sound) {
+        return;
+    }
+    if (settings.sound) {
         host->play(SND_DEAL);
     }
     piles[pile].resize(n - 13);
     cards_out -= 13;
-    undo_n = 0;
     add_score(100);
     fit_piles();
     if (!column_empty(pile)) {
@@ -496,8 +504,6 @@ void Game::take_suit(int pile) {
             deck[card_at(pile, top)].up = 1;
         }
     }
-    hints_ready = false;
-    hint_phase = 0;
     if (cards_out <= 0) {
         won_game();
     }
@@ -525,14 +531,51 @@ void Game::won_game() {
 
 bool Game::slide_hides(int pile, int index) const {
     for (const Slide &s : slides) {
-        if (s.deal && s.pile == pile && s.index == index) {
+        if (s.pile != pile || s.index != index) {
+            continue;
+        }
+        /* A dealt card stays hidden until it lands. A suit card stays in the
+         * column until its own slide starts. */
+        if (s.deal || s.started) {
             return true;
         }
     }
     return false;
 }
 
-void Game::finish_slides() { slides.clear(); }
+void Game::retire_slide(const Slide &s) {
+    if (s.deal) {
+        return;
+    }
+    std::vector<int> &pile = piles[s.pile];
+    if (!pile.empty() && (int)pile.size() - 1 == s.index) {
+        pile.pop_back();
+    }
+    if (!s.settle) {
+        return;
+    }
+    if (!column_empty(s.pile)) {
+        int top = (int)piles[s.pile].size() - 1;
+        if (suit_of(s.pile, top) == 0) {
+            hidden[s.pile]--;
+            deck[card_at(s.pile, top)].up = 1;
+        }
+    }
+    cards_out -= 13;
+    add_score(100);
+    fit_piles();
+    if (cards_out <= 0) {
+        won_game();
+    }
+}
+
+void Game::finish_slides() {
+    std::vector<Slide> pending;
+    pending.swap(slides);
+    for (const Slide &s : pending) {
+        retire_slide(s);
+    }
+}
 
 void Game::advance_slides() {
     while (!slides.empty()) {
@@ -562,7 +605,9 @@ void Game::advance_slides() {
         if (now <= s.t0 + kSlideMs) {
             return;
         }
+        Slide done = s;
         slides.erase(slides.begin());
+        retire_slide(done);
     }
 }
 
@@ -1315,18 +1360,10 @@ void Game::build_frame(Frame &frame) const {
         }
     }
 
-    /* Completed suits: king of each, 12px apart. A slot still receiving cards stays empty. */
+    /* Completed suits: king of each, 12px apart. The slot is drawn as soon as
+     * the suit is taken; the cards still in the column fly onto it. */
     int done = std::min(8, completed[0] + completed[1] + completed[2] + completed[3]);
-    int filling = -1;
-    for (const Slide &s : slides) {
-        if (!s.deal) {
-            filling = s.index;
-        }
-    }
     for (int i = 0; i < done; i++) {
-        if (i == filling) {
-            continue;
-        }
         push(frame.front, (completed_order[i] + 1) * 13, (float)(margin + i * 12), (float)deal_top());
     }
 
