@@ -4,6 +4,12 @@ Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe`
 
 `spider.exe` does not call `cards.dll`. It draws from bitmaps in its own resources. The DLL is a second matching target: the shared card library used by Solitaire and FreeCell.
 
+## macOS port
+
+[`src/mac`](src/mac/README.md) is a playable 64-bit port. It keeps this decompilation's rules, scoring, undo, and save format, and replaces the Win32/GDI shell with an SDL3 window, a Metal renderer, and AppKit menus and dialogs. It does not compile the matching sources and does not try to match the original instruction bytes.
+
+Build instructions are in [src/mac/README.md](src/mac/README.md).
+
 ## Status
 
 Regenerate the numbers with `ninja report && python3 configure.py progress`. "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
@@ -158,6 +164,7 @@ ninja                     # re-split so the expected object uses the same name
 | `orig/toolchain/` | User-supplied `cl.exe` / `link.exe` / headers / `libcmt.lib` |
 | `orig/XPSP3`, `TABLET`, `TR_RTM` | Reference binaries only |
 | `config/XPSP1/spider/`, `config/XPSP1/cards/` | Per-module `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `units.json` |
+| `src/mac/` | macOS port (SDL3, Metal, AppKit). See [src/mac/README.md](src/mac/README.md) |
 | `src/spider/`, `include/spider/` | Spider decompiled C / C++ (`game_api.h` holds shared declarations) |
 | `src/cards/`, `include/cards/` | cards.dll C, `.def`, and `cards.rc` |
 | `src/spider/spider.rc` | Resource script: menu, dialogs, strings, accelerators, version info |
