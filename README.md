@@ -42,7 +42,14 @@ The `.bss` (0x100 bytes of globals) also matches, so `cards.c` is complete. The 
 
 ### Whole-image check
 
-`ninja check_cards` prints `IMAGE MATCH (0x57e00 bytes)`: every byte of the rebuilt `cards.dll` equals gold once `cmp_image.py` has normalized bind data, the checksum, and link/debug timestamps. That took linker settings, not source changes:
+`ninja check_cards` prints `IMAGE MATCH (0x57e00 bytes)`. The two files are the same size, with the same section table, and `.data`, `.rsrc`, and `.reloc` are identical on disk. The check is not a raw file compare. `cmp_image.py` ignores these link-time and `bind.exe` differences, which are still present:
+
+- The PE timestamp, the optional-header checksum, and the export-directory timestamp.
+- The debug-directory timestamp, and the signature and age inside the `NB10` CodeView record. Both records name `cards.pdb`.
+- A bound-import directory in the original only (48 bytes in the header slack, naming `USER32.dll` and `GDI32.dll`). Each of its import descriptors has `TimeDateStamp` and `ForwarderChain` set to `0xFFFFFFFF`; both are zero in the rebuild.
+- The import address table at the start of `.text` (89 bytes). The original holds the absolute addresses `bind.exe` wrote; the rebuild still has the linker's relative virtual addresses into the import name table.
+
+That took linker settings, not source changes:
 
 - `/MERGE:.rdata=.text /FILEALIGN:0x200 /STACK:0x40000 /SECTION:.rsrc,R /OPT:REF`;
 - `/DEBUG /DEBUGTYPE:VC6 /PDBALTPATH:cards.pdb`: gold's debug directory holds an `NB10` (PDB 2.0) CodeView record naming just `cards.pdb`. This linker writes `RSDS` unless given the undocumented `/DEBUGTYPE:VC6`, and `/PDBALTPATH` replaces the full path;
