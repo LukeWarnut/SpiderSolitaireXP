@@ -4,7 +4,7 @@
 #   ./build.sh                       spider and cards (the matching decompilation)
 #   ./build.sh cards                 one target; any ninja target works
 #   ./build.sh spider_mac            the macOS app, build/mac/Spider.app
-#   ./build.sh clean [target...]     delete build output (all of it, or per target)
+#   ./build.sh clean [target...]     delete build output, keeping downloaded tools
 #   ./build.sh --orig orig/XPSP3 -y  options before or after targets go to configure.py
 #
 # macOS ships bash 3.2: no associative arrays, and empty arrays are expanded
@@ -27,7 +27,7 @@ Targets:
   check, report      byte-compare with gold / objdiff report (also *_spider, *_cards)
   progress           objdiff report, then the progress summary
   configure          re-run configure.py (with the options last used)
-  clean              delete build output; with targets, only theirs
+  clean              delete build output, keeping build/tools; with targets, only theirs
 EOF
 }
 
@@ -68,8 +68,15 @@ MAC_DIR="$BUILD_DIR/mac"
 
 if [ "$CLEAN" = 1 ]; then
   if [ ${#NINJA_TARGETS[@]} -eq 0 ] && [ ${#MAC_TARGETS[@]} -eq 0 ]; then
-    echo "Removing $BUILD_DIR/ and the generated ninja files"
-    rm -rf "$BUILD_DIR" build.ninja .ninja_deps .ninja_log objdiff.json
+    echo "Removing $BUILD_DIR/ (keeping $BUILD_DIR/tools) and the generated ninja files"
+    if [ -d "$BUILD_DIR" ]; then
+      for entry in "$BUILD_DIR"/* "$BUILD_DIR"/.[!.]*; do
+        [ -e "$entry" ] || continue
+        [ "$(basename "$entry")" = tools ] && continue
+        rm -rf "$entry"
+      done
+    fi
+    rm -rf build.ninja .ninja_deps .ninja_log objdiff.json
   else
     for t in ${NINJA_TARGETS[@]+"${NINJA_TARGETS[@]}"} ${MAC_TARGETS[@]+"${MAC_TARGETS[@]}"}; do
       case "$t" in

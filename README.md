@@ -131,7 +131,7 @@ Name one or more targets to build only those:
 | `progress` | `report`, then prints the progress summary |
 | `all_source` | Compiles every source file without linking |
 | `configure` | Re-runs `configure.py` |
-| `clean` | Deletes `build/`, `build.ninja`, and the other generated files. Nothing is built |
+| `clean` | Deletes build output, `build.ninja`, and the other generated files. Keeps downloaded dtk and objdiff in `build/tools`. Nothing is built |
 | `clean spider` / `clean cards` / `clean spider_mac` | Deletes only that target's build directory |
 
 Any other argument that is not an option is passed to ninja as a target. For example, `./build.sh build/XPSP1/spider/src/fn_01007836.obj` compiles one unit.

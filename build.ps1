@@ -2,7 +2,7 @@
 #
 #   .\build.ps1                       spider and cards (the matching decompilation)
 #   .\build.ps1 cards                 one target; any ninja target works
-#   .\build.ps1 clean [target...]     delete build output (all of it, or per target)
+#   .\build.ps1 clean [target...]     delete build output, keeping downloaded tools
 #   .\build.ps1 --orig orig\XPSP3 -y  options before or after targets go to configure.py
 #
 # Written for Windows PowerShell 5.1: no ternaries, no ??, no && between commands.
@@ -24,7 +24,7 @@ Targets:
   check, report      byte-compare with gold / objdiff report (also *_spider, *_cards)
   progress           objdiff report, then the progress summary
   configure          re-run configure.py (with the options last used)
-  clean              delete build output; with targets, only theirs
+  clean              delete build output, keeping build\tools; with targets, only theirs
   spider_mac         macOS only; use build.sh there
 '@
 }
@@ -79,8 +79,13 @@ if (-not $Clean) {
 
 if ($Clean) {
     if ($NinjaTargets.Count -eq 0) {
-        Write-Host "Removing $BuildDir\ and the generated ninja files"
-        foreach ($p in @($BuildDir, 'build.ninja', '.ninja_deps', '.ninja_log', 'objdiff.json')) {
+        Write-Host "Removing $BuildDir\ (keeping $BuildDir\tools) and the generated ninja files"
+        if (Test-Path -LiteralPath $BuildDir) {
+            Get-ChildItem -LiteralPath $BuildDir -Force |
+                Where-Object { $_.Name -ne 'tools' } |
+                Remove-Item -Recurse -Force
+        }
+        foreach ($p in @('build.ninja', '.ninja_deps', '.ninja_log', 'objdiff.json')) {
             if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Recurse -Force }
         }
     }
