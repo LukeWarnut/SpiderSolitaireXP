@@ -1,18 +1,18 @@
 #include "cards.h"
 
-static int g_height;
-static int g_width;
-static HBITMAP g_curbmp;
-static int g_nloaded;
-static HBITMAP g_faces[52];
+static int g_face_dy;
+static int g_face_dx;
+static HBITMAP g_draw_bmp;
+static int g_n_loaded;
+static HBITMAP g_face_bmps[52];
 static HBITMAP g_hbmH;
-static HBITMAP g_hbmA;
+static HBITMAP g_hbmCover;
 static HBITMAP g_hbmX;
-static HBITMAP g_hbmO;
+static HBITMAP g_hbmNaught;
 static int g_anim_id;
-static int g_init;
-static int g_lru;
-static HINSTANCE g_hinst;
+static int g_init_cnt;
+static int g_lru_pos;
+static HINSTANCE g_hinst_dll;
 
 void WINAPI save_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy);
 void WINAPI restore_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy);
@@ -22,15 +22,15 @@ BOOL WINAPI load_back(int id);
 
 BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved)
 {
-    g_hinst = inst;
+    g_hinst_dll = inst;
     return TRUE;
 }
 
 void WINAPI save_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy)
 {
-    if (dx != g_width)
+    if (dx != g_face_dx)
         return;
-    if (dy != g_height)
+    if (dy != g_face_dy)
         return;
     c[0] = GetPixel(hdc, x, y);
     c[1] = GetPixel(hdc, x + 1, y);
@@ -57,9 +57,9 @@ BOOL WINAPI cdtAnimate(HDC hdc, int card, int x, int y, int frame)
 
 void WINAPI restore_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy)
 {
-    if (dx != g_width)
+    if (dx != g_face_dx)
         return;
-    if (dy != g_height)
+    if (dy != g_face_dy)
         return;
     SetPixel(hdc, x, y, c[0]);
     SetPixel(hdc, x + 1, y, c[1]);
@@ -83,27 +83,27 @@ static HBITMAP load_face(int card)
 {
     int id;
 
-    if (!g_faces[card]) {
-        if (g_nloaded >= 5) {
-            while (!g_faces[g_lru])
-                g_lru = (g_lru == 51) ? 0 : g_lru + 1;
-            DeleteObject(g_faces[g_lru]);
-            g_nloaded--;
-            g_faces[g_lru] = 0;
+    if (!g_face_bmps[card]) {
+        if (g_n_loaded >= 5) {
+            while (!g_face_bmps[g_lru_pos])
+                g_lru_pos = (g_lru_pos == 51) ? 0 : g_lru_pos + 1;
+            DeleteObject(g_face_bmps[g_lru_pos]);
+            g_n_loaded--;
+            g_face_bmps[g_lru_pos] = 0;
         }
         id = (card >> 2) % 13 + (card & 3) * 13;
-        while (!(g_faces[card] = LoadBitmapA(g_hinst, MAKEINTRESOURCEA(id + 1)))) {
-            if (!g_nloaded)
+        while (!(g_face_bmps[card] = LoadBitmapA(g_hinst_dll, MAKEINTRESOURCEA(id + 1)))) {
+            if (!g_n_loaded)
                 return 0;
-            while (!g_faces[g_lru])
-                g_lru = (g_lru == 51) ? 0 : g_lru + 1;
-            DeleteObject(g_faces[g_lru]);
-            g_faces[g_lru] = 0;
-            g_nloaded--;
+            while (!g_face_bmps[g_lru_pos])
+                g_lru_pos = (g_lru_pos == 51) ? 0 : g_lru_pos + 1;
+            DeleteObject(g_face_bmps[g_lru_pos]);
+            g_face_bmps[g_lru_pos] = 0;
+            g_n_loaded--;
         }
-        g_nloaded++;
+        g_n_loaded++;
     }
-    return g_faces[card];
+    return g_face_bmps[card];
 }
 
 static void WINAPI delete_if(HGDIOBJ obj)
@@ -116,15 +116,15 @@ void cdtTerm(void)
 {
     int i;
 
-    g_init--;
-    if (g_init > 0)
+    g_init_cnt--;
+    if (g_init_cnt > 0)
         return;
     for (i = 0; i < 52; i++)
-        delete_if(g_faces[i]);
+        delete_if(g_face_bmps[i]);
     delete_if(g_hbmH);
-    delete_if(g_hbmA);
+    delete_if(g_hbmCover);
     delete_if(g_hbmX);
-    delete_if(g_hbmO);
+    delete_if(g_hbmNaught);
 }
 
 int WINAPI WEP(int unused)
@@ -136,25 +136,25 @@ BOOL WINAPI cdtInit(int *pdx, int *pdy)
 {
     BITMAP bm;
 
-    if (g_init++) {
-        *pdx = g_width;
-        *pdy = g_height;
+    if (g_init_cnt++) {
+        *pdx = g_face_dx;
+        *pdy = g_face_dy;
         return TRUE;
     }
-    g_hbmH = LoadBitmapA(g_hinst, MAKEINTRESOURCEA(53));
-    g_hbmX = LoadBitmapA(g_hinst, MAKEINTRESOURCEA(67));
-    g_hbmO = LoadBitmapA(g_hinst, MAKEINTRESOURCEA(68));
-    if (!g_hbmH || !g_hbmX || !g_hbmO) {
+    g_hbmH = LoadBitmapA(g_hinst_dll, MAKEINTRESOURCEA(53));
+    g_hbmX = LoadBitmapA(g_hinst_dll, MAKEINTRESOURCEA(67));
+    g_hbmNaught = LoadBitmapA(g_hinst_dll, MAKEINTRESOURCEA(68));
+    if (!g_hbmH || !g_hbmX || !g_hbmNaught) {
         delete_if(g_hbmH);
         delete_if(g_hbmX);
-        delete_if(g_hbmO);
+        delete_if(g_hbmNaught);
         return FALSE;
     }
     GetObjectA(g_hbmH, sizeof(bm), &bm);
     *pdx = bm.bmWidth;
-    g_width = bm.bmWidth;
+    g_face_dx = bm.bmWidth;
     *pdy = bm.bmHeight;
-    g_height = bm.bmHeight;
+    g_face_dy = bm.bmHeight;
     return TRUE;
 }
 
@@ -164,9 +164,9 @@ BOOL WINAPI load_back(int id)
 
     cur = g_anim_id;
     if (cur != id) {
-        delete_if(g_hbmA);
-        g_hbmA = LoadBitmapA(g_hinst, MAKEINTRESOURCEA((WORD)id));
-        cur = g_hbmA ? id : 0;
+        delete_if(g_hbmCover);
+        g_hbmCover = LoadBitmapA(g_hinst_dll, MAKEINTRESOURCEA((WORD)id));
+        cur = g_hbmCover ? id : 0;
         g_anim_id = cur;
     }
     return cur != 0;
@@ -191,7 +191,7 @@ BOOL WINAPI cdtDrawExt(HDC hdc, int x, int y, int dx, int dy, int card, int type
     if ((unsigned)type <= 7) {
         switch (type) {
         case 0:
-            g_curbmp = load_face(card);
+            g_draw_bmp = load_face(card);
             rop = SRCCOPY;
             color = 0xFFFFFF;
             break;
@@ -199,7 +199,7 @@ BOOL WINAPI cdtDrawExt(HDC hdc, int x, int y, int dx, int dy, int card, int type
             if (!load_back(card)) {
                 return FALSE;
             } else {
-                g_curbmp = g_hbmA;
+                g_draw_bmp = g_hbmCover;
                 rop = SRCCOPY;
             }
             break;
@@ -220,45 +220,45 @@ BOOL WINAPI cdtDrawExt(HDC hdc, int x, int y, int dx, int dy, int card, int type
                 }
                 if (type == 4)
                     return TRUE;
-                g_curbmp = g_hbmH;
+                g_draw_bmp = g_hbmH;
                 rop = SRCAND;
             }
             break;
         case 5:
-            g_curbmp = g_hbmH;
+            g_draw_bmp = g_hbmH;
             rop = SRCAND;
             break;
         case 6:
-            g_curbmp = g_hbmX;
+            g_draw_bmp = g_hbmX;
             rop = SRCCOPY;
             break;
         case 7:
-            g_curbmp = g_hbmO;
+            g_draw_bmp = g_hbmNaught;
             rop = SRCCOPY;
             break;
         case 2:
-            g_curbmp = load_face(card);
+            g_draw_bmp = load_face(card);
             rop = NOTSRCCOPY;
             break;
         }
     }
-    if (!g_curbmp) {
+    if (!g_draw_bmp) {
         return FALSE;
     } else {
     mem = CreateCompatibleDC(hdc);
     if (!mem) {
         return FALSE;
     } else {
-    g_curbmp = SelectObject(mem, g_curbmp);
-    if (g_curbmp) {
+    g_draw_bmp = SelectObject(mem, g_draw_bmp);
+    if (g_draw_bmp) {
         color = SetBkColor(hdc, color);
         if (!ghost)
             save_corners(hdc, corners, x, y, dx, dy);
-        if (dx == g_width && dy == g_height)
-            BitBlt(hdc, x, y, g_width, g_height, mem, 0, 0, rop);
+        if (dx == g_face_dx && dy == g_face_dy)
+            BitBlt(hdc, x, y, g_face_dx, g_face_dy, mem, 0, 0, rop);
         else
-            StretchBlt(hdc, x, y, dx, dy, mem, 0, 0, g_width, g_height, rop);
-        SelectObject(mem, g_curbmp);
+            StretchBlt(hdc, x, y, dx, dy, mem, 0, 0, g_face_dx, g_face_dy, rop);
+        SelectObject(mem, g_draw_bmp);
         if (type == 0) {
             face = (card >> 2) % 13 + (card & 3) * 13 + 1;
             if ((face >= 14 && face <= 23) || (face >= 27 && face <= 36)) {
@@ -284,5 +284,5 @@ BOOL WINAPI cdtDrawExt(HDC hdc, int x, int y, int dx, int dy, int card, int type
 
 BOOL WINAPI cdtDraw(HDC hdc, int x, int y, int card, int type, DWORD color)
 {
-    return cdtDrawExt(hdc, x, y, g_width, g_height, card, type, color);
+    return cdtDrawExt(hdc, x, y, g_face_dx, g_face_dy, card, type, color);
 }

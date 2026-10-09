@@ -12,7 +12,7 @@ Regenerate the numbers with `ninja report && python3 configure.py progress`. "Ex
 |---|---|---|
 | Functions exact | 533 / 543 (98.2%) | 12 / 12 in `cards.c` |
 | Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,975 / 1,975 in `cards.c` (100%) |
-| Units complete | 283 / 293 | 0 / 1 (`cards.c` is the only source unit) |
+| Units complete | 283 / 293 | 1 / 1 (`cards.c` is the only source unit) |
 | `.rsrc` (`cmp_rsrc`) | match (90 resources) | match (75 resources) |
 | Whole image (`ninja check_<module>`) | fails: linker layout | fails: linker layout |
 
@@ -38,7 +38,7 @@ The remaining CRT unit, `crt_free.c` (`0x0100988D`, 144 bytes), is two functions
 
 Every function is exact (objdiff 100% and `cmp_reloc` clean), including `cdtDrawExt` (800 bytes, jump table), `load_face` (the face-bitmap cache), and both corner save/restore helpers.
 
-The unit is not marked complete because its `.bss` is 99.2%. The globals are file-`static` (an extern `g_width` changes the load order in `cdtInit`), and MSVC lays statics out in its own name-dependent order, not declaration order. Ours comes out as `g_hinst`, `g_width`, `g_nloaded`, ... with 4 bytes of padding before the 8-aligned `g_faces` (0x104 bytes); gold is `g_height`, `g_width`, `g_curbmp`, ... in 0x100. The order follows the names, which are ours, not the originals.
+The `.bss` (0x100 bytes of globals) also matches, so `cards.c` is complete. The globals are file-`static` (an extern width global changes the load order in `cdtInit`), and MSVC lays statics out by a hash of their names, not in declaration order. The names in `cards.c` were chosen so that the hash order reproduces gold's layout; see `AGENTS.md` before renaming any of them.
 
 ### Whole-image check
 

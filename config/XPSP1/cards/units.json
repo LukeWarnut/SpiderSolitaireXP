@@ -14,7 +14,7 @@
   {
     "name": "cards.c",
     "category": "cards",
-    "complete": false,
+    "complete": true,
     "kind": "cards",
     "source": "cards.c",
     "symbol": "_DllMain@12",
