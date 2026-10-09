@@ -6,12 +6,12 @@ This is a scaffold: split the original PE, compile C++ with the original MSVC 7.
 
 ## Status
 
-As of October 2026. Regenerate the numbers with `ninja report && python3 configure.py progress`. "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
+Regenerate the numbers with `ninja report && python3 configure.py progress`. "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
 
 | | `spider.exe` | `cards.dll` |
 |---|---|---|
-| Functions exact | 533 / 543 (98.2%) | 10 / 12 in `cards.c` |
-| Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,530 / 1,975 in `cards.c` (77.5%) |
+| Functions exact | 533 / 543 (98.2%) | 11 / 12 in `cards.c` |
+| Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,776 / 1,975 in `cards.c` (89.9%) |
 | Units complete | 283 / 293 | 0 / 1 (`cards.c` is the only source unit) |
 | `.rsrc` (`cmp_rsrc`) | match (90 resources) | match (75 resources) |
 | Whole image (`ninja check_<module>`) | fails: linker layout | fails: linker layout |
@@ -38,10 +38,9 @@ The remaining CRT unit, `crt_free.c` (`0x0100988D`, 144 bytes), is two functions
 
 | Function | Match | What still differs |
 |---|---|---|
-| `load_face` | 74.7% | Gold keeps the card in `esi` and the zero in `ebx`. Ours swaps them, and that also stops `DeleteObject` being held in `ebp`. Reordering the setup statements, a separate index copy, and a function-pointer local didn't move them. |
 | `cdtInit` | 98.0% | In the early-out, gold loads `pdx` before `g_width`; ours loads the global first (four bytes) |
 
-All other functions are exact, including `cdtDrawExt` (800 bytes, jump table) and both corner save/restore helpers.
+All other functions are exact, including `cdtDrawExt` (800 bytes, jump table), `load_face` (the face-bitmap cache), and both corner save/restore helpers.
 
 ### Whole-image check
 

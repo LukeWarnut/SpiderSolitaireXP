@@ -81,58 +81,29 @@ void WINAPI restore_corners(HDC hdc, COLORREF *c, int x, int y, int dx, int dy)
 
 static HBITMAP load_face(int card)
 {
-    HBITMAP *slot;
-    int n;
     int id;
-    HBITMAP z;
-    int idx;
 
-    idx = card;
-    slot = &g_faces[idx];
-    z = 0;
-    if (*slot != z)
-        goto done;
-    if (g_nloaded >= 5) {
-        n = g_lru;
-        if (g_faces[n] == z) {
-            do {
-                n = (n == 51) ? 0 : n + 1;
-            } while (g_faces[n] == z);
-            g_lru = n;
+    if (!g_faces[card]) {
+        if (g_nloaded >= 5) {
+            while (!g_faces[g_lru])
+                g_lru = (g_lru == 51) ? 0 : g_lru + 1;
+            DeleteObject(g_faces[g_lru]);
+            g_nloaded--;
+            g_faces[g_lru] = 0;
         }
-        DeleteObject(g_faces[n]);
-        n = g_lru;
-        g_nloaded--;
-        g_faces[n] = z;
+        id = (card >> 2) % 13 + (card & 3) * 13;
+        while (!(g_faces[card] = LoadBitmapA(g_hinst, MAKEINTRESOURCEA(id + 1)))) {
+            if (!g_nloaded)
+                return 0;
+            while (!g_faces[g_lru])
+                g_lru = (g_lru == 51) ? 0 : g_lru + 1;
+            DeleteObject(g_faces[g_lru]);
+            g_faces[g_lru] = 0;
+            g_nloaded--;
+        }
+        g_nloaded++;
     }
-    id = idx >> 2;
-    id = id % 13;
-    idx &= 3;
-    idx *= 13;
-    id += idx;
-    id++;
-    id = (unsigned short)id;
-    for (;;) {
-        *slot = LoadBitmapA(g_hinst, MAKEINTRESOURCEA(id));
-        if (*slot) {
-            g_nloaded++;
-            goto done;
-        }
-        if (!g_nloaded)
-            return 0;
-        n = g_lru;
-        if (!g_faces[n]) {
-            do {
-                n = (n == 51) ? 0 : n + 1;
-            } while (!g_faces[n]);
-            g_lru = n;
-        }
-        DeleteObject(g_faces[n]);
-        g_faces[n] = 0;
-        g_nloaded--;
-    }
-done:
-    return *slot;
+    return g_faces[card];
 }
 
 static void WINAPI delete_if(HGDIOBJ obj)
