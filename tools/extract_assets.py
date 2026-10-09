@@ -39,6 +39,31 @@ from tools.pe_rsrc import (  # noqa: E402
 
 LANG_EN_US = 0x0409
 
+# Primary language -> the ANSI code page rc decodes this script's \ooo escapes with.
+ANSI_CODE_PAGES = {
+    0x01: 1256, 0x02: 1251, 0x05: 1250, 0x06: 1252, 0x07: 1252, 0x08: 1253,
+    0x09: 1252, 0x0A: 1252, 0x0B: 1252, 0x0C: 1252, 0x0D: 1255, 0x0E: 1250,
+    0x0F: 1252, 0x10: 1252, 0x11: 932, 0x12: 949, 0x13: 1252, 0x14: 1252,
+    0x15: 1250, 0x16: 1252, 0x18: 1250, 0x19: 1251, 0x1A: 1250, 0x1B: 1250,
+    0x1D: 1252, 0x1E: 874, 0x1F: 1254, 0x22: 1251, 0x24: 1250, 0x25: 1257,
+    0x26: 1257, 0x27: 1257,
+}
+
+
+def code_page(lang: int) -> int:
+    primary, sub = lang & 0x3FF, lang >> 10
+    if primary == 0x04:
+        return 950 if sub == 1 else 936
+    if primary not in ANSI_CODE_PAGES:
+        raise ValueError(f"no ANSI code page known for language {lang:#06x}")
+    return ANSI_CODE_PAGES[primary]
+
+
+def language_statement(lang: int) -> str:
+    if lang == LANG_EN_US:
+        return "LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US"
+    return f"LANGUAGE 0x{lang & 0x3FF:X}, 0x{lang >> 10:X}"
+
 
 # Media files ----------------------------------------------------------------
 
@@ -124,7 +149,7 @@ def extract_assets(exe: Path, out_dir: Path) -> list[Path]:
 # Resource script --------------------------------------------------------------
 
 
-def rc_string(s: str) -> str:
+def rc_string(s: str, cp: int = 1252) -> str:
     out = []
     for ch in s:
         c = ord(ch)
@@ -138,10 +163,12 @@ def rc_string(s: str) -> str:
             out.append("\\n")
         elif 0x20 <= c < 0x7F:
             out.append(ch)
-        elif c < 0x100:
-            out.append(f"\\{c:03o}")
         else:
-            raise ValueError(f"no rc escape for U+{c:04X} in {s!r}")
+            try:
+                raw = ch.encode(f"cp{cp}")
+            except UnicodeEncodeError:
+                raise ValueError(f"U+{c:04X} in {s!r} is not in code page {cp}") from None
+            out.extend(f"\\{b:03o}" for b in raw)
     return '"' + "".join(out) + '"'
 
 
@@ -213,11 +240,11 @@ def style_delta(style: int, default: int) -> str:
     return " | ".join(parts)
 
 
-def control_line(cls: Key, text: Key, cid: int, style: int, ex: int, rect: tuple) -> str:
+def control_line(cls: Key, text: Key, cid: int, style: int, ex: int, rect: tuple, cp: int) -> str:
     x, y, cx, cy = rect
     id_s = "-1" if cid == 0xFFFF else str(cid)
     geom = f"{x}, {y}, {cx}, {cy}"
-    text_s = str(text) if isinstance(text, int) else rc_string(text)
+    text_s = str(text) if isinstance(text, int) else rc_string(text, cp)
     if isinstance(cls, int):
         for kw, ordinal, kind, mask, ws in CONTROL_KEYWORDS:
             if ordinal != cls or style & mask != kind or style & WS_CHILD_VISIBLE == 0:
@@ -229,15 +256,15 @@ def control_line(cls: Key, text: Key, cid: int, style: int, ex: int, rect: tuple
             if ex:
                 tail += f", 0x{ex:X}"
             return f"    {kw:<16}{text_s}, {id_s}, {geom}{tail}"
-        cls_s = rc_string(CLASS_ORDINALS[cls])
+        cls_s = rc_string(CLASS_ORDINALS[cls], cp)
     else:
-        cls_s = rc_string(cls)
+        cls_s = rc_string(cls, cp)
     delta = style_delta(style, WS_CHILD_VISIBLE) or "0"
     tail = f", 0x{ex:X}" if ex else ""
     return f"    {'CONTROL':<16}{text_s}, {id_s}, {cls_s}, {delta}, {geom}{tail}"
 
 
-def dialog_rc(r: Resource) -> list[str]:
+def dialog_rc(r: Resource, cp: int) -> list[str]:
     b = r.data
     style, ex, n, x, y, cx, cy = struct.unpack_from("<IIHhhhh", b, 0)
     if struct.unpack_from("<HH", b, 0) == (1, 0xFFFF):
@@ -260,13 +287,13 @@ def dialog_rc(r: Resource) -> list[str]:
     if ex:
         lines.append(f"EXSTYLE 0x{ex:X}")
     if title:
-        lines.append(f"CAPTION {rc_string(title)}")
+        lines.append(f"CAPTION {rc_string(title, cp)}")
     if menu:
         lines.append(f"MENU {menu}")
     if cls:
-        lines.append(f"CLASS {rc_string(cls) if isinstance(cls, str) else cls}")
+        lines.append(f"CLASS {rc_string(cls, cp) if isinstance(cls, str) else cls}")
     if font:
-        lines.append(f"FONT {font[0]}, {rc_string(font[1])}")
+        lines.append(f"FONT {font[0]}, {rc_string(font[1], cp)}")
     lines.append("BEGIN")
     for _ in range(n):
         p = (p + 3) & ~3
@@ -278,7 +305,7 @@ def dialog_rc(r: Resource) -> list[str]:
         p += 2
         if extra:
             raise ValueError(f"dialog {r.name}: control creation data is not handled")
-        lines.append(control_line(c, t, cid, s, e, (x, y, cx, cy)))
+        lines.append(control_line(c, t, cid, s, e, (x, y, cx, cy), cp))
     lines.append("END")
     return lines
 
@@ -287,7 +314,7 @@ MENU_FLAGS = [("GRAYED", 0x1), ("INACTIVE", 0x2), ("CHECKED", 0x8),
               ("MENUBARBREAK", 0x20), ("MENUBREAK", 0x40), ("HELP", 0x4000)]
 
 
-def menu_rc(r: Resource) -> list[str]:
+def menu_rc(r: Resource, cp: int) -> list[str]:
     b = r.data
     version, hdr = struct.unpack_from("<HH", b, 0)
     if version != 0:
@@ -306,14 +333,14 @@ def menu_rc(r: Resource) -> list[str]:
             text, p = sz_or_ord(b, p)
             opts = "".join(f", {n}" for n, bit in MENU_FLAGS if flags & bit)
             if flags & 0x10:
-                lines.append(f"{indent}POPUP {rc_string(text)}{opts}")
+                lines.append(f"{indent}POPUP {rc_string(text, cp)}{opts}")
                 lines.append(f"{indent}BEGIN")
                 p = level(p, indent + "    ")
                 lines.append(f"{indent}END")
             elif flags & ~0x80 == 0 and mid == 0 and text == "":
                 lines.append(f"{indent}MENUITEM SEPARATOR")
             else:
-                lines.append(f"{indent}MENUITEM {rc_string(text)}, {mid}{opts}")
+                lines.append(f"{indent}MENUITEM {rc_string(text, cp)}, {mid}{opts}")
             if flags & 0x80:
                 return p
 
@@ -322,7 +349,7 @@ def menu_rc(r: Resource) -> list[str]:
     return lines
 
 
-def accel_rc(r: Resource) -> list[str]:
+def accel_rc(r: Resource, cp: int) -> list[str]:
     lines = [f"{r.name} ACCELERATORS", "BEGIN"]
     for p in range(0, len(r.data), 8):
         fvirt, key, cmd, _ = struct.unpack_from("<HHHH", r.data, p)
@@ -334,7 +361,7 @@ def accel_rc(r: Resource) -> list[str]:
             else:
                 key_s = f"0x{key:X}"
         else:
-            key_s = f'"^{chr(key + 0x40)}"' if key < 0x20 else rc_string(chr(key))
+            key_s = f'"^{chr(key + 0x40)}"' if key < 0x20 else rc_string(chr(key), cp)
         opts = [n for n, bit in (("VIRTKEY", 0x1), ("NOINVERT", 0x2), ("SHIFT", 0x4),
                                  ("CONTROL", 0x8), ("ALT", 0x10)) if fvirt & bit]
         lines.append(f"    {key_s + ',':<8}{cmd}, {', '.join(opts)}")
@@ -344,7 +371,7 @@ def accel_rc(r: Resource) -> list[str]:
     return lines
 
 
-def string_rc(blocks: list[Resource]) -> list[str]:
+def string_rc(blocks: list[Resource], cp: int) -> list[str]:
     lines = ["STRINGTABLE", "BEGIN"]
     for r in sorted(blocks, key=lambda r: r.name):
         p = 0
@@ -353,13 +380,13 @@ def string_rc(blocks: list[Resource]) -> list[str]:
             p += 2
             if n:
                 text = r.data[p : p + 2 * n].decode("utf-16-le")
-                lines.append(f"    {(int(r.name) - 1) * 16 + i:<6}{rc_string(text)}")
+                lines.append(f"    {(int(r.name) - 1) * 16 + i:<6}{rc_string(text, cp)}")
             p += 2 * n
     lines.append("END")
     return lines
 
 
-def version_rc(r: Resource) -> list[str]:
+def version_rc(r: Resource, cp: int) -> list[str]:
     b = r.data
 
     def node(p: int):
@@ -399,17 +426,17 @@ def version_rc(r: Resource) -> list[str]:
     def emit(n, indent):
         key, vtype, value, kids = n
         if kids or (vtype == 1 and not value):
-            lines.append(f"{indent}BLOCK {rc_string(key)}")
+            lines.append(f"{indent}BLOCK {rc_string(key, cp)}")
             lines.append(f"{indent}BEGIN")
             for k in kids:
                 emit(k, indent + "    ")
             lines.append(f"{indent}END")
         elif vtype == 1:
             text = value.decode("utf-16-le").rstrip("\0")
-            lines.append(f"{indent}VALUE {rc_string(key)}, {rc_string(text)}")
+            lines.append(f"{indent}VALUE {rc_string(key, cp)}, {rc_string(text, cp)}")
         else:
             words = struct.unpack_from(f"<{len(value) // 2}H", value)
-            lines.append(f"{indent}VALUE {rc_string(key)}, " + ", ".join(f"0x{w:X}" for w in words))
+            lines.append(f"{indent}VALUE {rc_string(key, cp)}, " + ", ".join(f"0x{w:X}" for w in words))
 
     for k in kids:
         emit(k, "    ")
@@ -419,22 +446,25 @@ def version_rc(r: Resource) -> list[str]:
 
 def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path | None = None) -> str:
     """Resource script whose rc output lays the data out in the original order."""
-    if any(r.lang != LANG_EN_US for r in rs.resources):
-        raise ValueError("only en-US resources are handled")
+    langs = rs.languages()
+    if len(langs) != 1:
+        raise ValueError(f"resources in more than one language: {sorted(hex(l) for l in langs)}")
+    lang = langs.pop()
+    cp = code_page(lang)
     src = orig or Path("orig/spider.exe")
     include = assets or Path("build/XPSP1/spider/assets")
     out = [
-        f"// Decompiled from {src} by tools/extract_assets.py --rc.",
+        f"// Decompiled from {src.as_posix()} by tools/extract_assets.py --rc.",
         "// rc writes resource data in statement order (STRINGTABLE always last), and",
         "// the linker keeps that order in .rsrc, so the order below is part of the match.",
         "// Media files are extracted from the original at configure time and found",
-        f"// through /i {include}.",
+        f"// through /i {include.as_posix()}.",
         "",
         "#include <winresrc.h>",
-        "// \\251 and \\256 are CP1252 bytes. Pin the page so a UTF-8 host still matches.",
-        "#pragma code_page(1252)",
+        f"// Octal escapes are code page {cp} bytes. Pin the page so a UTF-8 host reads them the same way.",
+        f"#pragma code_page({cp})",
         "",
-        "LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US",
+        language_statement(lang),
         "",
     ]
     strings: list[Resource] = []
@@ -448,13 +478,13 @@ def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path 
         if r.type in MEDIA_TYPES:
             block = [f'{r.name} {MEDIA_TYPES[r.type][0]} "{media_path(r)}"']
         elif r.type == RT_DIALOG:
-            block = dialog_rc(r)
+            block = dialog_rc(r, cp)
         elif r.type == RT_MENU:
-            block = menu_rc(r)
+            block = menu_rc(r, cp)
         elif r.type == RT_ACCELERATOR:
-            block = accel_rc(r)
+            block = accel_rc(r, cp)
         elif r.type == RT_VERSION:
-            block = version_rc(r)
+            block = version_rc(r, cp)
         else:
             raise ValueError(f"no rc form for {r.label()}")
         if prev_type is not None and not (len(block) == 1 and r.type == prev_type):
@@ -463,7 +493,7 @@ def resource_script(rs: ResourceSection, orig: Path | None = None, assets: Path 
         prev_type = r.type
     if strings:
         out.append("")
-        out += string_rc(strings)
+        out += string_rc(strings, cp)
     return "\n".join(out) + "\n"
 
 

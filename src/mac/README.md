@@ -6,21 +6,20 @@ Saved games go to `~/Library/Application Support/Spider/spider.sav`, in the same
 
 ## Build
 
-Install the tools, then point CMake at `src/mac`:
+Install the tools, then use the repository's build script:
 
 ```sh
 brew install cmake sdl3 ffmpeg
 # Xcode supplies clang and iconutil.
 
-# English XP SP1 spider.exe (5.1.2600.1106). Not committed.
+# A spider.exe to take media from. Not committed.
 cp /path/to/spider.exe orig/spider.exe
 
-cmake -S src/mac -B build/mac
-cmake --build build/mac
+./build.sh spider_mac
 open build/mac/Spider.app
 ```
 
-The build extracts bitmaps, sounds, and icon 103 from `orig/spider.exe` into the app bundle. Those files are copyrighted, so they are not stored in git. Override the source exe with `-DSPIDER_EXE=/path/to/spider.exe` if it does not live at `orig/spider.exe`.
+The build extracts bitmaps, sounds, and icon 103 from `orig/spider.exe` into the app bundle. Those files are copyrighted, so they are not stored in git. The port does not need the exact XP SP1 build. Take the exe from another directory with `./build.sh spider_mac --orig orig/XPSP3`. `./build.sh clean spider_mac` deletes `build/mac`.
 
 `ffmpeg` and `iconutil` are only used to turn icon 103 into `Spider.icns`. Without them the app still builds, with the default icon.
 
@@ -29,8 +28,7 @@ SDL3 is copied into `Spider.app/Contents/Frameworks` and the executable is rewri
 Headless rule tests, with no window and no assets:
 
 ```sh
-cmake --build build/mac --target spider_test
-ctest --test-dir build/mac
+./build.sh spider_mac_test
 ```
 
 ## Controls

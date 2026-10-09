@@ -71,6 +71,8 @@ class ProjectConfig:
         self.module_objects: Dict[str, Dict[str, Object]] = {}
         self.module_units: Dict[str, Dict[str, Dict[str, Any]]] = {}
         self.module_assets: Dict[str, List[Path]] = {}
+        # Arguments ninja passes back to configure.py when it regenerates.
+        self.configure_args: Optional[List[str]] = None
 
     def out_path(self) -> Path:
         return self.build_dir / self.version
@@ -180,7 +182,8 @@ def generate_build(config: ProjectConfig) -> None:
     n = ninja_syntax.Writer(out)
     n.variable("ninja_required_version", "1.3")
     n.variable("python", python)
-    n.variable("configure_args", " ".join(sys.argv[1:]))
+    configure_args = config.configure_args if config.configure_args is not None else sys.argv[1:]
+    n.variable("configure_args", " ".join(configure_args))
     n.newline()
 
     n.comment("Download pinned tools")
@@ -296,6 +299,14 @@ def generate_build(config: ProjectConfig) -> None:
     )
     n.newline()
 
+    n.comment("Targets that need gold, for a module configured from another build")
+    n.rule(
+        name="needs_gold",
+        command='$python -c "import sys; sys.exit(sys.argv[1])" "$message"',
+        description="$out needs gold",
+    )
+    n.newline()
+
     all_source: List[Path] = []
     missing_source: List[str] = []
     default_outputs: List[Path] = []
@@ -317,25 +328,34 @@ def generate_build(config: ProjectConfig) -> None:
         assets = config.module_assets.get(module.name, [])
         source_objs: List[Path] = []
 
-        n.comment(f"{module.name} ({module.orig})")
-        n.build(
-            outputs=module.build_config,
-            rule="split",
-            inputs=module.config_yml,
-            implicit=[
-                dtk,
-                module.config_yml,
-                module.splits,
-                module.symbols,
-                Path("tools") / "fix_bss.py",
-                *([Path("tools") / "split_module.py"] if is_windows() else []),
-            ],
-            variables={"out_dir": module.build_dir, "splits": module.splits},
-        )
-        configure_implicit.append(module.build_config)
+        source = module.resource_binary
+        if module.matching:
+            n.comment(f"{module.name} ({source.as_posix()})")
+        else:
+            n.comment(
+                f"{module.name}: resources from {source.as_posix()}, which is not gold. "
+                "No split, report, or image check."
+            )
+        if module.matching:
+            n.build(
+                outputs=module.build_config,
+                rule="split",
+                inputs=module.split_yml,
+                implicit=[
+                    dtk,
+                    module.config_yml,
+                    module.splits,
+                    module.symbols,
+                    Path("tools") / "fix_bss.py",
+                    *([Path("tools") / "split_module.py"] if is_windows() else []),
+                ],
+                variables={"out_dir": module.build_dir, "splits": module.splits},
+            )
+            configure_implicit.append(module.build_config)
         configure_implicit.append(module.config_yml)
         configure_implicit.append(module.units_json)
-        configure_implicit.append(module.orig)
+        if source.is_file():
+            configure_implicit.append(source)
         n.newline()
 
         for obj in objects.values():
@@ -364,11 +384,11 @@ def generate_build(config: ProjectConfig) -> None:
             n.newline()
 
         extra_objs: List[Path] = []
-        if module.res_script.is_file():
+        if module.resource_script.is_file():
             n.build(
                 outputs=module.res_path,
                 rule="rc",
-                inputs=module.res_script,
+                inputs=module.resource_script,
                 implicit=[launcher, *assets],
                 variables={"assets": module.assets_dir},
             )
@@ -399,12 +419,22 @@ def generate_build(config: ProjectConfig) -> None:
         default_outputs.append(module.output)
         n.newline()
 
+        if not module.matching:
+            message = (
+                f"{module.name} was configured from {source.as_posix()}, not gold. "
+                f"Put gold at {module.orig.as_posix()} and build with --orig orig."
+            )
+            for target in (f"check_{module.name}", f"report_{module.name}"):
+                n.build(outputs=target, rule="needs_gold", variables={"message": message})
+            n.newline()
+            continue
+
         n.build(
             outputs=f"check_{module.name}",
             rule="imagecheck",
             inputs=module.output,
-            implicit=[Path("tools") / "cmp_image.py", module.orig],
-            variables={"gold": module.orig},
+            implicit=[Path("tools") / "cmp_image.py", source],
+            variables={"gold": source},
         )
         check_inputs.append(Path(f"check_{module.name}"))
         n.build(
@@ -434,7 +464,7 @@ def generate_build(config: ProjectConfig) -> None:
         description="RUN configure.py",
     )
     n.build(
-        outputs=["build.ninja", "objdiff.json", *(m.objdiff_json for m in config.modules)],
+        outputs=["build.ninja", "objdiff.json", *(m.objdiff_json for m in config.modules if m.matching)],
         rule="configure",
         implicit=configure_implicit,
     )
@@ -451,7 +481,7 @@ def generate_build(config: ProjectConfig) -> None:
             "you install VC7.0 13.00.9178 (see orig/README.md). "
             "Use: ninja tools && ninja  # split only"
         )
-        n.default([mod.build_config for mod in config.modules] + ["tools"])
+        n.default([mod.build_config for mod in config.modules if mod.matching] + ["tools"])
     else:
         print(f"Using compiler at {cl_path}")
         n.default(["all_source", *default_outputs])
@@ -474,6 +504,8 @@ def generate_objdiff_config(config: ProjectConfig, has_compiler: bool = False) -
     module_units: Dict[str, List[Dict[str, Any]]] = {}
 
     for module in config.modules:
+        if not module.matching:
+            continue
         first_unit = len(units)
         objects = config.module_objects.get(module.name, {})
         info = config.module_units.get(module.name, {})
@@ -558,6 +590,8 @@ def generate_objdiff_config(config: ProjectConfig, has_compiler: bool = False) -
     # Report-only projects: objdiff resolves unit paths against the project
     # directory, so each module's copy is rebased onto its build directory.
     for module in config.modules:
+        if not module.matching:
+            continue
         base = module.build_dir
 
         def rebase(path: str) -> str:

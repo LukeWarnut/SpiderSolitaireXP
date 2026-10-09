@@ -59,7 +59,10 @@ class ResourceSection:
         nsec = struct.unpack_from("<H", d, pe + 6)[0]
         optsz = struct.unpack_from("<H", d, pe + 20)[0]
         opt = pe + 24
-        self.dir_rva, self.dir_size = struct.unpack_from("<II", d, opt + 96 + 2 * 8)
+        # PE32+ (x64) widens ImageBase and the stack/heap sizes, moving the
+        # data directories 16 bytes further in.
+        dirs = opt + (112 if struct.unpack_from("<H", d, opt)[0] == 0x20B else 96)
+        self.dir_rva, self.dir_size = struct.unpack_from("<II", d, dirs + 2 * 8)
         for i in range(nsec):
             o = opt + optsz + 40 * i
             vs, va, rs, rp = struct.unpack_from("<IIII", d, o + 8)
@@ -102,6 +105,18 @@ class ResourceSection:
 
     def of_type(self, type_: Key) -> list[Resource]:
         return [r for r in self.resources if r.type == type_]
+
+    def file_version(self) -> str | None:
+        """FILEVERSION from VS_FIXEDFILEINFO, e.g. "5.1.2600.1106"."""
+        for r in self.of_type(RT_VERSION):
+            p = r.data.find(b"\xbd\x04\xef\xfe")
+            if p >= 0:
+                ms, ls = struct.unpack_from("<II", r.data, p + 8)
+                return f"{ms >> 16}.{ms & 0xFFFF}.{ls >> 16}.{ls & 0xFFFF}"
+        return None
+
+    def languages(self) -> set[int]:
+        return {r.lang for r in self.resources}
 
     def normalized(self) -> bytes:
         """Section bytes with each data-entry RVA made section-relative."""

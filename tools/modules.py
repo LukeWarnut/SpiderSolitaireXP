@@ -1,6 +1,8 @@
 """Version-first matching modules (spider.exe, cards.dll)."""
 from __future__ import annotations
 
+import hashlib
+import re
 import struct
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,10 +39,38 @@ class Module:
     # `lib /DEF` built first, then the resource object, then the code objects.
     res_first: bool = False
     progress_category: Optional[str] = None
+    # The binary configure.py took resources and assets from. When it is not
+    # gold (matching False), the build uses its resources and cannot split,
+    # report, or check against gold.
+    source: Optional[Path] = None
+    matching: bool = True
 
     @property
     def config_yml(self) -> Path:
         return self.config_dir / "config.yml"
+
+    @property
+    def gold_sha1(self) -> Optional[str]:
+        if not self.config_yml.is_file():
+            return None
+        m = re.search(r"(?m)^hash:\s*([0-9a-fA-F]{40})\s*$", self.config_yml.read_text(encoding="utf-8"))
+        return m.group(1).lower() if m else None
+
+    @property
+    def resource_binary(self) -> Path:
+        return self.source or self.orig
+
+    @property
+    def resource_script(self) -> Path:
+        """src/<module>.rc for gold; otherwise a script decompiled from the source binary."""
+        return self.res_script if self.matching else self.build_dir / f"{self.name}.rc"
+
+    @property
+    def split_yml(self) -> Path:
+        """dtk config. A copy pointing at the source binary when gold lives outside orig/."""
+        if self.source is None or self.source == self.orig:
+            return self.config_yml
+        return self.build_dir / "split.yml"
 
     @property
     def splits(self) -> Path:
@@ -252,6 +282,10 @@ def infer_module(path: Path, version: str = "XPSP1", build_dir: Path = Path("bui
         if any(m in text for m in markers):
             return mod
     return spider_module(version, build_dir)
+
+
+def file_sha1(path: Path) -> str:
+    return hashlib.sha1(path.read_bytes()).hexdigest()
 
 
 def gold_bytes(mod: Module, addr: int, size: int) -> bytes:

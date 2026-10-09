@@ -8,11 +8,11 @@ Attempted byte-matching decompilation of English **Windows XP SP1** `spider.exe`
 
 [`src/mac`](src/mac/README.md) is a playable 64-bit port. It keeps this decompilation's rules, scoring, undo, and save format, and replaces the Win32/GDI shell with an SDL3 window, a Metal renderer, and AppKit menus and dialogs. It does not compile the matching sources and does not try to match the original instruction bytes.
 
-Build instructions are in [src/mac/README.md](src/mac/README.md).
+Build it with `./build.sh spider_mac` (see [Building](#building)). Its dependencies and controls are in [src/mac/README.md](src/mac/README.md).
 
 ## Status
 
-Regenerate the numbers with `ninja report && python3 configure.py progress`. "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
+Regenerate the numbers with `./build.sh progress` (`.\build.ps1 progress` on Windows). "Exact" means objdiff reports 100% for the function and `cmp_reloc` finds no difference outside relocations. Bytes are counted only for exactly matching functions.
 
 | | `spider.exe` | `cards.dll` |
 |---|---|---|
@@ -20,7 +20,7 @@ Regenerate the numbers with `ninja report && python3 configure.py progress`. "Ex
 | Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,975 / 1,975 in `cards.c` (100%) |
 | Units complete | 283 / 293 | 1 / 1 (`cards.c` is the only source unit) |
 | `.rsrc` (`cmp_rsrc`) | match (90 resources) | match (75 resources) |
-| Whole image (`ninja check_<module>`) | fails: translation-unit structure | **`IMAGE MATCH`** |
+| Whole image (`build.sh check_<module>`) | fails: translation-unit structure | **`IMAGE MATCH`** |
 
 ### spider.exe
 
@@ -48,7 +48,7 @@ The `.bss` (0x100 bytes of globals) also matches, so `cards.c` is complete. The 
 
 ### Whole-image check
 
-`ninja check_cards` prints `IMAGE MATCH (0x57e00 bytes)`. The two files are the same size, with the same section table, and `.data`, `.rsrc`, and `.reloc` are identical on disk. The check is not a raw file compare. `cmp_image.py` ignores these link-time and `bind.exe` differences, which are still present:
+`./build.sh check_cards` prints `IMAGE MATCH (0x57e00 bytes)`. The two files are the same size, with the same section table, and `.data`, `.rsrc`, and `.reloc` are identical on disk. The check is not a raw file compare. `cmp_image.py` ignores these link-time and `bind.exe` differences, which are still present:
 
 - The PE timestamp, the optional-header checksum, and the export-directory timestamp.
 - The debug-directory timestamp, and the signature and age inside the `NB10` CodeView record. Both records name `cards.pdb`.
@@ -85,67 +85,89 @@ SP3 is a different compile. Matching SP1 will not produce an SP3-identical exe.
 
 Python 3, [ninja](https://ninja-build.org/), a **VC7.0 `cl.exe` 13.00.9178** tree (XP DDK / XP build-lab compiler, not committed; see [orig/README.md](orig/README.md)), and the original `orig/spider.exe` and `orig/cards.dll`.
 
-`configure.py` downloads a host build of:
+The build downloads a host build of:
 
 - `dtk` v0.0.29 from [openblack/decomp-toolkit](https://github.com/openblack/decomp-toolkit) (`coff_prototype`, PE split)
 - `objdiff-cli` v3.8.2 from [encounter/objdiff](https://github.com/encounter/objdiff)
 
 ### macOS
 
-- Ninja: `brew install ninja`
+- `brew install python ninja`
 - [Wine](https://wiki.winehq.org/MacOS) 9+ — only Wine 11.18 tested. `tools/wine_msvc.sh` runs `cl.exe`, `link.exe`, `lib.exe`, `rc.exe`, and `cvtres.exe`.
+- For `spider_mac` only: `brew install cmake sdl3 ffmpeg`, plus Xcode (see [src/mac/README.md](src/mac/README.md)).
 
 ### Windows
 
-- Ninja on `PATH` (`winget install Ninja-build.Ninja`, or `ninja-win.zip` from the [Ninja releases](https://github.com/ninja-build/ninja/releases)).
-- `tools/msvc.py` runs `cl.exe`, `link.exe`, `lib.exe`, `rc.exe`, and `cvtres.exe` from `orig/toolchain`. It sets `INCLUDE`, `LIB`, and `PATH` from that tree, including when a Visual Studio developer prompt has already set them.
+- Python 3.8+ (`winget install Python.Python.3.12`) and Ninja on `PATH` (`winget install Ninja-build.Ninja`).
+- No Wine. `tools/msvc.py` runs `cl.exe`, `link.exe`, `lib.exe`, `rc.exe`, and `cvtres.exe` from `orig/toolchain`, and sets `INCLUDE`, `LIB`, and `PATH` from that tree even inside a Visual Studio developer prompt.
 - Spider links one object per function. The link step writes that list to a response file so it fits on the `cmd.exe` command line (8191 characters). Object order is unchanged.
-- Run the commands below with `python` instead of `python3`.
 
-## Setup
+## Building
 
-1. Copy the SP1 exe and English `cards.dll` into `orig/` if they are not already there.
-2. Install the 13.00.9178 toolchain under `orig/toolchain/` (see `orig/README.md`).
-3. Check the compiler:
-
-```sh
-python3 tools/check_compiler.py
-```
-
-Retail VS .NET 2002 `13.00.9466` is rejected until a canary object matches (`--allow-unproven`). VC7.1 `13.10.4035` (SP3) is always rejected.
-
-4. Configure and split:
+1. Copy the SP1 `spider.exe` and English `cards.dll` into `orig/` (see [orig/README.md](orig/README.md)). Without those exact builds, see [Building from another Windows build](#building-from-another-windows-build).
+2. Install the 13.00.9178 toolchain under `orig/toolchain/`. Retail VS .NET 2002 `13.00.9466` is rejected until a canary object matches (`python3 tools/check_compiler.py --allow-unproven`). VC7.1 `13.10.4035` (SP3) is always rejected.
+3. Run the build script from the repository root:
 
 ```sh
-python3 configure.py
-ninja
+./build.sh          # macOS / Linux
+.\build.ps1         # Windows PowerShell
 ```
 
-The first `ninja` downloads dtk, splits `spider.exe` into expected COFF objects, then re-runs `configure.py`. After the toolchain is in place:
+With no arguments it builds `spider` and `cards`. On the first run it checks the compiler, runs `configure.py`, downloads dtk, splits both originals into expected COFF objects, compiles, and links. Later runs rebuild only what changed.
 
-```sh
-ninja all_source          # compile every module's sources with cl.exe
-ninja spider              # link build/XPSP1/spider/spider.exe
-ninja cards               # link build/XPSP1/cards/cards.dll
-ninja report              # build/XPSP1/{spider,cards}/report.json
-python3 configure.py progress
-```
+If PowerShell refuses to run the script, allow local scripts once with `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, or run `powershell -ExecutionPolicy Bypass -File .\build.ps1`.
 
-Each module is measured and checked on its own:
+Name one or more targets to build only those:
 
-| Target | What it does |
+| Argument | What it does |
 |--------|--------------|
-| `ninja report_spider` / `ninja report_cards` | objdiff report for that module only, from `build/XPSP1/<module>/objdiff.json` |
-| `ninja check_spider` / `ninja check_cards` | Byte-compares the rebuilt image with `orig/<binary>` (`tools/cmp_image.py`) |
-| `ninja report` / `ninja check` | Both modules |
+| *(none)* | `spider` and `cards` |
+| `spider` | Links `build/XPSP1/spider/spider.exe` |
+| `cards` | Links `build/XPSP1/cards/cards.dll` |
+| `spider_mac` | macOS only: builds `build/mac/Spider.app` |
+| `spider_mac_test` | macOS only: builds and runs the Mac port's headless rule tests |
+| `check_spider` / `check_cards` / `check` | Byte-compares the rebuilt image with `orig/<binary>` (`tools/cmp_image.py`) |
+| `report_spider` / `report_cards` / `report` | objdiff report in `build/XPSP1/<module>/report.json` |
+| `progress` | `report`, then prints the progress summary |
+| `all_source` | Compiles every source file without linking |
+| `configure` | Re-runs `configure.py` |
+| `clean` | Deletes `build/`, `build.ninja`, and the other generated files. Nothing is built |
+| `clean spider` / `clean cards` / `clean spider_mac` | Deletes only that target's build directory |
+
+Any other argument that is not an option is passed to ninja as a target. For example, `./build.sh build/XPSP1/spider/src/fn_01007836.obj` compiles one unit.
+
+Arguments that start with `-` go to `configure.py`, for example `--orig DIR` and `--allow-nonmatching` / `-y`. Options are remembered: later runs without options reuse them. `clean` with no target forgets them.
 
 Both gold images were processed by `bind.exe`, so a whole-file SHA-1 can never match. `cmp_image.py` normalizes both sides first (IAT restored from the import name table, bind timestamps and the bound-import directory zeroed, checksum and link/debug timestamps zeroed) and then requires every other byte to match. On failure it names the differing header fields and the first differing addresses per section. The root `objdiff.json` still lists every module for the GUI.
+
+### Building from another Windows build
+
+Without gold, the decompiled code can still be built from another copy of `spider.exe` or `cards.dll`, such as another service pack, a localized release, or the x64 edition. The build then uses that copy's resources and media in place of gold's: menus, dialogs, strings, version info, bitmaps, icons, sounds, and the manifest. The game code always comes from `src/`.
+
+Put the binary at `orig/spider.exe` / `orig/cards.dll`, or point `--orig` at a directory that holds it. A binary that `--orig` does not hold is taken from `orig/`.
+
+```sh
+./build.sh --orig orig/XPSP3          # .\build.ps1 --orig orig\XPSP3 on Windows
+```
+
+`configure.py` compares each binary's SHA-1 with the `hash:` in `config/XPSP1/<module>/config.yml`. If they differ, it prints the binary's file version and resource language next to both hashes, then asks `Continue? [y/N]`. Answering anything other than `y` stops without writing anything. Pass `--allow-nonmatching` (`-y`) to skip the question. After a `y`, the flag is saved in `build.ninja`, so later builds do not ask again. To go back to gold, build once with `--orig orig`, or run `clean`.
+
+`./build.sh spider_mac` takes `spider.exe` from the `--orig` directory in the same way.
+
+For a module whose binary is not gold:
+
+- `configure.py` decompiles that binary's resources into `build/XPSP1/<module>/<module>.rc` and compiles it instead of `src/<module>/<module>.rc`. The script carries the binary's `LANGUAGE` and pins its ANSI code page (for example 1254 for Turkish).
+- There is no split, objdiff unit, or report. The `check_<module>` and `report_<module>` targets fail with a message saying gold is needed, and `check` / `report` cover only the gold modules.
+
+The rebuilt `.rsrc` is byte-identical to the source binary's for the English builds in `orig/`, including both x64 binaries. Localized releases rebuild with the same languages and text. Their originals were produced by a localization tool, so a few resources keep extra trailing padding and the directory version that `rc` does not write.
+
+Gold found outside `orig/` with the right hash still counts as gold. `configure.py` writes `build/XPSP1/<module>/split.yml` so dtk splits it from where it is.
 
 ## objdiff
 
 Download the GUI from [objdiff releases](https://github.com/encounter/objdiff/releases): `objdiff-macos-arm64` on macOS, or `objdiff-windows-x86_64.exe` on Windows.
 
-Open the app, set **Project directory** to this repository root. `objdiff.json` is generated by `configure.py` (`custom_make: ninja`, `build_base` / `build_target` on). The sidebar lists split units; renamed functions show the label from `names.txt`. Saving a `.c` / `.cpp` / `.h` rebuilds automatically.
+Build once with the build script, then open the app and set **Project directory** to this repository root. `objdiff.json` is generated by `configure.py` (`custom_make: ninja`, `build_base` / `build_target` on). The sidebar lists split units; renamed functions show the label from `names.txt`. Saving a `.c` / `.cpp` / `.h` rebuilds automatically.
 
 ## Readable names (`names.txt`)
 
@@ -156,12 +178,11 @@ MSVC encodes that string from the C++ declaration, so each renamed spider functi
 `config/XPSP1/spider/names.txt` is the objdiff sidebar label only (`fn_01007836` → `CardColumn::slot_empty`). It is not the linker symbol. After changing a declaration or this file:
 
 ```sh
-ninja all_source          # compile so the .obj has the new mangled name
-python3 configure.py      # copies that COFF symbol into symbols.txt
-ninja                     # re-split so the expected object uses the same name
+./build.sh all_source         # compile so the .obj has the new mangled name
+./build.sh configure spider   # copy that COFF symbol into symbols.txt, re-split, relink
 ```
 
-`python3 configure.py` runs `tools/sync_symbols.py` for every `fn_<address>.obj` listed in `names.txt`.
+`configure` runs `tools/sync_symbols.py` for every `fn_<address>.obj` listed in `names.txt`.
 
 ## Layout
 
@@ -170,7 +191,7 @@ ninja                     # re-split so the expected object uses the same name
 | `orig/spider.exe` | Matching target |
 | `orig/cards.dll` | Matching target (English XP RTM cards library) |
 | `orig/toolchain/` | User-supplied `cl.exe` / `link.exe` / headers / `libcmt.lib` |
-| `orig/XPSP3`, `TABLET`, `TR_RTM` | Reference binaries only |
+| `orig/XPSP2`, `XPSP3`, `TABLET`, `TR_RTM`, `DUTCH_SP1`, `XPSP1_64` | Other builds. Reference, or a resource source with `--orig` |
 | `config/XPSP1/spider/`, `config/XPSP1/cards/` | Per-module `config.yml`, `splits.txt`, `symbols.txt`, `names.txt`, `units.json` |
 | `src/mac/` | macOS port (SDL3, Metal, AppKit). See [src/mac/README.md](src/mac/README.md) |
 | `src/spider/`, `include/spider/` | Spider decompiled C / C++ (`game_api.h` holds shared declarations) |
@@ -179,11 +200,12 @@ ninja                     # re-split so the expected object uses the same name
 | `build/XPSP1/spider/assets/`, `build/XPSP1/cards/assets/` | Media extracted from each original by `configure.py` |
 | `tools/msvc.py` | Runs `cl` / `link` / `lib` / `rc` / `cvtres`. Native on Windows; Wine via `wine_msvc.sh` on macOS and Linux |
 | `tools/wine_msvc.sh` | Wine wrapper (project `WINEPREFIX`, `z:` path rewrite) |
-| `configure.py` | Writes `build.ninja` + `objdiff.json` |
+| `build.sh`, `build.ps1` | The build entry points (macOS / Linux, Windows) |
+| `configure.py` | Writes `build.ninja` + `objdiff.json`. The build scripts run it |
 
 ## Resources
 
-`python3 configure.py` writes every media resource of each original into `build/XPSP1/<module>/assets/` as a normal file (`bitmaps/*.bmp`, `icons/*.ico`, `sounds/*.wav`, `manifest/1.manifest`). They are copyrighted, so they stay out of the repository. `ninja` compiles that module's `.rc` with the toolchain's `rc.exe` (`/i` the assets dir), converts it with `cvtres`, and links it. The rebuilt `.rsrc` section is byte-identical to the original's once data addresses are taken relative to the section:
+`configure.py` writes every media resource of each original into `build/XPSP1/<module>/assets/` as a normal file (`bitmaps/*.bmp`, `icons/*.ico`, `sounds/*.wav`, `manifest/1.manifest`). They are copyrighted, so they stay out of the repository. The build compiles that module's `.rc` with the toolchain's `rc.exe` (`/i` the assets dir), converts it with `cvtres`, and links it. The rebuilt `.rsrc` section is byte-identical to the original's once data addresses are taken relative to the section. The `tools/` scripts below run directly; on Windows use `python` instead of `python3`:
 
 ```sh
 python3 tools/cmp_rsrc.py orig/spider.exe build/XPSP1/spider/spider.exe   # RSRC MATCH
@@ -194,7 +216,7 @@ python3 tools/cmp_rsrc.py orig/cards.dll build/XPSP1/cards/cards.dll
 
 ## cards.dll
 
-Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12` against a `cards.exp` that `lib /DEF:src/cards/cards.def` builds from the objects. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. Like spider, its image check is `ninja check_cards`.
+Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12` against a `cards.exp` that `lib /DEF:src/cards/cards.def` builds from the objects. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. Like spider, its image check is the `check_cards` target.
 
 CRT is not decompiled: spider links gold's single-threaded `libc.lib` from the toolchain, and `tools/crt_ident.py` names each `crt_*` unit after the library symbol it matches.
 
