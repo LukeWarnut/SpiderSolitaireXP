@@ -236,6 +236,11 @@ def generate_build(config: ProjectConfig) -> None:
         description="LINK $out",
     )
     n.rule(
+        name="lib_def",
+        command=f"{wrapper} lib /nologo /MACHINE:I386 /DEF:$def /OUT:$implib $in",
+        description="LIB $out",
+    )
+    n.rule(
         name="rc",
         command=f"{wrapper} rc /i $assets /fo $out $in",
         description="RC $out",
@@ -283,6 +288,7 @@ def generate_build(config: ProjectConfig) -> None:
         units = config.module_units.get(module.name, {})
         assets = config.module_assets.get(module.name, [])
         source_objs: List[Path] = []
+        run_objs: List[Path] = []
 
         n.comment(f"{module.name} ({module.orig})")
         n.build(
@@ -323,7 +329,9 @@ def generate_build(config: ProjectConfig) -> None:
                 implicit=implicit_inputs,
                 variables={"cflags": make_flags_str(cflags)},
             )
-            if units.get(obj.name, {}).get("link", True):
+            if obj.name in module.run_only:
+                run_objs.append(obj.src_obj_path)
+            elif units.get(obj.name, {}).get("link", True):
                 source_objs.append(obj.src_obj_path)
             all_source.append(obj.src_obj_path)
             module_sources.setdefault(module.name, []).append(obj.src_obj_path)
@@ -343,12 +351,21 @@ def generate_build(config: ProjectConfig) -> None:
             n.newline()
 
         link_implicit: List[Path] = [wrapper]
+        link_objs = extra_objs + source_objs if module.res_first else source_objs + extra_objs
         if module.def_file is not None:
-            link_implicit.append(module.def_file)
+            n.build(
+                outputs=module.exp_path,
+                rule="lib_def",
+                inputs=link_objs,
+                implicit=[wrapper, module.def_file],
+                implicit_outputs=module.implib_path,
+                variables={"def": module.def_file, "implib": module.implib_path},
+            )
+            link_objs = [module.exp_path] + link_objs
         n.build(
             outputs=module.output,
             rule="link",
-            inputs=source_objs + extra_objs,
+            inputs=link_objs,
             implicit=link_implicit,
             variables={"ldflags": make_flags_str(module.ldflags)},
         )
@@ -361,12 +378,12 @@ def generate_build(config: ProjectConfig) -> None:
             run_ldflags = [
                 f"/BASE:0x{module.runnable_base:08X}" if f.startswith("/BASE:") else f
                 for f in module.ldflags
-                if not f.startswith("/MAP:")
+                if not f.startswith(("/MAP:", "/PDB", "/DEBUG"))
             ]
             n.build(
                 outputs=run_exe,
                 rule="link",
-                inputs=source_objs + extra_objs,
+                inputs=source_objs + run_objs + extra_objs,
                 implicit=wrapper,
                 variables={"ldflags": make_flags_str(run_ldflags)},
             )

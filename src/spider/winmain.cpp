@@ -2,18 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#undef WinMain
-
 /*
- * Runtime harness. Not part of any matched unit.
+ * Runtime harness. Not part of any matched unit, and linked only into the
+ * runnable image (build/XPSP1/spider/run/spider.exe), never the matching one.
  *
  * Game globals (g_board, g_hinst, ...) are defined by the matched units and
  * live in this image's .data. Only the SPIDER_SHOT comparison runs gold
- * code: the runnable link (build/XPSP1/spider/run/spider.exe, /BASE:0x00400000)
- * leaves 0x01000000 free, so spider_boot maps the original image there and
- * resolves its import table, and shot_thread copies our board into gold's
- * before calling gold paint_hdc. The matching link (/BASE:0x01000000) cannot
- * map it and skips the gold render.
+ * code: the runnable link (/BASE:0x00400000) leaves 0x01000000 free, so
+ * spider_boot maps the original image there and resolves its import table,
+ * and shot_thread copies our board into gold's before calling gold paint_hdc.
  */
 
 static unsigned char *g_gold;
@@ -166,13 +163,16 @@ static DWORD WINAPI shot_thread(void *arg)
     return 0;
 }
 
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE prev, LPSTR cmd, int show)
+/* Runs from the CRT's static initializers, after the heap is up and before the game's WinMain. */
+static int harness_init(void)
 {
     static char prefix[MAX_PATH];
 
     spider_boot();
     if (GetEnvironmentVariableA("SPIDER_SHOT", prefix, sizeof(prefix)) != 0)
         CloseHandle(CreateThread(0, 0, shot_thread, prefix, 0, 0));
-    return fn_01006CED(instance, prev, cmd, show);
+    return 0;
 }
+
+static int g_harness = harness_init();
 

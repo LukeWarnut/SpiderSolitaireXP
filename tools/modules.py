@@ -33,9 +33,14 @@ class Module:
     res_script: Path
     output_name: str
     def_file: Optional[Path] = None
+    # Link input order is recorded in the Rich header: gold links the .exp that
+    # `lib /DEF` built first, then the resource object, then the code objects.
+    res_first: bool = False
     runnable_base: Optional[int] = None
     progress_category: Optional[str] = None
     extra_sources: List[tuple] = field(default_factory=list)
+    # Objects linked into the runnable image only (the runtime harness).
+    run_only: List[str] = field(default_factory=list)
 
     @property
     def config_yml(self) -> Path:
@@ -89,6 +94,18 @@ class Module:
     def res_path(self) -> Path:
         return self.build_dir / f"{self.name}.res"
 
+    @property
+    def exp_path(self) -> Path:
+        return self.build_dir / f"{self.name}.exp"
+
+    @property
+    def implib_path(self) -> Path:
+        return self.build_dir / f"{self.name}.lib"
+
+    @property
+    def pdb_path(self) -> Path:
+        return self.build_dir / f"{self.name}.pdb"
+
 
 def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Module:
     includes = ["/I", "include/spider", *TOOLCHAIN_INCLUDES]
@@ -104,15 +121,25 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         "/INCREMENTAL:NO",
         "/OPT:REF",
         "/OPT:ICF",
-        "kernel32.lib",
-        "user32.lib",
-        "gdi32.lib",
+        "/MERGE:.rdata=.text",
+        "/FILEALIGN:0x200",
+        "/STACK:0x40000",
+        "/SECTION:.rsrc,R",
+        "/TSAWARE",
+        "/DEBUG",
+        "/DEBUGTYPE:VC6",
+        f"/PDB:{build_dir / version / 'spider' / 'spider.pdb'}",
+        "/PDBALTPATH:spider.pdb",
+        # Import descriptors follow library order.
         "advapi32.lib",
+        "kernel32.lib",
+        "gdi32.lib",
+        "user32.lib",
         "shell32.lib",
         "winmm.lib",
         "comctl32.lib",
         "htmlhelp.lib",
-        "libcmt.lib",
+        "libc.lib",
     ]
     if map_file:
         ldflags.append(f"/MAP:{build_dir / version / 'spider' / 'spider.map'}")
@@ -128,7 +155,7 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         cflags=[
             "/W3",
             "/wd4234",
-            "/MT",
+            "/ML",
             "/GR-",
             "/DUNICODE",
             "/D_UNICODE",
@@ -144,6 +171,7 @@ def spider_module(version: str, build_dir: Path, map_file: bool = False) -> Modu
         runnable_base=0x00400000,
         progress_category="game",
         extra_sources=[("winmain.c", "winmain.cpp", None)],
+        run_only=["winmain.c"],
     )
 
 
@@ -159,9 +187,17 @@ def cards_module(version: str, build_dir: Path, map_file: bool = False) -> Modul
         "/BASE:0x6FC10000",
         "/NODEFAULTLIB",
         "/ENTRY:DllMain@12",
-        "/DEF:src/cards/cards.def",
         "/RELEASE",
         "/INCREMENTAL:NO",
+        "/MERGE:.rdata=.text",
+        "/FILEALIGN:0x200",
+        "/STACK:0x40000",
+        "/SECTION:.rsrc,R",
+        "/OPT:REF",
+        "/DEBUG",
+        "/DEBUGTYPE:VC6",
+        f"/PDB:{build_dir / version / 'cards' / 'cards.pdb'}",
+        "/PDBALTPATH:cards.pdb",
         "user32.lib",
         "gdi32.lib",
     ]
@@ -192,6 +228,7 @@ def cards_module(version: str, build_dir: Path, map_file: bool = False) -> Modul
         res_script=Path("src/cards/cards.rc"),
         output_name="cards.dll",
         def_file=Path("src/cards/cards.def"),
+        res_first=True,
         progress_category="cards",
     )
 

@@ -5,7 +5,7 @@
 
 HINSTANCE g_hinst;
 
-extern "C" int __stdcall fn_01006CED(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show)
+int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show)
 {
     OSVERSIONINFOA ver;
     INITCOMMONCONTROLSEX icc;

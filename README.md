@@ -14,7 +14,7 @@ Regenerate the numbers with `ninja report && python3 configure.py progress`. "Ex
 | Code bytes in exact functions | 55,407 / 60,151 (92.1%) | 1,975 / 1,975 in `cards.c` (100%) |
 | Units complete | 283 / 293 | 1 / 1 (`cards.c` is the only source unit) |
 | `.rsrc` (`cmp_rsrc`) | match (90 resources) | match (75 resources) |
-| Whole image (`ninja check_<module>`) | fails: linker layout | fails: linker layout |
+| Whole image (`ninja check_<module>`) | fails: translation-unit structure | **`IMAGE MATCH`** |
 
 ### spider.exe
 
@@ -42,17 +42,19 @@ The `.bss` (0x100 bytes of globals) also matches, so `cards.c` is complete. The 
 
 ### Whole-image check
 
-`ninja check_spider` and `ninja check_cards` fail before they reach the code differences above, because the rebuilt images are laid out differently from gold. In both binaries:
+`ninja check_cards` prints `IMAGE MATCH (0x57e00 bytes)`: every byte of the rebuilt `cards.dll` equals gold once `cmp_image.py` has normalized bind data, the checksum, and link/debug timestamps. That took linker settings, not source changes:
 
-- gold folds `.rdata` into `.text`, and we emit a separate `.rdata`;
-- gold's `FileAlignment` is 0x200, and ours is 0x1000;
-- gold has a debug directory (CodeView record), and ours has none;
-- `AddressOfEntryPoint` and `SizeOfStackReserve` differ.
+- `/MERGE:.rdata=.text /FILEALIGN:0x200 /STACK:0x40000 /SECTION:.rsrc,R /OPT:REF`;
+- `/DEBUG /DEBUGTYPE:VC6 /PDBALTPATH:cards.pdb`: gold's debug directory holds an `NB10` (PDB 2.0) CodeView record naming just `cards.pdb`. This linker writes `RSDS` unless given the undocumented `/DEBUGTYPE:VC6`, and `/PDBALTPATH` replaces the full path;
+- the exports come from a `cards.exp` built by `lib /DEF` from the objects, linked ahead of the resource object and then the code object. That input order is recorded in the Rich header, which `cmp_image.py` compares.
 
-Every address after the first layout difference shifts, so the per-section byte counts from `cmp_image.py` aren't meaningful yet. The next step is linker options (`/MERGE:.rdata=.text`, 0x200 alignment, a debug record), not source changes. Spider has two more image-level gaps:
+Spider links with the same settings plus `/TSAWARE`, the single-threaded `libc.lib` (`/ML`; changes no game code), gold's import-library order (`advapi32`, `kernel32`, `gdi32`, `user32`, ...), and gold's `WinMain` as `_WinMain@16`. The runtime harness (`src/spider/winmain.cpp`) is now linked only into `spider_run`. The image has gold's file size, section table, imported functions and DLL order, debug record, and an identical `.rsrc`. It still fails, because gold was linked from eight C++ objects and ours from 127 (one per function unit). The object structure is visible in three ways:
 
-- Gold links the single-threaded `libc.lib`, and we link `libcmt.lib`. Our `free`, `srand` and `rand` are therefore the multithreaded versions, with a heap lock and per-thread state.
-- The nine near-miss functions change some function sizes (net −7 bytes), so later code addresses move even once the layout matches.
+- the Rich header counts C++ objects (8 versus 127), so it differs even with every function exact;
+- the linker places code, inline COMDATs, and literals in object order, so game functions sit at different addresses, and the CRT objects pulled from `libc.lib` come in a different order;
+- the import thunks within each DLL are in first-reference order, which differs too.
+
+On top of that, the nine near-miss functions still change some function sizes (net −7 bytes). A spider image match therefore needs the game rebuilt as gold's eight translation units, which `AGENTS.md` notes changed codegen in 20 of 141 functions when tried.
 
 ## Why SP1
 
@@ -169,26 +171,34 @@ python3 tools/cmp_rsrc.py orig/XPSP1/cards.dll build/XPSP1/cards/cards.dll
 
 ## cards.dll
 
-Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12 /DEF:src/cards/cards.def`. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. Like spider, its image check is `ninja check_cards`.
+Gold is one C translation unit (`src/cards/cards.c`), compiled `/O1 /TC /Zl` with no `/DUNICODE`, linked `/NODEFAULTLIB /ENTRY:DllMain@12` against a `cards.exp` that `lib /DEF:src/cards/cards.def` builds from the objects. Exports: `WEP`, `cdtAnimate`, `cdtDraw`, `cdtDrawExt`, `cdtInit`, `cdtTerm`. Like spider, its image check is `ninja check_cards`.
 
-CRT is not decompiled: once the toolchain is installed, pull matching objects from that `libcmt.lib` and list them in `configure.py` / `splits.txt`.
+CRT is not decompiled: spider links gold's single-threaded `libc.lib` from the toolchain, and `tools/crt_ident.py` names each `crt_*` unit after the library symbol it matches.
 
 ## Compiler flags (starting point)
 
 Spider:
 
 ```
-cl  /W3 /wd4234 /MT /GR- /DUNICODE /D_UNICODE /DWIN32 /D_WINDOWS /DNDEBUG /O1
+cl  /W3 /wd4234 /ML /GR- /DUNICODE /D_UNICODE /DWIN32 /D_WINDOWS /DNDEBUG /O1
 link /MACHINE:I386 /SUBSYSTEM:WINDOWS,4.0 /OSVERSION:5.1 /VERSION:5.1
      /BASE:0x01000000 /FIXED /RELEASE /INCREMENTAL:NO /OPT:REF /OPT:ICF
+     /MERGE:.rdata=.text /FILEALIGN:0x200 /STACK:0x40000 /SECTION:.rsrc,R /TSAWARE
+     /DEBUG /DEBUGTYPE:VC6 /PDB:build/XPSP1/spider/spider.pdb /PDBALTPATH:spider.pdb
+     advapi32.lib kernel32.lib gdi32.lib user32.lib shell32.lib winmm.lib
+     comctl32.lib htmlhelp.lib libc.lib
 ```
 
 cards.dll:
 
 ```
 cl  /W3 /wd4234 /TC /Zl /GR- /DWIN32 /D_WINDOWS /DNDEBUG /O1
+lib /MACHINE:I386 /DEF:src/cards/cards.def /OUT:cards.lib cards_res.obj cards.obj
 link /DLL /MACHINE:I386 /SUBSYSTEM:WINDOWS,4.0 /OSVERSION:5.1 /VERSION:5.1
-     /BASE:0x6FC10000 /NODEFAULTLIB /ENTRY:DllMain@12 /DEF:src/cards/cards.def
+     /BASE:0x6FC10000 /NODEFAULTLIB /ENTRY:DllMain@12 /RELEASE /INCREMENTAL:NO
+     /MERGE:.rdata=.text /FILEALIGN:0x200 /STACK:0x40000 /SECTION:.rsrc,R /OPT:REF
+     /DEBUG /DEBUGTYPE:VC6 /PDB:build/XPSP1/cards/cards.pdb /PDBALTPATH:cards.pdb
+     user32.lib gdi32.lib cards.exp cards_res.obj cards.obj
 ```
 
 `/O1` is locked by a 100% objdiff match on spider `fn_01007836` and by reloc-matched cards helpers (`DllMain`, `WEP`, `delete_if`, `cdtDraw`). No `/GS`, `/hotpatch`, or `/SAFESEH` (those are the SP2/SP3 / VC7.1 additions).
